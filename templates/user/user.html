@@ -157,10 +157,12 @@
 
 <script nonce="{{ csp_nonce }}">
     document.addEventListener('DOMContentLoaded', () => {
-        initStaticModalToggle(
-            'modal-editar-foto',
-            '#btn-abrir-modal-foto',
-            '.delete, #fechar-modal-foto'
+        const modal = document.getElementById('modal-editar-foto');
+        const opener = document.getElementById('btn-abrir-modal-foto');
+        if (!modal || !opener) return;
+        opener.addEventListener('click', () => modal.classList.add('is-active'));
+        modal.querySelectorAll('.delete, #fechar-modal-foto, .modal-background').forEach((el) =>
+            el.addEventListener('click', () => modal.classList.remove('is-active'))
         );
     });
 </script>
