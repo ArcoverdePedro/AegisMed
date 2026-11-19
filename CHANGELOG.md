@@ -9,12 +9,13 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 - Produto de troca de documentos: arquivos/IPFS/Pinata, versões, compartilhamento e links públicos, workspaces, lixeira, solicitações de documentos, chat, tokens, API `api/v1` e notificações.
 - Centro cirúrgico (fora do escopo das duas primeiras liberações).
 - Piloto offline de sinais vitais e Web Push; o PWA continua instalável, só online.
-- Faturamento particular da interface (botão no encontro e papel "Faturamento"); o app segue até a produção SUS.
+- Faturamento particular (app `billing`, contas em preparação, spec 008); será substituído pela produção SUS (BPA/AIH).
 - Composes alternativos: só `compose.yml`.
 
 ### Notas de atualização (simplificação)
 
-- **Faça backup antes.** `migrate` apaga as tabelas de arquivos, chat, notificações e assinaturas de push. Arquivos guardados no volume `aegis_files` ou na Pinata não são migrados: exporte o que precisar antes de atualizar.
+- **Faça backup antes.** `migrate` apaga as tabelas de arquivos, chat, notificações e assinaturas de push.
+- Antes de atualizar uma instalação que usou contas em preparação, exporte-as e rode `python manage.py migrate billing zero` na versão antiga. Arquivos guardados no volume `aegis_files` ou na Pinata não são migrados: exporte o que precisar antes de atualizar.
 - Antes de atualizar uma instalação que usou o centro cirúrgico, rode `python manage.py migrate surgery zero` na versão antiga; depois `python manage.py remove_stale_contenttypes`.
 - Variáveis `FILE_STORAGE_*`, `PINATA_*`, `CLAMAV_*`, `FILE_RETENTION_DAYS`, `WEBPUSH_*` e `EXTERNAL_*` deixam de ser usadas.
 

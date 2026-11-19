@@ -160,7 +160,6 @@ jobs:
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lis_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lab_inbox.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_ris_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_billing_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_inventory_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_hr_journeys.py
 

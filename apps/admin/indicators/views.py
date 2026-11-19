@@ -7,8 +7,6 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
-from apps.admin.billing.models import BillingItem
-from apps.admin.billing.totals import items_total
 from apps.admin.inventory.models import MaterialBalance
 from apps.clinical.adt.models import Bed, BedOccupancy
 from apps.clinical.lis.models import Specimen, SpecimenEvent
@@ -42,7 +40,6 @@ def indicators(*, days):
     )["wait"]
     specimens = Specimen.objects.filter(collected_at__gte=since)
     rejected = specimens.filter(events__kind=SpecimenEvent.Kind.REJECTED).count()
-    billed = BillingItem.objects.filter(recorded_at__gte=since)
     return [
         {
             "name": "Ocupação de leitos (agora)",
@@ -81,13 +78,6 @@ def indicators(*, days):
             ).count(),
             "unit": "lotes",
             "definition": "saldo > 0 e validade anterior a hoje — Materiais",
-        },
-        {
-            "name": "Produção lançada em contas",
-            "value": items_total(billed.filter(reverses__isnull=True))
-            - items_total(billed.filter(reverses__isnull=False)),
-            "unit": "BRL (líquido de estornos)",
-            "definition": "itens registrados na janela, em preparação (sem cobrança emitida) — Faturamento",
         },
     ]
 

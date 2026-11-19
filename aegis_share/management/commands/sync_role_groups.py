@@ -10,8 +10,6 @@ ROLE_MATRIX = {
         "scheduling.book_appointment",
         "scheduling.checkin_appointment",
         "adt.view_bed_map",
-        "billing.view_accounts",
-        "billing.open_account",
     ],
     "Médico": [
         "prescription.view_medication_request",
@@ -63,7 +61,6 @@ ROLE_MATRIX = {
         "interoperability.receive_lab_file",
     ],
     "Imagem": ["ris.view_orders"],
-    # Faturamento particular fora dos papeis: o SUS usa producao (BPA/AIH), ainda por fazer.
     "Suprimentos": [
         "inventory.view_requisitions",
         "inventory.move_stock",

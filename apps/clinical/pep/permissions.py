@@ -18,8 +18,8 @@ def is_internal_professional(user) -> bool:
 def require_module_permission(user, app_label, view_codename, capability=None):
     """Exige profissional interno com a permissao de ver o modulo (e a acao, se houver).
 
-    Ex.: require_module_permission(user, "billing", "view_accounts", "add_item")
-    exige billing.view_accounts e billing.add_item.
+    Ex.: require_module_permission(user, "lis", "view_orders", "order_test")
+    exige lis.view_orders e lis.order_test.
     """
     permissions = [f"{app_label}.{view_codename}"]
     if capability:

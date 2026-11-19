@@ -23,7 +23,6 @@ class PrivateWorkflowMiddleware:
                 reverse("interoperability:lab_inbox_list"),
                 reverse("lis:order_list").removesuffix("pedidos/"),
                 reverse("ris:order_list").removesuffix("pedidos/"),
-                reverse("billing:account_list").removesuffix("contas/"),
                 reverse("inventory:item_list"),
                 reverse("scheduling:agenda"),
                 reverse("hr:employee_list"),
