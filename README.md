@@ -186,9 +186,7 @@ No primeiro acesso, se ainda não houver administrador, `/setup/` permite criar 
 
 ## Docker Compose
 
-### 1. Django + Redis + PostgreSQL
-
-Padrão recomendado:
+Uma única stack: Django + PostgreSQL + Redis.
 
 ```bash
 docker compose up -d --build
@@ -198,52 +196,7 @@ PostgreSQL e Redis ficam somente na rede Docker. Apenas a aplicação publica po
 
 A stack atual usa PostgreSQL 18 e monta o volume em `/var/lib/postgresql`, conforme o layout das imagens oficiais 18+. **Não conecte diretamente um volume criado por PostgreSQL 17 ou anterior a uma imagem PostgreSQL 18.** Faça backup/restauração ou um procedimento de `pg_upgrade` apropriado antes de uma mudança de versão principal.
 
-### 2. Django + Redis + PostgreSQL externo
-
-```bash
-docker compose -f compose.no-postgres.yml up -d --build
-```
-
-Configure:
-
-```env
-EXTERNAL_DATABASE_URL=postgresql://usuario:senha@host:5432/aegisshare
-```
-
-### 3. Django + PostgreSQL + Redis externo ou sem Redis
-
-```bash
-docker compose -f compose.no-redis.yml up -d --build
-```
-
-Para Redis externo:
-
-```env
-EXTERNAL_REDIS_URL=redis://host:6379/0
-```
-
-Para operar sem Redis:
-
-```env
-EXTERNAL_REDIS_URL=
-```
-
-Nesse modo o entrypoint reduz `WEB_WORKERS` para `1`.
-
-### 4. Somente Django
-
-Banco externo obrigatório; Redis externo opcional:
-
-```bash
-docker compose -f compose.no-postgres-no-redis.yml up -d --build
-```
-
-```env
-EXTERNAL_DATABASE_URL=postgresql://usuario:senha@host:5432/aegisshare
-EXTERNAL_REDIS_URL=redis://redis.example:6379/0
-```
-
-`EXTERNAL_REDIS_URL` pode ficar vazio para execução com um único worker.
+Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` que redefina `DATABASE_URL`/`REDIS_URL` do serviço `aegis_share` (o Compose o aplica automaticamente). Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`.
 
 ## Inicialização do container
 

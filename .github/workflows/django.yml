@@ -121,16 +121,8 @@ jobs:
           PORT=8000
           EOF
 
-      - name: Validar os quatro arquivos Compose
-        run: |
-          docker compose -f compose.yml config --quiet
-          EXTERNAL_DATABASE_URL='postgresql://user:pass@db.example:5432/aegisshare' \
-            docker compose -f compose.no-postgres.yml config --quiet
-          EXTERNAL_REDIS_URL='redis://redis.example:6379/0' \
-            docker compose -f compose.no-redis.yml config --quiet
-          EXTERNAL_DATABASE_URL='postgresql://user:pass@db.example:5432/aegisshare' \
-          EXTERNAL_REDIS_URL='redis://redis.example:6379/0' \
-            docker compose -f compose.no-postgres-no-redis.yml config --quiet
+      - name: Validar o arquivo Compose
+        run: docker compose -f compose.yml config --quiet
 
       - name: Subir stack completa
         run: docker compose -f compose.yml up -d --build
