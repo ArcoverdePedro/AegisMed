@@ -6,6 +6,11 @@ O AegisShare reúne módulos clínicos e administrativos server-rendered: prontu
 
 > O projeto segue uma arquitetura Django monolítica e incremental, sem API REST pública (ADR 0004). Em 2026-11 foram removidos o produto original de troca de documentos (arquivos/IPFS, compartilhamento, chat, API `api/v1`), o centro cirúrgico, o faturamento particular, o piloto offline e o Web Push; o histórico continua no git.
 
+## Documentação
+
+- [Manual do usuário](docs/manual-do-usuario.md): como usar cada módulo no dia a dia.
+- [Guia de suporte técnico](docs/suporte-tecnico.md): instalação, atualização, backup, usuários e solução de problemas.
+
 ## Estado atual
 
 Os seguintes recortes estão implementados e protegidos pela CI:
