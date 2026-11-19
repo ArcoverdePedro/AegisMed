@@ -11,7 +11,6 @@ PORT="${PORT:-8000}"
 # Migrations apagam dados em algumas versoes: em producao rodam como passo explicito,
 # depois do backup (README). RUN_MIGRATIONS=true so para desenvolvimento/CI.
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-false}"
-COLLECT_STATIC="${COLLECT_STATIC:-true}"
 WEB_WORKERS="${WEB_WORKERS:-1}"
 
 if [ -z "${REDIS_URL:-}" ] && [ "$WEB_WORKERS" != "1" ]; then
@@ -48,11 +47,6 @@ elif ! python manage.py migrate --check >/dev/null; then
   echo "Ha migrations pendentes. Faca o backup e rode:"
   echo "  docker compose run --rm aegis_share python manage.py migrate"
   exit 1
-fi
-
-if [ "$COLLECT_STATIC" = "true" ]; then
-  echo "Coletando arquivos estaticos..."
-  python manage.py collectstatic --noinput
 fi
 
 echo "Iniciando AegisShare na porta ${PORT} com ${WEB_WORKERS} worker(s)..."

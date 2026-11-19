@@ -207,8 +207,7 @@ O entrypoint normal:
 
 1. aguarda o banco responder;
 2. confere se há migrations pendentes e, se houver, para com instruções (ou as aplica com `RUN_MIGRATIONS=true`, só para desenvolvimento/CI);
-3. executa `python manage.py collectstatic --noinput`;
-4. inicia Granian/ASGI como usuário sem privilégios (`aegis`, uid 10001).
+3. inicia Granian/ASGI como usuário sem privilégios (`aegis`, uid 10001).
 
 Quando um comando é fornecido explicitamente com `docker compose run aegis_share <comando>`, o entrypoint executa somente esse comando. Isso permite usar `manage.py`, scripts e rotinas administrativas sem iniciar o servidor.
 
@@ -216,7 +215,6 @@ As opções do processo web podem ser controladas por:
 
 ```env
 RUN_MIGRATIONS=false
-COLLECT_STATIC=true
 WEB_WORKERS=2
 DB_STARTUP_ATTEMPTS=30
 ```

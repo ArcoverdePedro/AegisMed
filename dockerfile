@@ -33,11 +33,11 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY . .
 
-# Usuario sem privilegios; so staticfiles (collectstatic na inicializacao) e gravavel.
-RUN chmod +x /app/commands.sh \
+# Estaticos no build: o django-simple-bulma compila o CSS dentro do proprio pacote, que o
+# usuario sem privilegios nao pode gravar. DEBUG=true so evita exigir segredos aqui.
+RUN DEBUG=true python manage.py collectstatic --noinput \
+    && chmod +x /app/commands.sh \
     && useradd --system --uid 10001 --no-create-home --home-dir /app --shell /usr/sbin/nologin aegis \
-    && mkdir -p /app/staticfiles \
-    && chown aegis:aegis /app/staticfiles \
     && rm -rf /root/.cache /tmp/*
 
 USER aegis
