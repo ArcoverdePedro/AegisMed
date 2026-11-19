@@ -1,7 +1,10 @@
-from django.test import TestCase
+import re
+
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .helpers import make_user
+from .test_security import TEST_STORAGES
 
 
 class WebSurfaceTests(TestCase):
@@ -20,3 +23,16 @@ class WebSurfaceTests(TestCase):
         self.assertEqual(ready.status_code, 200)
         self.assertTrue(ready.json()["checks"]["database"])
         self.assertTrue(ready.json()["checks"]["cache"])
+
+    @override_settings(STORAGES=TEST_STORAGES)
+    def test_csp_allows_only_inline_scripts_with_the_request_nonce(self):
+        response = self.client.get(reverse("home"))
+
+        policy = response["Content-Security-Policy"]
+        nonce = re.search(r"'nonce-([^']+)'", policy).group(1)
+        self.assertIn("script-src 'self' 'nonce-", policy)
+        self.assertIn("frame-ancestors 'none'", policy)
+        inline = re.findall(r"<script(?![^>]*\bsrc=)([^>]*)>", response.content.decode())
+        self.assertTrue(inline)
+        for attrs in inline:
+            self.assertIn(f'nonce="{nonce}"', attrs)

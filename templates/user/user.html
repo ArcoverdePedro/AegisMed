@@ -155,7 +155,7 @@
 {% endblock %}
 {% block scripts %}
 
-<script>
+<script nonce="{{ csp_nonce }}">
     document.addEventListener('DOMContentLoaded', () => {
         initStaticModalToggle(
             'modal-editar-foto',
@@ -165,7 +165,7 @@
     });
 </script>
 
-<script>
+<script nonce="{{ csp_nonce }}">
     const fileInput = document.querySelector("#id_foto");
     const fileNameDisplay = document.querySelector("#file-name-display");
 
