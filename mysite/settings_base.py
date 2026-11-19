@@ -16,7 +16,6 @@ env = environ.Env(
     CSRF_COOKIE_SECURE=(bool, True),
     FILE_MAX_UPLOAD_MB=(int, 50),
     SENTRY_TRACES_SAMPLE_RATE=(float, 0.05),
-    WEBPUSH_SEND_TIMEOUT_SECONDS=(int, 5),
 )
 
 ENV_FILE = env.str("ENV_FILE", default=str(BASE_DIR / ".env"))
@@ -231,26 +230,6 @@ del _decoded_file_key
 # Chave propria dos backups; guardar separada da FILE_ENCRYPTION_KEY e do proprio backup.
 BACKUP_ENCRYPTION_KEY = env.str("BACKUP_ENCRYPTION_KEY", default="")
 
-WEBPUSH_VAPID_PUBLIC_KEY = env.str("WEBPUSH_VAPID_PUBLIC_KEY", default="").strip()
-WEBPUSH_VAPID_PRIVATE_KEY = env.str("WEBPUSH_VAPID_PRIVATE_KEY", default="").strip()
-WEBPUSH_VAPID_SUBJECT = env.str("WEBPUSH_VAPID_SUBJECT", default="").strip()
-WEBPUSH_SEND_TIMEOUT_SECONDS = env.int("WEBPUSH_SEND_TIMEOUT_SECONDS")
-_webpush_parts = (
-    WEBPUSH_VAPID_PUBLIC_KEY,
-    WEBPUSH_VAPID_PRIVATE_KEY,
-    WEBPUSH_VAPID_SUBJECT,
-)
-if any(_webpush_parts) and not all(_webpush_parts):
-    raise ImproperlyConfigured(
-        "Web Push exige WEBPUSH_VAPID_PUBLIC_KEY, WEBPUSH_VAPID_PRIVATE_KEY e "
-        "WEBPUSH_VAPID_SUBJECT em conjunto."
-    )
-WEBPUSH_ENABLED = all(_webpush_parts)
-if WEBPUSH_ENABLED and not WEBPUSH_VAPID_SUBJECT.startswith(("mailto:", "https://")):
-    raise ImproperlyConfigured(
-        "WEBPUSH_VAPID_SUBJECT deve iniciar com mailto: ou https://."
-    )
-del _webpush_parts
 
 AUDITLOG_STORE_JSON_CHANGES = True
 AUDITLOG_DISABLE_ON_RAW_SAVE = True

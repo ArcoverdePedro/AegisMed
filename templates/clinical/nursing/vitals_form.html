@@ -22,15 +22,8 @@
             method="post"
             class="box aegis-card"
             novalidate
-            data-nursing-vitals-offline
-            data-sync-url="{% url 'nursing:vitals_sync' %}"
-            data-session-fingerprint="{{ offline_session_fingerprint }}"
-            data-encounter-id="{{ encounter.pk }}"
-            data-replaces-id="{% if original_record %}{{ original_record.pk }}{% endif %}"
         >
             {% csrf_token %}
-
-            <div data-offline-status class="notification is-info is-light" role="status" aria-live="polite" hidden></div>
 
             {% if form.non_field_errors %}
             <div class="notification is-danger is-light" role="alert">
@@ -51,10 +44,6 @@
                 Os valores são registrados exatamente nas unidades exibidas. O sistema não classifica normalidade, não converte unidades e não gera recomendação clínica neste fluxo.
             </div>
 
-            <div class="notification is-light">
-                Se a conexão cair enquanto esta tela estiver aberta, este formulário pode guardar o registro de forma cifrada neste dispositivo e sincronizá-lo quando a sessão voltar a ter conexão. Um item pendente não significa que o prontuário já foi atualizado.
-            </div>
-
             <div class="buttons mt-5">
                 <button class="button is-link" type="submit">{% if is_correction %}Confirmar correção{% else %}Confirmar registro{% endif %}</button>
                 <a class="button is-light" href="{% url 'nursing:encounter' encounter.pk %}">Cancelar</a>
@@ -62,9 +51,4 @@
         </form>
     </div>
 </section>
-{% endblock %}
-
-{% block scripts %}
-<script defer src="{% static 'pwa/offline_queue.js' %}"></script>
-<script defer src="{% static 'clinical/nursing/vitals_offline.js' %}"></script>
 {% endblock %}

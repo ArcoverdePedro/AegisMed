@@ -12,7 +12,7 @@ O módulo reutiliza `Patient` e `Encounter` canônicos do PEP, o contexto operac
 
 A Spec 003 depende de um fato de peso clinicamente elegível para regras de dose. Esta spec já fornece o fato estruturado `weight_kg` e o selector `latest_weight_fact()` com proveniência técnica, mas **não autoriza automaticamente seu uso em decisão medicamentosa**: a política institucional de atualidade máxima, origem aceitável e demais critérios de validade clínica do peso continuam como gate de governança. Até esse gate fechar, regras RX dependentes de peso permanecem `NOT_EVALUABLE`.
 
-A Spec 014 recomenda sinais vitais como primeiro piloto offline. Portanto esta spec define um piloto restrito e idempotente para **criação append-only de sinais vitais**, usando a fila local cifrada já existente. Administração de medicamento permanece `network-only`.
+O piloto offline de sinais vitais (RF-NUR-06) foi removido na simplificação de 2026-11: todo o fluxo de enfermagem é online. Administração de medicamento permanece `network-only`.
 
 ## User Stories
 
