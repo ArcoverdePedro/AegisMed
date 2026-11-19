@@ -42,6 +42,8 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT") if not DEBUG else False
+# Healthcheck do container fala HTTP direto com o app; sem isso ele recebe 301 e falha.
+SECURE_REDIRECT_EXEMPT = [r"^health/"]
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE") if not DEBUG else False
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE") if not DEBUG else False
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

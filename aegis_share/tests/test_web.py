@@ -36,3 +36,9 @@ class WebSurfaceTests(TestCase):
         self.assertTrue(inline)
         for attrs in inline:
             self.assertIn(f'nonce="{nonce}"', attrs)
+
+    @override_settings(SECURE_SSL_REDIRECT=True)
+    def test_health_checks_answer_over_http_even_with_https_redirect(self):
+        self.assertEqual(self.client.get(reverse("health_live")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("health_ready")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("login")).status_code, 301)
