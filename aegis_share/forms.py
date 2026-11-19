@@ -5,6 +5,13 @@ from PIL import Image, UnidentifiedImageError
 from .models import CustomUser
 from .utils import clear_strings
 
+# Mascara aplicada por static/js/phone_mask.js; a validacao continua no servidor.
+PHONE_INPUT_ATTRS = {
+    "data-phone-mask": "",
+    "inputmode": "tel",
+    "autocomplete": "tel",
+    "placeholder": "(00) 00000-0000",
+}
 
 class PhoneUserCreationMixin:
     def clean_telefone(self):
@@ -20,7 +27,7 @@ class FirstUserForm(PhoneUserCreationMixin, UserCreationForm):
         label="Telefone",
         max_length=15,
         required=True,
-        widget=forms.TextInput(attrs={"class": "tel"}),
+        widget=forms.TextInput(attrs=PHONE_INPUT_ATTRS),
     )
 
     class Meta(UserCreationForm.Meta):
@@ -53,7 +60,7 @@ class FormUserADM(PhoneUserCreationMixin, UserCreationForm):
         label="Telefone",
         max_length=15,
         required=True,
-        widget=forms.TextInput(attrs={"class": "tel"}),
+        widget=forms.TextInput(attrs=PHONE_INPUT_ATTRS),
     )
     nivel_permissao = forms.ChoiceField(
         label="Nivel de Permissao",
@@ -92,7 +99,7 @@ class ClienteForm(PhoneUserCreationMixin, UserCreationForm):
         label="Telefone",
         max_length=15,
         required=True,
-        widget=forms.TextInput(attrs={"class": "tel"}),
+        widget=forms.TextInput(attrs=PHONE_INPUT_ATTRS),
     )
 
     class Meta(UserCreationForm.Meta):
