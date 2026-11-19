@@ -184,12 +184,16 @@ def ensure_blocking_interaction(*, actor, drug_a, drug_b):
 
 
 def ensure_submitted_blocked_request(*, actor, encounter, drug_a, drug_b):
-    request = MedicationRequest.objects.filter(
-        encounter=encounter,
-        authored_by=actor,
-        status=MedicationRequest.Status.SUBMITTED,
-        items__drug=drug_a,
-    ).filter(items__drug=drug_b).first()
+    request = (
+        MedicationRequest.objects.filter(
+            encounter=encounter,
+            authored_by=actor,
+            status=MedicationRequest.Status.SUBMITTED,
+            items__drug=drug_a,
+        )
+        .filter(items__drug=drug_b)
+        .first()
+    )
     if request is not None:
         return request
 

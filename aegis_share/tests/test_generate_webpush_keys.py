@@ -15,9 +15,7 @@ class WebPushKeyGeneratorTests(SimpleTestCase):
         with tempfile.TemporaryDirectory() as temporary:
             env_path = Path(temporary) / ".env"
             env_path.write_text(
-                "WEBPUSH_VAPID_PUBLIC_KEY=\n"
-                "WEBPUSH_VAPID_PRIVATE_KEY=\n"
-                "WEBPUSH_VAPID_SUBJECT=\n",
+                "WEBPUSH_VAPID_PUBLIC_KEY=\nWEBPUSH_VAPID_PRIVATE_KEY=\nWEBPUSH_VAPID_SUBJECT=\n",
                 encoding="utf-8",
             )
             env_path.chmod(0o644)

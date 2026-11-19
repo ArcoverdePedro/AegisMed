@@ -4,14 +4,11 @@ import pyotp
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 
 from aegis_share.models import CustomUser
 from aegis_share.services.security import (
-    authenticate_api_token,
     begin_totp_setup,
     consume_recovery_code,
-    create_api_token,
     enable_totp,
     too_many_attempts,
 )
@@ -47,21 +44,6 @@ class SecurityServiceTests(TestCase):
 
         self.assertTrue(consume_recovery_code(self.user, recovery_plain[0]))
         self.assertFalse(consume_recovery_code(self.user, recovery_plain[0]))
-
-    def test_api_token_is_only_returned_once_and_authenticates(self):
-        token, raw = create_api_token(self.user, name="Automacao")
-
-        self.assertNotEqual(token.token_hash, raw)
-        self.assertEqual(authenticate_api_token(raw), self.user)
-
-        token.refresh_from_db()
-        self.assertIsNotNone(token.last_used_at)
-
-    def test_revoked_api_token_is_rejected(self):
-        token, raw = create_api_token(self.user, name="Revogado")
-        token.revoked_at = timezone.now()
-        token.save(update_fields=["revoked_at"])
-        self.assertIsNone(authenticate_api_token(raw))
 
 
 @override_settings(FILE_ENCRYPTION_KEY=TEST_KEY, STORAGES=TEST_STORAGES)

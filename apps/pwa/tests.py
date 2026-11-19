@@ -9,8 +9,6 @@ from django.urls import reverse
 from PIL import Image
 from pywebpush import WebPushException
 
-from aegis_share.services.notifications import notify
-
 from .models import PushSubscription
 from .push import send_generic_push
 
@@ -78,8 +76,8 @@ class PwaSurfaceTests(TestCase):
         self.assertIn("self.addEventListener('push'", body)
         self.assertIn("Você tem uma nova notificação.", body)
         self.assertIn("GENERIC_NOTIFICATION_URL", body)
-        push_handler = body.split("self.addEventListener(\'push\'", 1)[1].split(
-            "self.addEventListener(\'notificationclick\'", 1
+        push_handler = body.split("self.addEventListener('push'", 1)[1].split(
+            "self.addEventListener('notificationclick'", 1
         )[0]
         self.assertNotIn("event.data", push_handler)
         self.assertNotIn("patient_name", body)
@@ -220,9 +218,7 @@ class WebPushSubscriptionViewTests(TestCase):
         stored = PushSubscription.objects.create(
             user=self.user,
             endpoint=self.subscription["endpoint"],
-            session_fingerprint=PushSubscription.hash_session_key(
-                self.client.session.session_key
-            ),
+            session_fingerprint=PushSubscription.hash_session_key(self.client.session.session_key),
             p256dh=self.subscription["keys"]["p256dh"],
             auth=self.subscription["keys"]["auth"],
         )
@@ -281,17 +277,3 @@ class WebPushDeliveryTests(TestCase):
         self.subscription.refresh_from_db()
         self.assertFalse(self.subscription.active)
         self.assertIsNotNone(self.subscription.disabled_at)
-
-    @patch("aegis_share.services.notifications._send_webpush_after_commit")
-    def test_notification_schedules_push_without_forwarding_its_content(self, push_mock):
-        with self.captureOnCommitCallbacks(execute=True):
-            notification = notify(
-                self.user,
-                kind="SYSTEM",
-                title="Paciente Sintético Confidencial",
-                body="Diagnóstico Sintético Confidencial",
-                link="/notificacoes/",
-            )
-
-        self.assertIsNotNone(notification)
-        push_mock.assert_called_once_with(self.user.pk)

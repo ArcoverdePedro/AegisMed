@@ -37,10 +37,7 @@ class Command(BaseCommand):
             ) from exc
 
         file_key = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode("ascii")
-        contents = (
-            f"SECRET_KEY={get_random_secret_key()}\n"
-            f"FILE_ENCRYPTION_KEY={file_key}\n"
-        )
+        contents = f"SECRET_KEY={get_random_secret_key()}\nFILE_ENCRYPTION_KEY={file_key}\n"
 
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as handle:

@@ -6,7 +6,6 @@ from django.contrib.auth.models import Permission
 from django.core.management import BaseCommand
 from django.utils import timezone
 
-from aegis_share.models import FileAccess
 from apps.clinical.adt.models import UserLocationAccess
 from apps.clinical.pep.models import PatientAccessGrant
 
@@ -44,15 +43,6 @@ def access_rows(*, include_expired=False):
             access.location.code,
             access.granted_by,
             access.created_at,
-            None,
-        )
-    for access in FileAccess.objects.select_related("user", "granted_by").iterator():
-        yield (
-            access.user,
-            "ARQUIVO",
-            access.arquivo_id,
-            access.granted_by,
-            access.data_compartilhado,
             None,
         )
     User = get_user_model()

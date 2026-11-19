@@ -29,7 +29,7 @@ def _no_store(response):
 def _read_json_object(request):
     try:
         payload = json.loads(request.body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
+    except UnicodeDecodeError, json.JSONDecodeError:
         return None
     return payload if isinstance(payload, dict) else None
 
@@ -160,15 +160,11 @@ class PushConfigView(LoginRequiredMixin, View):
 class PushSubscribeView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not settings.WEBPUSH_ENABLED:
-            return _no_store(
-                JsonResponse({"error": "webpush_not_configured"}, status=503)
-            )
+            return _no_store(JsonResponse({"error": "webpush_not_configured"}, status=503))
 
         parsed = _valid_subscription_payload(_read_json_object(request))
         if parsed is None:
-            return _no_store(
-                JsonResponse({"error": "invalid_subscription"}, status=400)
-            )
+            return _no_store(JsonResponse({"error": "invalid_subscription"}, status=400))
 
         fingerprint = session_fingerprint(request)
         if not fingerprint:

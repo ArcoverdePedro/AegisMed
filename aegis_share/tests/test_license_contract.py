@@ -9,9 +9,7 @@ class OpenSourceLicenseContractTests(SimpleTestCase):
         base_dir = Path(settings.BASE_DIR)
         license_text = (base_dir / "LICENSE").read_text(encoding="utf-8")
         pyproject = (base_dir / "pyproject.toml").read_text(encoding="utf-8")
-        shell = (base_dir / "templates" / "navbar" / "navbar.html").read_text(
-            encoding="utf-8"
-        )
+        shell = (base_dir / "templates" / "navbar" / "navbar.html").read_text(encoding="utf-8")
 
         self.assertTrue(license_text.startswith("GNU AFFERO GENERAL PUBLIC LICENSE"))
         self.assertNotIn("MIT License", license_text)

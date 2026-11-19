@@ -56,8 +56,6 @@ jobs:
       SECURE_SSL_REDIRECT: "false"
       SESSION_COOKIE_SECURE: "false"
       CSRF_COOKIE_SECURE: "false"
-      PINATA_JWT_TOKEN: ci-placeholder
-      CLAMAV_ENABLED: "false"
 
     steps:
       - name: Checkout
@@ -118,7 +116,6 @@ jobs:
           POSTGRES_DB=aegisshare
           POSTGRES_USER=aegisshare
           POSTGRES_PASSWORD=ci-postgres-password
-          PINATA_JWT_TOKEN=ci-placeholder
           WEB_WORKERS=1
           APP_PORT=8000
           PORT=8000

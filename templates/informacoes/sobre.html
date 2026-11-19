@@ -15,7 +15,7 @@
         Projeto Acadêmico
         {% icon "info" style="width: 20px; height: 20px;" %}
       </h1>
-      <p class="subtitle has-text-white is-5">Sistema de compartilhamento de arquivos com base em IPFS e Assincronismo.</p>
+      <p class="subtitle has-text-white is-5">Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS.</p>
     </div>
   </div>
 </div>
@@ -26,7 +26,7 @@
     <div class="column is-10">
       <h2 class="title is-3 has-text-centered has-text-link">Objetivo do Projeto</h2>
       <p class="has-text-centered">
-        O Aegis Share foi desenvolvido como um projeto acadêmico para explorar e validar a viabilidade de integrar protocolos de rede descentralizados (como o IPFS) com a arquitetura de um framework web tradicional e robusto como o Django. O foco principal é a resolução de desafios técnicos em torno da segurança e da imutabilidade de arquivos.
+        O AegisShare nasceu como projeto acadêmico de troca segura de arquivos e evoluiu para um sistema de informação hospitalar: prontuário, agenda, internação, prescrição, farmácia, enfermagem e laboratório, com segurança, rastreabilidade e minimização de dados como requisitos.
       </p>
     </div>
   </div>
@@ -45,7 +45,7 @@
             </div>
             <h5 class="title is-5 has-text-centered">Segurança</h5>
             <p>
-            IPFS é um pilar no projeto. Arquivos recebem um hash (CID) e são distribuídos na rede, sendo assim imutáveis. Senhas Criptografadas com Argon2.
+            Acesso ao prontuário por vínculo assistencial, autenticação em dois fatores, auditoria de leituras e alterações e senhas com Argon2.
             </p>
             <div class="has-text-centered mt-3">
             <span class="tag is-link">Arquitetura Segura</span>
@@ -103,7 +103,7 @@
         </li>
         <li>
           {% icon "globe" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Armazenamento:</strong> IPFS (Protocolo P2P)
+          <strong class="ml-2">Armazenamento:</strong> PostgreSQL
         </li>
         <li>
           {% icon "message-square" style="width: 20px; height: 20px;" %}
@@ -111,7 +111,7 @@
         </li>
         <li>
           {% icon "box" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Orquestração:</strong> Docker (IPFS, Redis, Django)
+          <strong class="ml-2">Orquestração:</strong> Docker Compose (PostgreSQL, Redis, Django)
         </li>
       </ul>
     </div>

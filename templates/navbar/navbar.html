@@ -67,7 +67,6 @@
         .muted { color: var(--aegis-muted); }
         .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
         .notification-stack { position: fixed; right: 1rem; bottom: 1rem; z-index: 1000; width: min(420px, calc(100vw - 2rem)); }
-        .notification-dot { display: inline-flex; min-width: 1.3rem; height: 1.3rem; padding: 0 .3rem; align-items: center; justify-content: center; border-radius: 999px; font-size: .72rem; font-weight: 700; background: #ff3860; color: #fff; }
         .drop-zone { border: 2px dashed #b7c4dc; border-radius: 14px; padding: 2rem; text-align: center; transition: .2s ease; background: var(--aegis-drop-bg); }
         .drop-zone.is-dragging { border-color: #485fc7; background: var(--aegis-drop-active); }
         html[data-theme="dark"] .drop-zone { border-color: #4b5568; }
@@ -152,13 +151,6 @@
                     {% if not user.is_client and perms.hr.view_employee %}
                         <a class="navbar-item {% if request.resolver_match.namespace == 'hr' %}is-active{% endif %}" href="{% url 'hr:employee_list' %}">RH</a>
                     {% endif %}
-                    <a class="navbar-item {% if 'file' in request.resolver_match.url_name or request.resolver_match.url_name == 'arquivos' %}is-active{% endif %}" href="{% url 'arquivos' %}">{% icon 'folder' %} Arquivos</a>
-                    {% if not user.is_client %}
-                        <a class="navbar-item {% if request.resolver_match.url_name == 'upload' %}is-active{% endif %}" href="{% url 'upload' %}">{% icon 'upload' %} Enviar</a>
-                    {% endif %}
-                    <a class="navbar-item {% if request.resolver_match.url_name == 'workspaces' %}is-active{% endif %}" href="{% url 'workspaces' %}">{% icon 'layers' %} Workspaces</a>
-                    <a class="navbar-item {% if request.resolver_match.url_name == 'document_requests' %}is-active{% endif %}" href="{% url 'document_requests' %}">{% icon 'clipboard' %} Solicitacoes</a>
-                    <a class="navbar-item {% if 'chat' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'chat_index' %}">{% icon 'message-square' %} Chat</a>
                 {% else %}
                     <a class="navbar-item {% if request.resolver_match.url_name == 'sobre' %}is-active{% endif %}" href="{% url 'sobre' %}">{% icon 'info' %} Sobre</a>
                 {% endif %}
@@ -166,10 +158,6 @@
 
             <div class="navbar-end">
                 {% if user.is_authenticated %}
-                    <a class="navbar-item" href="{% url 'notifications' %}" title="Notificacoes">
-                        {% icon 'bell' %}
-                        {% if unread_notifications_count %}<span class="notification-dot">{{ unread_notifications_count }}</span>{% endif %}
-                    </a>
                     <div class="navbar-item has-dropdown" id="userDropdown">
                         <button class="navbar-link button is-ghost has-text-light" id="userDropdownButton" type="button" aria-expanded="false">
                             {% if user.foto_perfil %}
@@ -180,7 +168,6 @@
                         <div class="navbar-dropdown is-right">
                             <a href="{% url 'user' %}" class="navbar-item">{% icon 'user' %} Meu perfil</a>
                             <a href="{% url 'security_settings' %}" class="navbar-item">{% icon 'lock' %} Seguranca</a>
-                            <a href="{% url 'trash' %}" class="navbar-item">{% icon 'trash-2' %} Lixeira</a>
                             {% if not user.is_client %}
                                 <a href="{% url 'cadastro' %}" class="navbar-item">{% icon 'user-plus' %} Cadastrar usuario</a>
                             {% endif %}
