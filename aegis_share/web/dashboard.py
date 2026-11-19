@@ -55,5 +55,60 @@ def audit_log(request):
     )
 
 
+SOURCE_CODE_URL = "https://github.com/ArcoverdePedro/AegisShare"
+
+MODULOS = [
+    (
+        "users",
+        "Prontuário (PEP)",
+        "Cadastro SUS do paciente, encontros, evoluções com adendo e lista de problemas.",
+    ),
+    (
+        "calendar",
+        "Agenda e recepção",
+        "Horários por profissional, chegada do paciente e fila de atendimento.",
+    ),
+    (
+        "grid",
+        "Internação e leitos",
+        "Mapa de leitos em tempo real, admissão, transferência, alta e higienização.",
+    ),
+    (
+        "file-text",
+        "Prescrição e farmácia",
+        "Prescrição estruturada, validação farmacêutica, estoque por lote e dispensação.",
+    ),
+    (
+        "activity",
+        "Enfermagem",
+        "Sinais vitais e administração de medicamentos vinculada ao lote dispensado.",
+    ),
+    (
+        "droplet",
+        "Laboratório",
+        "Pedidos, coleta, resultados com liberação e caixa de arquivos de equipamentos.",
+    ),
+    ("image", "Imagem", "Pedidos de exames de imagem e laudo com liberação e retificação."),
+    (
+        "package",
+        "Estoque e compras",
+        "Materiais, saldos, requisições, pedidos de compra e recebimento.",
+    ),
+    (
+        "briefcase",
+        "Cadastro profissional",
+        "Setor, função, conselho/registro e afastamentos que bloqueiam a agenda.",
+    ),
+    ("clipboard", "LGPD", "Registro e acompanhamento das solicitações dos titulares de dados."),
+    (
+        "bar-chart-2",
+        "Indicadores",
+        "Ocupação de leitos, faltas, tempo de espera e qualidade de amostras.",
+    ),
+    ("eye", "Auditoria", "Quem acessou ou alterou o quê e quando, com filtros por usuário e ação."),
+]
+
+
 def sobre(request):
-    return render(request, "informacoes/sobre.html")
+    modulos = [{"icone": i, "nome": n, "descricao": d} for i, n, d in MODULOS]
+    return render(request, "informacoes/sobre.html", {"modulos": modulos, "fonte": SOURCE_CODE_URL})
