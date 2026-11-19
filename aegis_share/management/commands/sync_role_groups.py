@@ -21,8 +21,6 @@ ROLE_MATRIX = {
         "lis.order_test",
         "ris.view_orders",
         "ris.order_exam",
-        "surgery.view_cases",
-        "surgery.request_procedure",
         "adt.view_bed_map",
         "adt.view_movement_history",
         "adt.admit_patient",
@@ -65,7 +63,6 @@ ROLE_MATRIX = {
         "interoperability.receive_lab_file",
     ],
     "Imagem": ["ris.view_orders"],
-    "Centro cirúrgico": ["surgery.view_cases", "surgery.schedule_case", "scheduling.view_agenda"],
     "Faturamento": [
         "billing.view_accounts",
         "billing.open_account",

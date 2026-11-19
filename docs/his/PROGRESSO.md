@@ -20,7 +20,7 @@ Mapa de capacidades na base (fluxo real, não nome de app): PEP com Patient/Enco
 | H22 | READY | `apps/admin/billing/tests/test_capture.py` | Tabela de preço versionada, pagador e momento da cobrança (G09); produção de exames/cirurgia e consumo de materiais por paciente (H14–H18, H21) |
 | H34 | READY | upgrade 38c6100→HEAD com dados sintéticos (scratch) OK; instalação limpa Compose sem Pinata saudável; `scripts/backup.sh` + restauração em banco novo OK (6,2 s / 3,8 s); CHANGELOG com notas de atualização | Comando de dados demonstrativos, guias por perfil, revisão de licenças de catálogos clínicos (nenhum distribuído) e release versionada pendentes |
 | H14 | READY | `apps/clinical/lis/tests/test_specimen_lifecycle.py`; `docs/laboratorio.md` | Múltiplos materiais, transporte, motivos padronizados e código de barras aguardam G07 |
-| H17 | READY | `apps/clinical/surgery/tests/test_schedule.py` (inclui concorrência PostgreSQL) | Autorização, prioridade, equipe/anestesia, preparo e consentimento aguardam G08 |
+| H17 | REMOVIDO | app `surgery` removido na simplificação (fora do escopo G01); histórico no git | Reavaliar após a segunda liberação |
 | H28 | BLOCKED | `access_review` + `apps/compliance/tests/test_access_review.py`; `docs/his/INVENTARIO_DADOS.md` | Identidade do titular, desfecho, retenção/descarte, incidentes e fornecedores dependem de G10 |
 | H31 | READY | `apps/admin/indicators/tests/test_panel.py`; `/indicadores/` (admin, só agregados) | Metas, indicadores de RX/enfermagem/glosa e medição com volume representativo dependem de G01/G11 e dados reais |
 | H21 | READY | `apps/admin/billing/tests/test_material.py` | Kits, conversões, reserva e perdas por paciente aguardam G09; integração RX ↔ conta já cobre dispensação (H22) |
@@ -28,7 +28,7 @@ Mapa de capacidades na base (fluxo real, não nome de app): PEP com Patient/Enco
 | H04 | BLOCKED | lista de problemas versionada (`apps/clinical/pep/tests/test_problems.py`) | Terminologia aprovada, antecedentes, reconciliação, multiprofissional e resumo de alta dependem de conteúdo clínico aprovado/H06/H08 |
 | H02 | BLOCKED | `sync_role_groups` (proposta; `aegis_share/tests/test_role_groups.py`) | Aprovar matriz (G02), vínculos de equipe/unidade, multi-instituição (G01), acesso emergencial e consulta de inativos |
 | H15 | BLOCKED | resultados manuais com validação/liberação/retificação (`apps/clinical/lis/tests/test_results.py`) | Catálogo, críticos, importação de equipamento e assinatura dependem de G07/G11/G05 |
-| H18 | BLOCKED | execução versionada (`apps/clinical/surgery/tests/test_execution.py`) | Checklist, anestesia, OPME/CME e recuperação dependem de G08 |
+| H18 | REMOVIDO | idem H17 | — |
 | H16 | BLOCKED | laudo versionado com liberação (`apps/clinical/ris/tests/test_reports.py`) | PACS/DICOM (G11), agenda/preparo (G07), assinatura (G05) |
 | H05, H06, H07 | BLOCKED | specs/001-pep extensão, T-PEP-08, T-RX-02, T-NUR-09 | G03, G05, G04 |
 | demais | TODO | — | — |

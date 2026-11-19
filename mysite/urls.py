@@ -29,7 +29,6 @@ urlpatterns = [
     path("", include("apps.compliance.urls")),
     path("", include("apps.clinical.lis.urls")),
     path("", include("apps.clinical.ris.urls")),
-    path("", include("apps.clinical.surgery.urls")),
     path("", include("apps.clinical.scheduling.urls")),
     path("", include("apps.admin.billing.urls")),
     path("", include("apps.admin.inventory.urls")),
