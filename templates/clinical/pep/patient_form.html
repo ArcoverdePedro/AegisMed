@@ -105,22 +105,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
-                    <div class="column">
-                        <div class="field">
-                            <label class="label" for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
-                            <div class="control">{{ form.city }}</div>
-                            {% for error in form.city.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
-                        </div>
-                    </div>
-                    <div class="column is-2">
-                        <div class="field">
-                            <label class="label" for="{{ form.state.id_for_label }}">{{ form.state.label }}</label>
-                            <div class="control">{{ form.state }}</div>
-                            {% for error in form.state.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
-                        </div>
-                    </div>
-                </div>
+
+                {% include 'clinical/pep/_sus_fields.html' %}
 
                 {% if duplicates %}
                 <div class="notification is-warning is-light" role="alert">

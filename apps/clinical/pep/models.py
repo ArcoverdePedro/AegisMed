@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
+from .sus_tables import BRAZIL_COUNTRY_CODE, table
 from .validators import normalize_cpf, validate_cns, validate_cpf
 
 
@@ -21,6 +22,21 @@ class Patient(models.Model):
         INTERSEX = "I", "Intersexo"
         OTHER = "O", "Outro"
         UNKNOWN = "U", "Não informado"
+
+    class RaceColor(models.TextChoices):
+        """Codigos da tabela de raca/cor do SUS (Portaria MS 344/2017, BPA/AIH)."""
+
+        WHITE = "01", "Branca"
+        BLACK = "02", "Preta"
+        BROWN = "03", "Parda"
+        YELLOW = "04", "Amarela"
+        INDIGENOUS = "05", "Indígena"
+        UNKNOWN = "99", "Sem informação"
+
+    class Nationality(models.TextChoices):
+        BRAZILIAN = "BR", "Brasileira"
+        NATURALIZED = "NAT", "Naturalizada"
+        FOREIGN = "EST", "Estrangeira"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     identifier_type = models.CharField(
@@ -39,6 +55,20 @@ class Patient(models.Model):
     address = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=120, blank=True)
     state = models.CharField(max_length=2, blank=True)
+    # 18 aceita a forma digitada com espacos; clean() grava so os 15 digitos.
+    cns = models.CharField("CNS", max_length=18, blank=True)
+    mother_name = models.CharField("Nome da mãe", max_length=255, blank=True)
+    race_color = models.CharField(
+        "Raça/cor", max_length=2, choices=RaceColor.choices, default=RaceColor.UNKNOWN
+    )
+    nationality = models.CharField(
+        "Nacionalidade", max_length=3, choices=Nationality.choices, default=Nationality.BRAZILIAN
+    )
+    municipality_code = models.CharField("Código IBGE do município", max_length=7, blank=True)
+    ethnicity_code = models.CharField("Etnia indígena (código SUS)", max_length=4, blank=True)
+    birth_country_code = models.CharField(
+        "País de nascimento (código SUS)", max_length=3, blank=True
+    )
     active = models.BooleanField(default=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -54,7 +84,13 @@ class Patient(models.Model):
             models.UniqueConstraint(
                 fields=["identifier_type", "identifier"],
                 name="uniq_pep_patient_identifier",
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["cns"],
+                condition=~models.Q(cns=""),
+                name="uniq_pep_patient_cns",
+                violation_error_message="CNS já cadastrado em outro paciente.",
+            ),
         ]
         indexes = [
             models.Index(fields=["full_name"], name="pep_patient_name_idx"),
@@ -77,6 +113,42 @@ class Patient(models.Model):
             self.identifier = normalize_cpf(self.identifier)
             validate_cns(self.identifier)
 
+        self.cns = normalize_cpf(self.cns)
+        if self.identifier_type == self.IdentifierType.CNS:
+            if self.cns and self.cns != self.identifier:
+                raise ValidationError({"cns": "CNS difere do identificador principal."})
+            self.cns = self.identifier
+        elif self.cns:
+            try:
+                validate_cns(self.cns)
+            except ValidationError as error:
+                raise ValidationError({"cns": error.messages}) from error
+
+        self.mother_name = " ".join((self.mother_name or "").split())
+        self.municipality_code = normalize_cpf(self.municipality_code)
+        if self.municipality_code:
+            municipality = table("municipios").get(self.municipality_code)
+            if municipality is None:
+                raise ValidationError({"municipality_code": "Código IBGE do município inválido."})
+            self.city, self.state = municipality["nome"], municipality["uf"]
+
+        self.ethnicity_code = (self.ethnicity_code or "").strip()
+        if self.race_color != self.RaceColor.INDIGENOUS:
+            self.ethnicity_code = ""
+        elif self.ethnicity_code not in table("etnias"):
+            raise ValidationError({"ethnicity_code": "Informe a etnia para raça/cor indígena."})
+
+        self.birth_country_code = (self.birth_country_code or "").strip()
+        if self.nationality == self.Nationality.BRAZILIAN:
+            self.birth_country_code = ""
+        elif (
+            self.birth_country_code not in table("paises")
+            or self.birth_country_code == BRAZIL_COUNTRY_CODE
+        ):
+            raise ValidationError(
+                {"birth_country_code": "Informe o país de nascimento (exceto Brasil)."}
+            )
+
         if self.birth_date and self.birth_date > timezone.localdate():
             raise ValidationError({"birth_date": "A data de nascimento não pode estar no futuro."})
 
@@ -89,6 +161,14 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"Paciente {self.id}"
+
+    @property
+    def ethnicity_name(self):
+        return table("etnias").get(self.ethnicity_code, {}).get("nome", "")
+
+    @property
+    def birth_country_name(self):
+        return table("paises").get(self.birth_country_code, {}).get("nome", "")
 
     @property
     def display_name(self):
@@ -383,8 +463,27 @@ class ProblemListEntry(models.Model):
 
 auditlog.register(
     Patient,
-    exclude_fields=["identifier", "full_name", "birth_date", "phone", "email"],
-    mask_fields=["social_name", "postal_code", "address", "city", "state"],
+    exclude_fields=[
+        "identifier",
+        "full_name",
+        "birth_date",
+        "phone",
+        "email",
+        "cns",
+        "mother_name",
+        "race_color",  # dado sensivel (LGPD art. 5, II)
+        "ethnicity_code",
+    ],
+    mask_fields=[
+        "social_name",
+        "postal_code",
+        "address",
+        "city",
+        "state",
+        "nationality",
+        "municipality_code",
+        "birth_country_code",
+    ],
 )
 auditlog.register(PatientAccessGrant, exclude_fields=["reason"])
 auditlog.register(Encounter, exclude_fields=["reason", "location"])

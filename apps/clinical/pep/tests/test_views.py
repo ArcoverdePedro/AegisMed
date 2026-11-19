@@ -92,6 +92,12 @@ class PatientViewTests(TestCase):
                 "sex": Patient.Sex.MALE,
                 "phone": "",
                 "email": "",
+                "race_color": Patient.RaceColor.UNKNOWN,
+                "nationality": Patient.Nationality.BRAZILIAN,
+                "cns": "700000000000005",
+                "mother_name": "SEM INFORMAÇÃO",
+                "state": "PE",
+                "municipality_code": "2611606",
             },
         )
 
