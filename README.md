@@ -154,10 +154,12 @@ SESSION_COOKIE_SECURE=true
 CSRF_COOKIE_SECURE=true
 ```
 
-Depois:
+Depois construa, aplique as migrations e suba a stack:
 
 ```bash
-docker compose up -d --build
+docker compose build
+docker compose run --rm aegis_share python manage.py migrate
+docker compose up -d
 ```
 
 No primeiro acesso, se ainda não houver administrador, `/setup/` permite criar o primeiro superusuário.
@@ -166,11 +168,34 @@ No primeiro acesso, se ainda não houver administrador, `/setup/` permite criar 
 
 Uma única stack: Django + PostgreSQL + Redis.
 
-```bash
-docker compose up -d --build
+PostgreSQL e Redis ficam somente na rede Docker. A aplicação publica a porta só em `127.0.0.1` (`APP_BIND`); o acesso pela rede passa pelo proxy HTTPS.
+
+### HTTPS com o proxy Caddy
+
+O perfil `proxy` adiciona um Caddy na frente da aplicação, com certificado automático:
+
+```env
+DOMAIN=his.hospital.gov.br
+CADDY_TLS=acme          # domínio público: certificado Let's Encrypt
+# CADDY_TLS=internal    # nome só da rede interna: CA própria do Caddy
+TRUSTED_PROXY_IPS=172.16.0.0/12   # rede Docker, para registrar o IP real do usuário
 ```
 
-PostgreSQL e Redis ficam somente na rede Docker. Apenas a aplicação publica porta no host.
+```bash
+docker compose --profile proxy up -d
+```
+
+Com `CADDY_TLS=internal`, instale nas estações a CA raiz do Caddy (`docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt .`). Sem o perfil, coloque outro proxy HTTPS na frente da porta `127.0.0.1:8000`.
+
+### Atualização de versão
+
+1. Leia as notas de atualização no [CHANGELOG](CHANGELOG.md).
+2. Faça backup (`scripts/backup.sh`).
+3. `git pull && docker compose build`
+4. `docker compose run --rm aegis_share python manage.py migrate`
+5. `docker compose up -d`
+
+O container recusa iniciar se houver migration pendente, para que código novo nunca rode sobre o banco antigo.
 
 A stack atual usa PostgreSQL 18 e monta o volume em `/var/lib/postgresql`, conforme o layout das imagens oficiais 18+. **Não conecte diretamente um volume criado por PostgreSQL 17 ou anterior a uma imagem PostgreSQL 18.** Faça backup/restauração ou um procedimento de `pg_upgrade` apropriado antes de uma mudança de versão principal.
 
@@ -181,22 +206,20 @@ Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` 
 O entrypoint normal:
 
 1. aguarda o banco responder;
-2. executa `python manage.py migrate --noinput`;
+2. confere se há migrations pendentes e, se houver, para com instruções (ou as aplica com `RUN_MIGRATIONS=true`, só para desenvolvimento/CI);
 3. executa `python manage.py collectstatic --noinput`;
-4. inicia Granian/ASGI.
+4. inicia Granian/ASGI como usuário sem privilégios (`aegis`, uid 10001).
 
 Quando um comando é fornecido explicitamente com `docker compose run aegis_share <comando>`, o entrypoint executa somente esse comando. Isso permite usar `manage.py`, scripts e rotinas administrativas sem iniciar o servidor.
 
 As opções do processo web podem ser controladas por:
 
 ```env
-RUN_MIGRATIONS=true
+RUN_MIGRATIONS=false
 COLLECT_STATIC=true
 WEB_WORKERS=2
 DB_STARTUP_ATTEMPTS=30
 ```
-
-Em ambientes com várias réplicas, execute migrations em apenas uma delas e use `RUN_MIGRATIONS=false` nas demais.
 
 ## Variáveis de ambiente
 
@@ -212,6 +235,12 @@ Em ambientes com várias réplicas, execute migrations em apenas uma delas e use
 | `FILE_MAX_UPLOAD_MB` | limite de upload |
 | `SENTRY_DSN` | Sentry opcional |
 | `WEB_WORKERS` | workers Granian |
+| `RUN_MIGRATIONS` | `false` em produção; migrations rodam como passo explícito |
+| `SESSION_IDLE_TIMEOUT_SECONDS` | sessão expira após esse tempo sem uso (padrão 1800) e ao fechar o navegador |
+| `APP_BIND` / `APP_PORT` | endereço e porta publicados da aplicação (padrão `127.0.0.1:8000`) |
+| `DOMAIN`, `CADDY_TLS`, `HTTP_PORT`, `HTTPS_PORT` | proxy HTTPS do perfil `proxy` |
+| `TRUSTED_PROXY_IPS` | IPs/redes do proxy autorizados a informar o IP do cliente |
+| `BACKUP_KEEP_DAYS` | dias de retenção do `scripts/backup.sh` (padrão 30; 0 desativa) |
 
 Consulte `.env-example` para a configuração completa.
 
@@ -231,7 +260,13 @@ Sem `BACKUP_ENCRYPTION_KEY` o backup não abre; sem `FILE_ENCRYPTION_KEY` os seg
 python manage.py backup_open < db-STAMP.dump.aegisbak | pg_restore --no-owner -d NOVO_BANCO
 ```
 
-Pendentes (G11): frequência, retenção, RPO/RTO, agendamento, cópia fora do host, alertas e ensaio com volume de produção. Com banco externo, use o `pg_dump` do provedor e o mesmo `backup_seal`.
+Agende o backup diário no servidor (exemplo com cron, às 2h, retendo 30 dias):
+
+```cron
+0 2 * * * cd /opt/aegisshare && BACKUP_KEEP_DAYS=30 scripts/backup.sh /srv/backups/aegisshare >> /var/log/aegisshare-backup.log 2>&1
+```
+
+O script só apaga lotes antigos depois que o lote novo foi aberto e conferido. Copie o diretório de backup para fora do servidor (outro prédio ou nuvem) e ensaie uma restauração em banco vazio pelo menos uma vez por mês. Pendentes (G11): RPO/RTO e local da cópia externa.
 
 ## Auditoria
 
@@ -256,6 +291,8 @@ O AegisShare pode ser instalado como app (manifest + service worker), mas funcio
 /health/ready/     banco e cache prontos
 /health/services/  diagnóstico de configuração (banco, Redis)
 ```
+
+Aponte um monitor externo (Uptime Kuma, Zabbix ou similar) para `https://DOMINIO/health/ready/` com alerta para a equipe de TI, e configure `SENTRY_DSN` para receber erros da aplicação.
 
 ## Desenvolvimento
 
