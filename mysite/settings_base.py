@@ -15,13 +15,7 @@ env = environ.Env(
     SESSION_COOKIE_SECURE=(bool, True),
     CSRF_COOKIE_SECURE=(bool, True),
     FILE_MAX_UPLOAD_MB=(int, 50),
-    FILE_RETENTION_DAYS=(int, 30),
-    PINATA_TIMEOUT_SECONDS=(int, 90),
-    CLAMAV_ENABLED=(bool, False),
-    CLAMAV_REQUIRED=(bool, False),
-    CLAMAV_PORT=(int, 3310),
     SENTRY_TRACES_SAMPLE_RATE=(float, 0.05),
-    WEBPUSH_SEND_TIMEOUT_SECONDS=(int, 5),
 )
 
 ENV_FILE = env.str("ENV_FILE", default=str(BASE_DIR / ".env"))
@@ -113,7 +107,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "aegis_share.context_processors.notifications_context",
             ],
         },
     },
@@ -212,7 +205,6 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FILE_MAX_UPLOAD_MB = env.int("FILE_MAX_UPLOAD_MB")
-FILE_RETENTION_DAYS = env.int("FILE_RETENTION_DAYS")
 FILE_UPLOAD_MAX_MEMORY_SIZE = min(FILE_MAX_UPLOAD_MB * 1024 * 1024, 5 * 1024 * 1024)
 DATA_UPLOAD_MAX_MEMORY_SIZE = FILE_MAX_UPLOAD_MB * 1024 * 1024 + 1024 * 1024
 
@@ -238,50 +230,6 @@ del _decoded_file_key
 # Chave propria dos backups; guardar separada da FILE_ENCRYPTION_KEY e do proprio backup.
 BACKUP_ENCRYPTION_KEY = env.str("BACKUP_ENCRYPTION_KEY", default="")
 
-# "local" grava os arquivos cifrados em diretorio privado; "pinata" mantem o legado.
-FILE_STORAGE_BACKEND = env.str("FILE_STORAGE_BACKEND", default="pinata")
-if FILE_STORAGE_BACKEND not in {"local", "pinata"}:
-    raise ImproperlyConfigured("FILE_STORAGE_BACKEND deve ser 'local' ou 'pinata'.")
-FILE_STORAGE_ROOT = Path(env.str("FILE_STORAGE_ROOT", default=str(BASE_DIR / "private_files")))
-if FILE_STORAGE_ROOT.resolve().is_relative_to(STATIC_ROOT.resolve()):
-    raise ImproperlyConfigured("FILE_STORAGE_ROOT nao pode ficar dentro de STATIC_ROOT.")
-
-PINATA_JWT_TOKEN = env.str("PINATA_JWT_TOKEN", default="")
-if FILE_STORAGE_BACKEND == "pinata" and not PINATA_JWT_TOKEN and not DEBUG:
-    raise ImproperlyConfigured(
-        "PINATA_JWT_TOKEN e obrigatorio em producao com FILE_STORAGE_BACKEND=pinata."
-    )
-PINATA_GATEWAY_URL = env.str(
-    "PINATA_GATEWAY_URL",
-    default="https://gateway.pinata.cloud/ipfs/{cid}",
-)
-PINATA_TIMEOUT_SECONDS = env.int("PINATA_TIMEOUT_SECONDS")
-
-WEBPUSH_VAPID_PUBLIC_KEY = env.str("WEBPUSH_VAPID_PUBLIC_KEY", default="").strip()
-WEBPUSH_VAPID_PRIVATE_KEY = env.str("WEBPUSH_VAPID_PRIVATE_KEY", default="").strip()
-WEBPUSH_VAPID_SUBJECT = env.str("WEBPUSH_VAPID_SUBJECT", default="").strip()
-WEBPUSH_SEND_TIMEOUT_SECONDS = env.int("WEBPUSH_SEND_TIMEOUT_SECONDS")
-_webpush_parts = (
-    WEBPUSH_VAPID_PUBLIC_KEY,
-    WEBPUSH_VAPID_PRIVATE_KEY,
-    WEBPUSH_VAPID_SUBJECT,
-)
-if any(_webpush_parts) and not all(_webpush_parts):
-    raise ImproperlyConfigured(
-        "Web Push exige WEBPUSH_VAPID_PUBLIC_KEY, WEBPUSH_VAPID_PRIVATE_KEY e "
-        "WEBPUSH_VAPID_SUBJECT em conjunto."
-    )
-WEBPUSH_ENABLED = all(_webpush_parts)
-if WEBPUSH_ENABLED and not WEBPUSH_VAPID_SUBJECT.startswith(("mailto:", "https://")):
-    raise ImproperlyConfigured(
-        "WEBPUSH_VAPID_SUBJECT deve iniciar com mailto: ou https://."
-    )
-del _webpush_parts
-
-CLAMAV_ENABLED = env.bool("CLAMAV_ENABLED")
-CLAMAV_REQUIRED = env.bool("CLAMAV_REQUIRED")
-CLAMAV_HOST = env.str("CLAMAV_HOST", default="clamav")
-CLAMAV_PORT = env.int("CLAMAV_PORT")
 
 AUDITLOG_STORE_JSON_CHANGES = True
 AUDITLOG_DISABLE_ON_RAW_SAVE = True

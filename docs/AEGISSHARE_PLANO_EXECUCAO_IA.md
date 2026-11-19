@@ -72,8 +72,6 @@ Já existe; verificar e ampliar antes de recriar:
 | Sinais vitais e administração | apps/clinical/nursing/; specs/004-enfermagem/ |
 | Pedidos e coleta laboratorial | apps/clinical/lis/; docs/laboratorio.md |
 | Pedidos de imagem | apps/clinical/ris/; docs/imagem.md |
-| Solicitações cirúrgicas | apps/clinical/surgery/; docs/centro-cirurgico.md |
-| Preparação manual de contas | apps/admin/billing/; docs/faturamento.md |
 | Materiais e requisições | apps/admin/inventory/; docs/estoque-requisicoes.md |
 | Cadastro funcional | apps/admin/hr/; docs/cadastro-funcional.md |
 | FHIR mínimo e caixa laboratorial | apps/interoperability/; docs/interoperabilidade.md; docs/caixa-laboratorial.md |

@@ -1,7 +1,7 @@
 # ADR-0007 — Web Push direto com pywebpush
 
 ## Status
-Aceito para a Spec 014 em 2026-09-14.
+Aceito para a Spec 014 em 2026-09-14. **Substituído em 2026-11:** Web Push removido na simplificação (as notificações que ele entregava saíram com o produto de documentos).
 
 ## Contexto
 

@@ -1,9 +1,0 @@
-{% extends 'navbar/navbar.html' %}
-{% load icon %}
-{% block title %}Enviar arquivo - AegisShare{% endblock %}
-{% block page_content %}
-<section class="section pt-4"><div class="container"><div class="columns is-centered"><div class="column is-8-tablet is-6-desktop">
-    <div class="mb-5"><p class="heading">Documentos</p><h1 class="title is-3 mb-2">Upload seguro</h1><p class="subtitle is-6 muted">O arquivo e validado e criptografado antes de ser enviado para o IPFS/Pinata.</p></div>
-    <div class="box aegis-card">{% include 'arquivos/upload_form.html' %}</div>
-</div></div></div></section>
-{% endblock %}

@@ -84,8 +84,7 @@ class VitalSignsRecord(models.Model):
                 name="nur_vitals_hr_positive",
             ),
             models.CheckConstraint(
-                condition=Q(respiratory_rate_irpm__isnull=True)
-                | Q(respiratory_rate_irpm__gt=0),
+                condition=Q(respiratory_rate_irpm__isnull=True) | Q(respiratory_rate_irpm__gt=0),
                 name="nur_vitals_rr_positive",
             ),
             models.CheckConstraint(
@@ -93,8 +92,7 @@ class VitalSignsRecord(models.Model):
                 name="nur_vitals_sysbp_positive",
             ),
             models.CheckConstraint(
-                condition=Q(diastolic_bp_mmhg__isnull=True)
-                | Q(diastolic_bp_mmhg__gt=0),
+                condition=Q(diastolic_bp_mmhg__isnull=True) | Q(diastolic_bp_mmhg__gt=0),
                 name="nur_vitals_diabp_positive",
             ),
             models.CheckConstraint(

@@ -25,7 +25,7 @@ def emit_vitals_recorded_event(*, record_id, encounter_id, origin, replaces_id=N
             "encounter_id": str(encounter_id),
             "origin": str(origin),
             "replaces_id": str(replaces_id) if replaces_id else None,
-        }
+        },
     )
 
 
@@ -41,5 +41,5 @@ def emit_medication_administered_event(*, administration_id, dispense_item_id, e
             "administration_id": str(administration_id),
             "dispense_item_id": str(dispense_item_id),
             "encounter_id": str(encounter_id),
-        }
+        },
     )

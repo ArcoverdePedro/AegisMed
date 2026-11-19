@@ -1,21 +1,21 @@
 # AegisShare
 
-**Sistema de informação hospitalar (HIS) e plataforma segura de colaboração, construído em Django.**
+**Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS, construído em Django.**
 
-O AegisShare combina o núcleo original de troca e governança de documentos com módulos clínicos server-rendered para prontuário, ADT, prescrição/farmácia e enfermagem. A aplicação roda em Django/ASGI, usa PostgreSQL como fonte de verdade, Redis para Channels/cache e mantém segurança, rastreabilidade e minimização de dados como requisitos transversais.
+O AegisShare reúne módulos clínicos e administrativos server-rendered: prontuário, agenda, ADT, prescrição/farmácia, enfermagem, laboratório, imagem, estoque e RH. A aplicação roda em Django/ASGI, usa PostgreSQL como fonte de verdade, Redis para Channels/cache e mantém segurança, rastreabilidade e minimização de dados como requisitos transversais.
 
-> O projeto segue uma arquitetura Django monolítica e incremental. Novas superfícies públicas REST não são adicionadas; as rotas `api/v1/*` existentes são compatibilidade legada em processo de depreciação.
+> O projeto segue uma arquitetura Django monolítica e incremental, sem API REST pública (ADR 0004). Em 2026-11 foram removidos o produto original de troca de documentos (arquivos/IPFS, compartilhamento, chat, API `api/v1`), o centro cirúrgico, o faturamento particular, o piloto offline e o Web Push; o histórico continua no git.
 
 ## Estado atual
 
 Os seguintes recortes estão implementados e protegidos pela CI:
 
-- **Core:** arquivos cifrados, workspaces, compartilhamento, auditoria, solicitações, chat e controles de segurança.
+- **Core:** usuários, 2FA TOTP, inventário e revogação de sessões, auditoria e health checks.
 - **PEP:** pacientes, encontros clínicos, evolução e adendos append-only, autorização RBAC + ABAC e auditoria de acesso.
 - **ADT:** localização/leitos, admissão, transferência e alta transacionais, mapa de leitos e atualização por Channels.
 - **Prescrição/Farmácia:** catálogo, prescrição estruturada, revisão farmacêutica, estoque/lotes e dispensação idempotente.
-- **Enfermagem:** sinais vitais estruturados, correção append-only, piloto offline cifrado para sinais vitais e administração de medicamento exclusivamente online.
-- **PWA:** manifest/service worker, fallback offline, fila IndexedDB cifrada restrita ao fluxo aprovado, limpeza no logout e Web Push sem PHI.
+- **Enfermagem:** sinais vitais estruturados, correção append-only e administração de medicamento, tudo online.
+- **PWA:** app instalável (manifest/service worker), página offline genérica e limpeza de dados locais no logout.
 
 A automação clínica é deliberadamente conservadora. Regras que dependem de conteúdo clínico institucional, assinatura jurídica ou semânticas operacionais ainda não aprovadas permanecem bloqueadas nas respectivas specs; o runtime não inventa decisões terapêuticas para preencher esses gaps.
 
@@ -35,34 +35,21 @@ A automação clínica é deliberadamente conservadora. Regras que dependem de c
 - Eventos internos e audit log com payloads técnicos minimizados e sem PHI desnecessária.
 - Playwright, Gherkin, axe-core, viewports de telefone/tablet e gates de privacidade local nas jornadas clínicas.
 
-### Documentos e colaboração
+### Segurança
 
-- AES-256-GCM antes do IPFS, com chave aleatória por versão.
-- Envelope encryption: `FILE_ENCRYPTION_KEY` protege as chaves de conteúdo.
-- SHA-256 do conteúdo e verificação de integridade no download.
-- Versionamento de arquivos.
-- Permissões por proprietário, workspace e concessões explícitas.
-- Links temporários com senha, expiração, limite de downloads e revogação.
-- Workspaces, pastas e tags.
-- Lixeira com restauração e retenção.
-- Solicitações de documentos e acompanhamento de pendências.
-- Comentários e chat em tempo real.
-- Notificações internas.
-- 2FA TOTP com códigos de recuperação.
-- Inventário e revogação de sessões.
-- API tokens armazenados somente como hash.
+- 2FA TOTP com códigos de recuperação; inventário e revogação de sessões.
+- `FILE_ENCRYPTION_KEY` (AES-256-GCM) protege os segredos de 2FA e os arquivos da caixa laboratorial.
 - Audit log com `django-auditlog` e tela administrativa em `/auditoria/`.
 - Sentry opcional, logging JSON e health checks.
 
 ### Plataforma
 
-- PostgreSQL 18 e Redis internos ou externos.
+- PostgreSQL 18 e Redis.
 - Django ASGI servido por Granian.
-- Quatro topologias de Docker Compose.
+- Um único `compose.yml`.
 - PWA com cache deny-by-default para superfícies sensíveis.
-- Fila offline AES-GCM em IndexedDB, atualmente liberada somente para `nursing.vitals.record`.
 - CI com PostgreSQL, Redis, Ruff, migrations, suíte Django, Compose, Playwright, privacidade dos logs e Lighthouse.
-- CodeQL e teste arquitetural que impede introdução silenciosa de novas rotas públicas `/api/`.
+- CodeQL e teste arquitetural que impede rotas públicas `/api/`.
 
 ## Arquitetura
 
@@ -84,10 +71,6 @@ A automação clínica é deliberadamente conservadora. Regras que dependem de c
    | fonte de    |                         | Channels /  |
    | verdade     |                         | cache       |
    +-------------+                         +-------------+
-          |
-          | Core + PEP + ADT + RX + Enfermagem
-          |
-          +--> arquivos: validação -> ClamAV opcional -> AES-256-GCM -> Pinata/IPFS
 ```
 
 Os módulos clínicos vivem no mesmo monólito Django e reutilizam identidades canônicas em vez de criar cadastros paralelos. Redis é usado por Channels e cache. Sem Redis, esses componentes usam memória local e a aplicação força um único worker para manter consistência.
@@ -104,12 +87,10 @@ specs/003-prescricao-farmacia/     prescrição, safety review, estoque e dispen
 specs/004-enfermagem/              sinais vitais e administração de medicamento
 specs/005-lis/                     pedidos laboratoriais e coleta manual
 specs/006-ris-pacs/                pedidos de imagem (RIS v1)
-specs/007-centro-cirurgico/        solicitações de procedimentos
-specs/008-faturamento/             preparação manual de contas implementada
 specs/009-estoque-compras/          catálogo e requisições de materiais
 specs/010-rh-escalas/               cadastro funcional mínimo implementado
 specs/012-interoperabilidade/       exportação FHIR e caixa laboratorial cifrada
-specs/014-pwa/                     PWA, offline seguro e push
+specs/014-pwa/                     PWA instalável (offline e push removidos)
 adr/                               decisões arquiteturais aceitas
 ```
 
@@ -126,10 +107,6 @@ Implementado: [caixa laboratorial cifrada em quarentena](specs/012-interoperabil
 
 [Spec 006 — pedidos de imagem (RIS v1)](specs/006-ris-pacs/spec.md) aprovada e implementada em 2026-09-18, com catálogo institucional, escopo PEP, snapshots e reenvios auditados. [Guia operacional](docs/imagem.md) e [evidências](specs/006-ris-pacs/validation.md). DICOM, viewer e laudos dependem de extensões com contratos próprios.
 
-[Spec 007 — Centro Cirúrgico v1](specs/007-centro-cirurgico/spec.md) implementada: solicitações de procedimentos vinculadas ao PEP, catálogo, snapshots, reenvios e auditoria. [Guia operacional](docs/centro-cirurgico.md) e [evidências](specs/007-centro-cirurgico/validation.md). Agenda, materiais e execução dependem de contratos próprios.
-
-[Spec 008 — preparação manual de contas](specs/008-faturamento/spec.md) autorizada e implementada em 2026-09-18, com conta por encontro e itens/total exato em BRL. [Guia operacional](docs/faturamento.md) e [evidências](specs/008-faturamento/validation.md). Não emite cobrança nem automatiza tabelas ou guias.
-
 [Spec 009 — catálogo e requisições de materiais](specs/009-estoque-compras/spec.md) autorizada e implementada em 2026-09-18, com catálogo não medicamentoso, snapshots, quantidades inteiras e consulta institucional por capacidade. [Guia operacional](docs/estoque-requisicoes.md) e [evidências](specs/009-estoque-compras/validation.md). Não duplica o estoque farmacêutico nem confirma compra, reserva ou entrega.
 
 [Spec 010 — cadastro funcional mínimo](specs/010-rh-escalas/spec.md) autorizada e implementada em 2026-09-28, com setor/função/status cadastral vinculados ao usuário existente, gestão pelo Admin e consulta institucional por capacidade. [Guia operacional](docs/cadastro-funcional.md) e [evidências](specs/010-rh-escalas/validation.md). Sem escalas, ponto ou efeitos sobre autenticação.
@@ -138,7 +115,6 @@ Implementado: [caixa laboratorial cifrada em quarentena](specs/012-interoperabil
 
 - Docker e Docker Compose para o deploy recomendado.
 - Python 3 disponível no host apenas para o gerador independente de segredos, se desejar usá-lo.
-- Token JWT da Pinata para os recursos de arquivos/IPFS.
 - `SECRET_KEY` e `FILE_ENCRYPTION_KEY` fortes.
 - HTTPS/reverse proxy em produção.
 
@@ -156,10 +132,9 @@ O modo `--install-env` substitui somente `SECRET_KEY` e `FILE_ENCRYPTION_KEY` va
 Depois configure os demais campos do `.env`, principalmente:
 
 ```env
-FILE_STORAGE_BACKEND=local   # ou pinata + PINATA_JWT_TOKEN=...
 POSTGRES_PASSWORD=...
-ALLOWED_HOSTS=files.exemplo.com
-CSRF_TRUSTED_ORIGINS=https://files.exemplo.com
+ALLOWED_HOSTS=his.exemplo.gov.br
+CSRF_TRUSTED_ORIGINS=https://his.exemplo.gov.br
 ```
 
 Se preferir entregar os segredos a um gerenciador externo sem alterar `.env`, o comportamento anterior continua disponível:
@@ -189,9 +164,7 @@ No primeiro acesso, se ainda não houver administrador, `/setup/` permite criar 
 
 ## Docker Compose
 
-### 1. Django + Redis + PostgreSQL
-
-Padrão recomendado:
+Uma única stack: Django + PostgreSQL + Redis.
 
 ```bash
 docker compose up -d --build
@@ -201,52 +174,7 @@ PostgreSQL e Redis ficam somente na rede Docker. Apenas a aplicação publica po
 
 A stack atual usa PostgreSQL 18 e monta o volume em `/var/lib/postgresql`, conforme o layout das imagens oficiais 18+. **Não conecte diretamente um volume criado por PostgreSQL 17 ou anterior a uma imagem PostgreSQL 18.** Faça backup/restauração ou um procedimento de `pg_upgrade` apropriado antes de uma mudança de versão principal.
 
-### 2. Django + Redis + PostgreSQL externo
-
-```bash
-docker compose -f compose.no-postgres.yml up -d --build
-```
-
-Configure:
-
-```env
-EXTERNAL_DATABASE_URL=postgresql://usuario:senha@host:5432/aegisshare
-```
-
-### 3. Django + PostgreSQL + Redis externo ou sem Redis
-
-```bash
-docker compose -f compose.no-redis.yml up -d --build
-```
-
-Para Redis externo:
-
-```env
-EXTERNAL_REDIS_URL=redis://host:6379/0
-```
-
-Para operar sem Redis:
-
-```env
-EXTERNAL_REDIS_URL=
-```
-
-Nesse modo o entrypoint reduz `WEB_WORKERS` para `1`.
-
-### 4. Somente Django
-
-Banco externo obrigatório; Redis externo opcional:
-
-```bash
-docker compose -f compose.no-postgres-no-redis.yml up -d --build
-```
-
-```env
-EXTERNAL_DATABASE_URL=postgresql://usuario:senha@host:5432/aegisshare
-EXTERNAL_REDIS_URL=redis://redis.example:6379/0
-```
-
-`EXTERNAL_REDIS_URL` pode ficar vazio para execução com um único worker.
+Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` que redefina `DATABASE_URL`/`REDIS_URL` do serviço `aegis_share` (o Compose o aplica automaticamente). Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`.
 
 ## Inicialização do container
 
@@ -275,61 +203,21 @@ Em ambientes com várias réplicas, execute migrations em apenas uma delas e use
 | Variável | Uso |
 |---|---|
 | `SECRET_KEY` | segredo criptográfico do Django |
-| `FILE_ENCRYPTION_KEY` | chave-mestra que protege as chaves AES dos arquivos |
+| `FILE_ENCRYPTION_KEY` | chave-mestra dos segredos de 2FA e da caixa laboratorial |
 | `POSTGRES_DB` | banco do PostgreSQL interno |
 | `POSTGRES_USER` | usuário do PostgreSQL interno |
 | `POSTGRES_PASSWORD` | senha do PostgreSQL interno |
-| `EXTERNAL_DATABASE_URL` | banco externo nos composes sem PostgreSQL |
-| `EXTERNAL_REDIS_URL` | Redis externo nos composes sem Redis |
-| `DATABASE_URL` | conexão direta quando Django roda fora dos composes fornecidos |
-| `REDIS_URL` | Redis direto quando Django roda fora dos composes fornecidos |
-| `FILE_STORAGE_BACKEND` | `local` (diretório privado, sem conta externa) ou `pinata` (padrão legado) |
-| `FILE_STORAGE_ROOT` | diretório privado dos arquivos cifrados; nos composes, volume `aegis_files` em `/app/private_files` |
-| `PINATA_JWT_TOKEN` | autenticação da Pinata; obrigatório só com backend `pinata` ou para remover CIDs legados |
-| `PINATA_GATEWAY_URL` | URL de leitura dos CIDs |
+| `DATABASE_URL` | conexão direta quando Django roda fora do compose |
+| `REDIS_URL` | Redis direto quando Django roda fora do compose |
 | `FILE_MAX_UPLOAD_MB` | limite de upload |
-| `FILE_RETENTION_DAYS` | retenção da lixeira |
-| `CLAMAV_ENABLED` | ativa varredura ClamAV |
-| `CLAMAV_REQUIRED` | bloqueia upload se o ClamAV não responder |
 | `SENTRY_DSN` | Sentry opcional |
 | `WEB_WORKERS` | workers Granian |
 
 Consulte `.env-example` para a configuração completa.
 
-## Criptografia e arquivos legados
-
-Novos uploads seguem:
-
-```text
-arquivo original
-   |
-   +--> validação de tamanho/MIME
-   +--> ClamAV opcional
-   +--> SHA-256
-   +--> AES-256-GCM
-   +--> FILE_STORAGE_BACKEND: local (FILE_STORAGE_ROOT) ou Pinata/IPFS
-```
-
-Cada versão recebe uma chave AES aleatória. A chave de conteúdo é cifrada pela `FILE_ENCRYPTION_KEY` e apenas a chave protegida é armazenada no banco.
-
-A migration de upgrade preserva arquivos anteriores como `FileVersion v1` legada e não criptografada. Para obter a mesma confidencialidade dos novos uploads, envie uma nova versão do arquivo legado.
-
-### Migrar da Pinata para armazenamento local
-
-Com `FILE_STORAGE_BACKEND=local`, novas versões vão para `FILE_STORAGE_ROOT` (permissões `0700/0600`, nunca servido por URL). Referências `local:` são lidas do disco; CIDs antigos continuam lidos pelo gateway da Pinata até serem copiados:
-
-```bash
-python manage.py migrate_file_storage                      # copia versões cifradas, conferindo hash e decifragem
-python manage.py migrate_file_storage --encrypt-plaintext  # também cifra versões legadas não criptografadas
-```
-
-O comando não apaga a origem. Guarde as linhas `origem_cid/origem_id` impressas e só desative os objetos na Pinata depois de conferir backup e downloads. Versões com falha permanecem apontando para a origem e são listadas no erro.
-
-**Não perca `FILE_ENCRYPTION_KEY`.** Sem ela, versões cifradas não podem ser recuperadas.
-
 ## Backup e restauração
 
-`scripts/backup.sh <destino>` gera, para a stack `compose.yml`/`compose.no-redis.yml`, dois arquivos cifrados com `BACKUP_ENCRYPTION_KEY` (AES-256-GCM em blocos; corrupção, troca de ordem ou truncamento falham na abertura): `db-*.dump.aegisbak` (`pg_dump -Fc`) e `files-*.tar.aegisbak` (`FILE_STORAGE_ROOT`). Cada arquivo é aberto e autenticado antes de perder o sufixo `.partial`; um `SHA256SUMS-*` acompanha o lote.
+`scripts/backup.sh <destino>` gera, para a stack `compose.yml`, o arquivo `db-*.dump.aegisbak` (`pg_dump -Fc`) cifrado com `BACKUP_ENCRYPTION_KEY` (AES-256-GCM em blocos; corrupção, troca de ordem ou truncamento falham na abertura). Ele é aberto e autenticado antes de perder o sufixo `.partial`; um `SHA256SUMS-*` acompanha o lote.
 
 Gere a chave uma vez e guarde-a fora do servidor, separada do backup e da `FILE_ENCRYPTION_KEY` (precisam ser diferentes):
 
@@ -337,14 +225,13 @@ Gere a chave uma vez e guarde-a fora do servidor, separada do backup e da `FILE_
 python -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
 ```
 
-Sem `FILE_ENCRYPTION_KEY` e `BACKUP_ENCRYPTION_KEY` o backup não pode ser aberto nem os arquivos decifrados. Restauração em banco novo/vazio:
+Sem `BACKUP_ENCRYPTION_KEY` o backup não abre; sem `FILE_ENCRYPTION_KEY` os segredos de 2FA e a caixa laboratorial restaurados não decifram. Restauração em banco novo/vazio:
 
 ```bash
 python manage.py backup_open < db-STAMP.dump.aegisbak | pg_restore --no-owner -d NOVO_BANCO
-python manage.py backup_open < files-STAMP.tar.aegisbak | tar -C /app -xf -
 ```
 
-Ensaio executado em 26/10/2026 (PostgreSQL 18 descartável, dados sintéticos: 50 pacientes + 1 arquivo cifrado, backend `local`): backup 0,8 s, restauração 1,4 s; arquivo restaurado decifrou com hash conferido; nenhum texto claro nos `.aegisbak`; byte alterado → `backup_open` falha. Não mede volume real. Pendentes (G11): frequência, retenção, RPO/RTO, agendamento, cópia fora do host, alertas e ensaio com volume de produção. CIDs ainda na Pinata não entram no tar — migre com `migrate_file_storage` antes. Com bancos externos (`compose.no-postgres*.yml`) use o `pg_dump` do provedor e o mesmo `backup_seal`.
+Pendentes (G11): frequência, retenção, RPO/RTO, agendamento, cópia fora do host, alertas e ensaio com volume de produção. Com banco externo, use o `pg_dump` do provedor e o mesmo `backup_seal`.
 
 ## Auditoria
 
@@ -358,50 +245,17 @@ Administradores podem consultar:
 
 A interface permite filtrar por ator, modelo e ação.
 
-## PWA e operação offline
+## PWA
 
-A política de cache é deny-by-default para conteúdo sensível. A infraestrutura offline usa IndexedDB com payload AES-GCM e chave não extraível no navegador.
-
-O único fluxo clínico atualmente autorizado a entrar na fila offline é:
-
-```text
-nursing.vitals.record
-```
-
-Na sincronização, o servidor revalida sessão, capacidade, escopo PEP e estado do encontro. Administração de medicamento, ADT e mutações de prescrição/dispensação permanecem `network-only`. O logout limpa os dados locais da fila da sessão.
+O AegisShare pode ser instalado como app (manifest + service worker), mas funciona só online: o service worker guarda apenas o shell e uma página offline genérica, nunca conteúdo clínico. O logout envia `Clear-Site-Data` e apaga dados locais, inclusive filas do antigo piloto offline em navegadores que já o usaram.
 
 ## Health checks
 
 ```text
 /health/live/      processo HTTP vivo
 /health/ready/     banco e cache prontos
-/health/services/  diagnóstico ampliado, incluindo Pinata
+/health/services/  diagnóstico de configuração (banco, Redis)
 ```
-
-`/health/live/` e `/health/ready/` não dependem da Pinata; uma falha do provedor de armazenamento não deve reiniciar o processo web saudável.
-
-## API legada
-
-> **Depreciação:** as rotas públicas `api/v1/*` são compatibilidade legada e não devem receber novos consumidores. A Spec 000 prevê sua retirada somente após inventário e migração dos consumidores existentes. Consulte [`specs/000-core/contracts/api-deprecation.md`](specs/000-core/contracts/api-deprecation.md).
-
-Um teste arquitetural falha caso qualquer nova rota pública `/api/` seja introduzida fora da allowlist legada.
-
-Enquanto a compatibilidade estiver ativa, a API usa tokens Bearer gerados em **Segurança**:
-
-```http
-Authorization: Bearer ags_...
-```
-
-Rotas legadas atuais:
-
-```text
-GET  /api/v1/files/
-POST /api/v1/files/
-GET  /api/v1/files/<id>/
-GET  /api/v1/files/<id>/download/
-```
-
-O token completo é exibido somente no momento da criação; o banco armazena apenas um digest criptográfico do token. O uso bem-sucedido atualiza `last_used_at` para apoiar o inventário operacional antes da retirada.
 
 ## Desenvolvimento
 
@@ -424,12 +278,6 @@ uv run python manage.py test --verbosity 2
 O CI executa o lint sem `--fix`; o checkout precisa estar limpo antes do merge.
 
 ## Manutenção
-
-Expurgo da lixeira:
-
-```bash
-docker compose run --rm aegis_share python manage.py purge_trash
-```
 
 O Dependabot mantém dependências Python, GitHub Actions e imagens Docker sob atualização automática; os PRs passam pela CI antes de qualquer merge automático.
 

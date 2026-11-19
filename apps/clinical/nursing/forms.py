@@ -49,9 +49,7 @@ class VitalSignsRecordForm(forms.ModelForm):
             "respiratory_rate_irpm": forms.NumberInput(attrs={"class": "input", "step": "1"}),
             "systolic_bp_mmhg": forms.NumberInput(attrs={"class": "input", "step": "1"}),
             "diastolic_bp_mmhg": forms.NumberInput(attrs={"class": "input", "step": "1"}),
-            "oxygen_saturation_pct": forms.NumberInput(
-                attrs={"class": "input", "step": "0.01"}
-            ),
+            "oxygen_saturation_pct": forms.NumberInput(attrs={"class": "input", "step": "0.01"}),
             "weight_kg": forms.NumberInput(attrs={"class": "input", "step": "0.001"}),
         }
 

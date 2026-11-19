@@ -138,9 +138,7 @@ class NursingEventContractTests(TestCase):
             / "events.asyncapi.yaml"
         )
         body = contract_path.read_text(encoding="utf-8")
-        documented_names = set(
-            re.findall(r"^\s+name:\s+([a-z.]+)\s*$", body, flags=re.MULTILINE)
-        )
+        documented_names = set(re.findall(r"^\s+name:\s+([a-z.]+)\s*$", body, flags=re.MULTILINE))
 
         self.assertEqual(documented_names, NURSING_EVENT_TYPES)
 
@@ -273,9 +271,7 @@ class NursingMutationAuditEventTests(TestCase):
             "administered_dose_unit": "mL",
         }
 
-        with patch(
-            "apps.clinical.nursing.services.emit_medication_administered_event"
-        ) as emit:
+        with patch("apps.clinical.nursing.services.emit_medication_administered_event") as emit:
             first = administer_medication(
                 dispense_item_id=self.dispense_item.pk,
                 actor=self.nurse,
@@ -302,9 +298,7 @@ class NursingMutationAuditEventTests(TestCase):
         )
         self.assertEqual(entry.actor, self.nurse)
         self.assertFalse(
-            {"administered_dose", "administered_dose_unit"}.intersection(
-                entry.changes or {}
-            )
+            {"administered_dose", "administered_dose_unit"}.intersection(entry.changes or {})
         )
 
     def test_service_actor_context_does_not_leak_to_later_write(self):
@@ -432,9 +426,7 @@ class NursingReadAuditTests(TestCase):
         ).exists()
 
     def test_encounter_page_audits_rendered_encounter_and_vital(self):
-        response = self.client.get(
-            reverse("nursing:encounter", kwargs={"pk": self.encounter.pk})
-        )
+        response = self.client.get(reverse("nursing:encounter", kwargs={"pk": self.encounter.pk}))
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self._has_access(self.encounter))

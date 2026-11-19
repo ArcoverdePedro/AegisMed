@@ -10,8 +10,6 @@ ROLE_MATRIX = {
         "scheduling.book_appointment",
         "scheduling.checkin_appointment",
         "adt.view_bed_map",
-        "billing.view_accounts",
-        "billing.open_account",
     ],
     "Médico": [
         "prescription.view_medication_request",
@@ -21,8 +19,6 @@ ROLE_MATRIX = {
         "lis.order_test",
         "ris.view_orders",
         "ris.order_exam",
-        "surgery.view_cases",
-        "surgery.request_procedure",
         "adt.view_bed_map",
         "adt.view_movement_history",
         "adt.admit_patient",
@@ -65,14 +61,6 @@ ROLE_MATRIX = {
         "interoperability.receive_lab_file",
     ],
     "Imagem": ["ris.view_orders"],
-    "Centro cirúrgico": ["surgery.view_cases", "surgery.schedule_case", "scheduling.view_agenda"],
-    "Faturamento": [
-        "billing.view_accounts",
-        "billing.open_account",
-        "billing.add_item",
-        "billing.reverse_item",
-        "billing.close_account",
-    ],
     "Suprimentos": [
         "inventory.view_requisitions",
         "inventory.move_stock",

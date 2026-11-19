@@ -10,7 +10,7 @@
             <div>
                 <p class="heading">Visao geral</p>
                 <h1 class="title is-3 mb-1">Ola, {{ user.first_name|default:user.username }}</h1>
-                <p class="subtitle is-6 muted">Seus documentos e atividades em um unico lugar.</p>
+                <p class="subtitle is-6 muted">Atividade recente no sistema.</p>
             </div>
         </div>
         <div class="level-right">
@@ -19,37 +19,12 @@
                 <a class="button" href="{% url 'audit_log' %}">{% icon 'activity' %}<span>Auditoria</span></a>
                 <a class="button" href="{% url 'indicators:panel' %}">{% icon 'bar-chart-2' %}<span>Indicadores</span></a>
                 {% endif %}
-                {% if not user.is_client %}
-                <a class="button is-link" href="{% url 'upload' %}">{% icon 'upload' %}<span>Enviar arquivo</span></a>
-                {% endif %}
             </div>
         </div>
     </div>
 
-    <div class="columns is-multiline">
-        <div class="column is-3-desktop is-6-tablet"><div class="box aegis-card"><p class="heading">Arquivos acessiveis</p><p class="metric">{{ file_count }}</p></div></div>
-        <div class="column is-3-desktop is-6-tablet"><div class="box aegis-card"><p class="heading">Armazenamento logico</p><p class="metric">{{ total_bytes|filesizeformat }}</p></div></div>
-        {% if user.is_admin %}<div class="column is-3-desktop is-6-tablet"><div class="box aegis-card"><p class="heading">Clientes</p><p class="metric">{{ client_count }}</p></div></div>{% endif %}
-        <div class="column is-3-desktop is-6-tablet"><div class="box aegis-card"><p class="heading">Solicitacoes abertas</p><p class="metric">{{ request_count }}</p></div></div>
-    </div>
-
-    <div class="columns mt-2">
-        <div class="column is-7">
-            <div class="box aegis-card">
-                <div class="level"><div class="level-left"><h2 class="title is-5">Arquivos recentes</h2></div><div class="level-right"><a href="{% url 'arquivos' %}">Ver todos</a></div></div>
-                {% if recent_files %}
-                <div class="table-container"><table class="table is-fullwidth is-hoverable">
-                    <thead><tr><th>Arquivo</th><th>Proprietario</th><th>Tamanho</th><th></th></tr></thead>
-                    <tbody>{% for arquivo in recent_files %}<tr>
-                        <td><strong>{{ arquivo.nome_arquivo }}</strong><br><small class="muted">{{ arquivo.mime_type }}</small></td>
-                        <td>{{ arquivo.dono_arquivo.username }}</td><td>{{ arquivo.tamanho_arquivo|filesizeformat }}</td>
-                        <td class="has-text-right"><a class="button is-small" href="{% url 'file_detail' arquivo.id %}">Abrir</a></td>
-                    </tr>{% endfor %}</tbody>
-                </table></div>
-                {% else %}<p class="muted">Nenhum arquivo disponivel.</p>{% endif %}
-            </div>
-        </div>
-        <div class="column is-5">
+    <div class="columns">
+        <div class="column is-8-desktop">
             <div class="box aegis-card">
                 <div class="level"><div class="level-left"><h2 class="title is-5">Atividade recente</h2></div>{% if user.is_admin %}<div class="level-right"><a href="{% url 'audit_log' %}">Ver auditoria</a></div>{% endif %}</div>
                 {% for entry in activity %}

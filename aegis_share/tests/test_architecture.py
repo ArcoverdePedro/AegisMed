@@ -1,12 +1,6 @@
 from django.test import SimpleTestCase
 from django.urls import URLPattern, URLResolver, get_resolver
 
-LEGACY_PUBLIC_API_ROUTES = {
-    "api/v1/files/",
-    "api/v1/files/<int:file_id>/",
-    "api/v1/files/<int:file_id>/download/",
-}
-
 
 def _collect_routes(patterns, prefix=""):
     routes = set()
@@ -24,4 +18,4 @@ class PublicApiArchitectureTests(SimpleTestCase):
         routes = _collect_routes(get_resolver().url_patterns)
         api_routes = {route for route in routes if route.startswith("api/")}
 
-        self.assertSetEqual(api_routes, LEGACY_PUBLIC_API_ROUTES)
+        self.assertSetEqual(api_routes, set())  # ADR 0004: sem API REST publica

@@ -56,8 +56,6 @@ jobs:
       SECURE_SSL_REDIRECT: "false"
       SESSION_COOKIE_SECURE: "false"
       CSRF_COOKIE_SECURE: "false"
-      PINATA_JWT_TOKEN: ci-placeholder
-      CLAMAV_ENABLED: "false"
 
     steps:
       - name: Checkout
@@ -118,22 +116,13 @@ jobs:
           POSTGRES_DB=aegisshare
           POSTGRES_USER=aegisshare
           POSTGRES_PASSWORD=ci-postgres-password
-          PINATA_JWT_TOKEN=ci-placeholder
           WEB_WORKERS=1
           APP_PORT=8000
           PORT=8000
           EOF
 
-      - name: Validar os quatro arquivos Compose
-        run: |
-          docker compose -f compose.yml config --quiet
-          EXTERNAL_DATABASE_URL='postgresql://user:pass@db.example:5432/aegisshare' \
-            docker compose -f compose.no-postgres.yml config --quiet
-          EXTERNAL_REDIS_URL='redis://redis.example:6379/0' \
-            docker compose -f compose.no-redis.yml config --quiet
-          EXTERNAL_DATABASE_URL='postgresql://user:pass@db.example:5432/aegisshare' \
-          EXTERNAL_REDIS_URL='redis://redis.example:6379/0' \
-            docker compose -f compose.no-postgres-no-redis.yml config --quiet
+      - name: Validar o arquivo Compose
+        run: docker compose -f compose.yml config --quiet
 
       - name: Subir stack completa
         run: docker compose -f compose.yml up -d --build
@@ -171,8 +160,6 @@ jobs:
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lis_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lab_inbox.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_ris_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_surgery_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_billing_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_inventory_journeys.py
           docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_hr_journeys.py
 

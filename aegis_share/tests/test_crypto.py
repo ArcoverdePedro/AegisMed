@@ -21,9 +21,7 @@ class CryptoTests(SimpleTestCase):
         content = b"conteudo confidencial do AegisShare"
         aad = b"file-version:test"
 
-        encrypted, wrapped_key, plain_hash, encrypted_hash = encrypt_file(
-            content, aad=aad
-        )
+        encrypted, wrapped_key, plain_hash, encrypted_hash = encrypt_file(content, aad=aad)
 
         self.assertNotEqual(encrypted, content)
         self.assertTrue(encrypted.startswith(b"AEGIS1"))

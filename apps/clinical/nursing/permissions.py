@@ -12,9 +12,7 @@ def has_nursing_permission(user, permission):
 
 
 def can_view_nursing(user, encounter):
-    return has_nursing_permission(user, PERM_VIEW) and can_access_patient(
-        user, encounter.patient
-    )
+    return has_nursing_permission(user, PERM_VIEW) and can_access_patient(user, encounter.patient)
 
 
 def can_record_vitals(user, encounter):

@@ -22,11 +22,6 @@ urlpatterns = [
         name="vitals_correct",
     ),
     path(
-        "enfermagem/sinais-vitais/sincronizar/",
-        views.vitals_sync,
-        name="vitals_sync",
-    ),
-    path(
         "enfermagem/encontros/<uuid:encounter_id>/medicacoes/",
         views.medication_list,
         name="medication_list",

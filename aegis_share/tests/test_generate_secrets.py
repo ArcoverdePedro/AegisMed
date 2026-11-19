@@ -48,8 +48,7 @@ class SecretGeneratorTests(SimpleTestCase):
             env_path = Path(temporary) / ".env"
             current_secret = "already-valid-secret-" + ("y" * 64)
             env_path.write_text(
-                f"SECRET_KEY={current_secret}\n"
-                "FILE_ENCRYPTION_KEY=CHANGE_ME_FILE_KEY\n",
+                f"SECRET_KEY={current_secret}\nFILE_ENCRYPTION_KEY=CHANGE_ME_FILE_KEY\n",
                 encoding="utf-8",
             )
 

@@ -4,8 +4,6 @@ from django.db import connection
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
-from aegis_share.services.storage import storage_client
-
 
 @require_GET
 def live(request):
@@ -29,17 +27,12 @@ def ready(request):
         checks["cache"] = False
 
     healthy = all(checks.values())
-    return JsonResponse({"status": "ok" if healthy else "error", "checks": checks}, status=200 if healthy else 503)
+    return JsonResponse(
+        {"status": "ok" if healthy else "error", "checks": checks}, status=200 if healthy else 503
+    )
 
 
 @require_GET
 def services(request):
-    checks = {
-        "database": True,
-        "redis_configured": bool(settings.REDIS_URL),
-        "storage_backend": settings.FILE_STORAGE_BACKEND,
-        # Cache de 60s: chamadas publicas repetidas nao gastam a cota da Pinata.
-        "storage": cache.get_or_set("health:storage", storage_client().ping, 60),
-        "clamav_enabled": settings.CLAMAV_ENABLED,
-    }
-    return JsonResponse({"status": "ok" if checks["storage"] else "degraded", "checks": checks})
+    checks = {"database": True, "redis_configured": bool(settings.REDIS_URL)}
+    return JsonResponse({"status": "ok", "checks": checks})

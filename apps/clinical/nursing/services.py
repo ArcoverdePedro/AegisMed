@@ -43,9 +43,7 @@ def _normalize_idempotency_key(value):
     try:
         return uuid.UUID(str(value))
     except (TypeError, ValueError, AttributeError) as exc:
-        raise VitalSignsIdempotencyConflictError(
-            "Chave de idempotência inválida."
-        ) from exc
+        raise VitalSignsIdempotencyConflictError("Chave de idempotência inválida.") from exc
 
 
 def _validate_existing_operation(
@@ -86,9 +84,7 @@ def _resolve_collision(
     if not can_record_vitals(actor, current_encounter):
         raise PermissionDenied
 
-    existing = VitalSignsRecord.objects.filter(
-        idempotency_key=idempotency_key
-    ).first()
+    existing = VitalSignsRecord.objects.filter(idempotency_key=idempotency_key).first()
     if existing is None:
         return None
     return _validate_existing_operation(
@@ -117,9 +113,7 @@ def record_vital_signs(
     try:
         with transaction.atomic():
             current_encounter = (
-                Encounter.objects.select_for_update()
-                .select_related("patient")
-                .get(pk=encounter.pk)
+                Encounter.objects.select_for_update().select_related("patient").get(pk=encounter.pk)
             )
             if not can_record_vitals(actor, current_encounter):
                 raise PermissionDenied
@@ -299,14 +293,10 @@ def administer_medication(
         with transaction.atomic():
             try:
                 dispense_item = (
-                    _administration_item_queryset()
-                    .select_for_update()
-                    .get(pk=dispense_item_id)
+                    _administration_item_queryset().select_for_update().get(pk=dispense_item_id)
                 )
             except MedicationDispenseItem.DoesNotExist as exc:
-                raise MedicationAdministrationStateError(
-                    "Item dispensado indisponível."
-                ) from exc
+                raise MedicationAdministrationStateError("Item dispensado indisponível.") from exc
 
             _validate_administration_state(
                 actor=actor,
