@@ -63,13 +63,7 @@ ROLE_MATRIX = {
         "interoperability.receive_lab_file",
     ],
     "Imagem": ["ris.view_orders"],
-    "Faturamento": [
-        "billing.view_accounts",
-        "billing.open_account",
-        "billing.add_item",
-        "billing.reverse_item",
-        "billing.close_account",
-    ],
+    # Faturamento particular fora dos papeis: o SUS usa producao (BPA/AIH), ainda por fazer.
     "Suprimentos": [
         "inventory.view_requisitions",
         "inventory.move_stock",
