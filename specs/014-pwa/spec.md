@@ -1,5 +1,7 @@
 # Spec 014 — PWA: Progressive Web App
 
+> **Status 2026-11:** fila offline cifrada e Web Push removidos na simplificação. Permanecem manifest, service worker deny-by-default, página offline genérica e limpeza no logout.
+
 ## Contexto
 
 O AegisShare HIS deve ser instalável em smartphones e tablets e continuar útil em conectividade intermitente, sem criar app nativo ou API REST pública. A PWA é uma camada de apresentação do mesmo monólito Django.

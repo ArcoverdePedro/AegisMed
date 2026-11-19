@@ -1,5 +1,7 @@
 # Spec 000 — Core: autenticação, auditoria, documentos e workspaces
 
+> **Status 2026-11:** o produto de troca de documentos (arquivos/IPFS, compartilhamento, chat, notificações, API `api/v1`) foi removido na simplificação. Esta spec vale para o que ficou no núcleo: usuários, 2FA, sessões, auditoria e fronteiras arquiteturais.
+
 ## Contexto
 
 O AegisShare atual é o núcleo documental e de segurança que será preservado como **Core** do HIS. O objetivo desta spec é estabilizar o comportamento existente, eliminar incompatibilidades com a constituição do HIS e preparar a migração para bounded contexts sem quebrar funcionalidades.

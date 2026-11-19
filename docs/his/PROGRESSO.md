@@ -8,7 +8,7 @@ Mapa de capacidades na base (fluxo real, não nome de app): PEP com Patient/Enco
 | --- | --- | --- | --- |
 | H00 | DONE | baseline: check, makemigrations --check, ruff check OK; 525 testes OK em PostgreSQL 18 descartável | Preexistente: `ruff format --check` acusa 74 arquivos com ruff 0.17 (não é gate do CI) |
 | H01 | BLOCKED | `docs/his/DECISOES.md` | G01 sem resposta; escopo provisório registrado, trabalho técnico segue |
-| H29 | READY | branch `his/plano-execucao`; `aegis_share/tests/test_file_storage.py` | Falta instalação real com volume e migração de acervo Pinata real (G11) |
+| H29 | REMOVIDO | armazenamento de arquivos removido com o produto de documentos (simplificação 2026-11) | — |
 | H19 | READY | `apps/admin/inventory/tests/test_stock.py`, `test_concurrency.py` (PostgreSQL) | Reserva, conversão de embalagem e ponto de pedido aguardam G09; falta homologação com almoxarifado real |
 | H20 | READY | `apps/admin/inventory/tests/test_purchases.py`, `test_concurrency.py` | Cotação/alçadas/anexos/devolução ao fornecedor e vínculo financeiro aguardam G09/H25 |
 | H03 | BLOCKED | `apps/clinical/pep/tests/test_registration.py`; spec 001 "Extensão de cadastro" | Parte técnica entregue; desconhecido/provisório, múltiplos identificadores, responsáveis e mesclagem dependem de G02 |

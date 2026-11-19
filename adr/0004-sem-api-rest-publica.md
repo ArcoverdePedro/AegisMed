@@ -1,6 +1,9 @@
 # ADR-0004 — Sem API REST pública
 
 ## Status
+
+**Atualização 2026-11:** as rotas `api/v1/*` foram removidas junto com o produto de documentos; não há mais rota pública `/api/`.
+
 Aceito em 2026-09-11 após aprovação explícita da arquitetura HIS.
 
 ## Contexto
