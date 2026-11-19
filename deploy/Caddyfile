@@ -1,0 +1,16 @@
+# Proxy HTTPS do AegisShare (perfil "proxy" do compose.yml).
+# CADDY_TLS=acme: certificado publico (Let's Encrypt) para um dominio acessivel da internet.
+# CADDY_TLS=internal: CA propria do Caddy, para nome so da rede do hospital; instale a raiz
+# exportada de /data/caddy/pki/authorities/local/root.crt nas estacoes.
+(tls_acme) {
+}
+
+(tls_internal) {
+	tls internal
+}
+
+{$DOMAIN} {
+	import tls_{$CADDY_TLS:acme}
+	encode zstd gzip
+	reverse_proxy aegis_share:{$PORT:8000}
+}
