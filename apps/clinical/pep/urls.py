@@ -9,6 +9,7 @@ urlpatterns = [
     path("pacientes/novo/", views.patient_create, name="patient_create"),
     path("pacientes/<uuid:pk>/", views.patient_detail, name="patient_detail"),
     path("pacientes/<uuid:pk>/cadastro/", views.patient_update, name="patient_update"),
+    path("municipios/", views.municipality_options, name="municipality_options"),
     path("pacientes/<uuid:patient_id>/problemas/", views.problem_list, name="problem_list"),
     path(
         "pacientes/<uuid:patient_id>/encontros/",

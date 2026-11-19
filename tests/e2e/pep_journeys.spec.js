@@ -18,6 +18,16 @@ async function login(page, credentials) {
   await expect(page).toHaveURL(/\/$/);
 }
 
+// CNS provisorio (inicio 7) valido e unico por execucao.
+function syntheticCns() {
+  for (;;) {
+    const digits = '7' + Array.from({ length: 13 }, () => Math.floor(Math.random() * 10)).join('');
+    const sum = [...digits].reduce((acc, d, i) => acc + Number(d) * (15 - i), 0);
+    const check = (11 - (sum % 11)) % 11;
+    if (check < 10) return digits + check;
+  }
+}
+
 async function createPatient(page, { identifier, name }) {
   await page.goto('/pacientes/novo/');
   await page.getByLabel('Tipo de identificador').selectOption('OTHER');
@@ -25,6 +35,9 @@ async function createPatient(page, { identifier, name }) {
   await page.getByLabel('Nome completo').fill(name);
   await page.getByLabel('Data de nascimento').fill('1990-01-15');
   await page.getByLabel('Sexo').selectOption('F');
+  await page.getByLabel('CNS (Cartão Nacional de Saúde)').fill(syntheticCns());
+  await page.getByLabel('Nome da mãe').fill('SEM INFORMAÇÃO');
+  await page.getByLabel('Município', { exact: true }).fill('Recife/PE');
   await page.getByRole('button', { name: 'Salvar paciente' }).click();
   await expect(page.getByRole('heading', { name })).toBeVisible();
   return page.url();

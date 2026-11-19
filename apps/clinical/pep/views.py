@@ -26,6 +26,7 @@ from .permissions import (
     can_create_patient,
     is_internal_professional,
 )
+from .sus_tables import search_municipalities
 
 
 def _page(request, queryset):
@@ -73,6 +74,17 @@ def patient_list(request):
             "query": query,
             "can_create_patient": can_create_patient(request.user),
         },
+    )
+
+
+@login_required
+@require_safe
+def municipality_options(request):
+    """Fragmento HTMX: sugestoes de municipio para o datalist do cadastro do paciente."""
+    return render(
+        request,
+        "clinical/pep/_municipality_options.html",
+        {"municipalities": search_municipalities(request.GET.get("municipality_code", ""))},
     )
 
 
