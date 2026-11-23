@@ -28,3 +28,11 @@ test('login rejeita credenciais invalidas e aceita o administrador E2E', async (
   await login(page, ADMIN);
   await expect(page.getByRole('link', { name: 'Auditoria', exact: true })).toBeVisible();
 });
+
+test('telefone do cadastro de usuario recebe mascara local', async ({ page }) => {
+  await login(page, ADMIN);
+  await page.goto('/cadastro/');
+  const phone = page.getByLabel('Telefone');
+  await phone.pressSequentially('81999990000');
+  await expect(phone).toHaveValue('(81) 99999-0000');
+});

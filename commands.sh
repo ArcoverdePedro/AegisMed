@@ -8,8 +8,9 @@ if [ "$#" -gt 0 ]; then
 fi
 
 PORT="${PORT:-8000}"
-RUN_MIGRATIONS="${RUN_MIGRATIONS:-true}"
-COLLECT_STATIC="${COLLECT_STATIC:-true}"
+# Migrations apagam dados em algumas versoes: em producao rodam como passo explicito,
+# depois do backup (README). RUN_MIGRATIONS=true so para desenvolvimento/CI.
+RUN_MIGRATIONS="${RUN_MIGRATIONS:-false}"
 WEB_WORKERS="${WEB_WORKERS:-1}"
 
 if [ -z "${REDIS_URL:-}" ] && [ "$WEB_WORKERS" != "1" ]; then
@@ -17,12 +18,11 @@ if [ -z "${REDIS_URL:-}" ] && [ "$WEB_WORKERS" != "1" ]; then
   WEB_WORKERS=1
 fi
 
-if [ "$RUN_MIGRATIONS" = "true" ]; then
-  echo "Aguardando banco de dados..."
-  attempt=1
-  max_attempts="${DB_STARTUP_ATTEMPTS:-30}"
+echo "Aguardando banco de dados..."
+attempt=1
+max_attempts="${DB_STARTUP_ATTEMPTS:-30}"
 
-  until python - <<'PY'
+until python - <<'PY'
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 import django
@@ -31,22 +31,22 @@ from django.db import connection
 connection.ensure_connection()
 connection.close()
 PY
-  do
-    if [ "$attempt" -ge "$max_attempts" ]; then
-      echo "Banco de dados indisponivel apos ${max_attempts} tentativas."
-      exit 1
-    fi
-    attempt=$((attempt + 1))
-    sleep 2
-  done
+do
+  if [ "$attempt" -ge "$max_attempts" ]; then
+    echo "Banco de dados indisponivel apos ${max_attempts} tentativas."
+    exit 1
+  fi
+  attempt=$((attempt + 1))
+  sleep 2
+done
 
+if [ "$RUN_MIGRATIONS" = "true" ]; then
   echo "Aplicando migrations..."
   python manage.py migrate --noinput
-fi
-
-if [ "$COLLECT_STATIC" = "true" ]; then
-  echo "Coletando arquivos estaticos..."
-  python manage.py collectstatic --noinput
+elif ! python manage.py migrate --check >/dev/null; then
+  echo "Ha migrations pendentes. Faca o backup e rode:"
+  echo "  docker compose run --rm aegis_share python manage.py migrate"
+  exit 1
 fi
 
 echo "Iniciando AegisShare na porta ${PORT} com ${WEB_WORKERS} worker(s)..."

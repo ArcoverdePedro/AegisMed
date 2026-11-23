@@ -124,8 +124,11 @@ jobs:
       - name: Validar o arquivo Compose
         run: docker compose -f compose.yml config --quiet
 
-      - name: Subir stack completa
-        run: docker compose -f compose.yml up -d --build
+      - name: Subir stack completa (build, migrate explicito, up)
+        run: |
+          docker compose -f compose.yml build
+          docker compose -f compose.yml run --rm aegis_share python manage.py migrate --noinput
+          docker compose -f compose.yml up -d
 
       - name: Garantir que segredos locais nao foram copiados para a imagem
         run: >-

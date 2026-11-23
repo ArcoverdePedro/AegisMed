@@ -4,6 +4,20 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 
 ## [0.2.0] - Em desenvolvimento
 
+### Segurança e deploy (2026-11)
+
+- Container roda como usuário sem privilégios.
+- `RUN_MIGRATIONS=false` por padrão: migrations viram passo explícito e o container não inicia com migration pendente.
+- CSP com nonce; a configuração inicial não carrega mais scripts de CDN.
+- Sessão expira após 30 minutos sem uso e ao fechar o navegador.
+- Perfil `proxy` com Caddy (HTTPS automático, público ou interno).
+- `scripts/backup.sh` apaga lotes com mais de `BACKUP_KEEP_DAYS` dias.
+
+### Notas de atualização (segurança e deploy)
+
+- A porta da aplicação passa a ser publicada só em `127.0.0.1`. Para acesso pela rede, use o perfil `proxy` (ou outro proxy HTTPS) ou defina `APP_BIND=0.0.0.0` conscientemente.
+- A partir desta versão, rode `docker compose run --rm aegis_share python manage.py migrate` a cada atualização (veja o README).
+
 ### Removido (simplificação, 2026-11)
 
 - Produto de troca de documentos: arquivos/IPFS/Pinata, versões, compartilhamento e links públicos, workspaces, lixeira, solicitações de documentos, chat, tokens, API `api/v1` e notificações.
