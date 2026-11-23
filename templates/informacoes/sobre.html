@@ -1,128 +1,90 @@
 {% extends 'navbar/navbar.html' %}
 {% load icon %}
-{% load static %}
 
-{% block title %}Sobre - Aegis Share{% endblock %}
+{% block title %}Sobre - AegisShare{% endblock %}
 
 {% block page_content %}
+<section class="section pt-5">
+<div class="container" style="max-width: 1100px;">
 
-<!-- Cabeçalho -->
-<div class="columns is-centered mt-6 mb-6">
-  <div class="column is-10">
-    <div class="box has-background-link has-text-white has-text-centered">
-      <h1 class="title has-text-white is-2">
-        {% icon "info" style="width: 20px; height: 20px;" %}
-        Projeto Acadêmico
-        {% icon "info" style="width: 20px; height: 20px;" %}
-      </h1>
-      <p class="subtitle has-text-white is-5">Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS.</p>
+    <div class="box has-background-link has-text-white has-text-centered mb-6">
+        <h1 class="title has-text-white is-2 mb-3">AegisShare</h1>
+        <p class="subtitle has-text-white is-5 mb-3">Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS.</p>
+        <span class="tag is-warning is-medium">Em desenvolvimento · uso com pacientes reais depende de homologação pela instituição</span>
     </div>
-  </div>
+
+    <h2 class="title is-3 has-text-link">O que o sistema faz</h2>
+    <p class="mb-5">Um único sistema web para o atendimento ambulatorial e a internação clínica de adultos. Cada profissional vê apenas os módulos e os pacientes a que tem acesso.</p>
+
+    <div class="columns is-multiline mb-5">
+        {% for modulo in modulos %}
+        <div class="column is-4-desktop is-6-tablet">
+            <div class="box" style="height: 100%;">
+                <p class="title is-6 mb-2"><span class="icon has-text-link mr-1">{% icon modulo.icone %}</span>{{ modulo.nome }}</p>
+                <p class="is-size-7">{{ modulo.descricao }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr class="my-6">
+
+    <div class="columns">
+        <div class="column is-6">
+            <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'shield' %}</span>Proteção dos dados</h2>
+            <div class="content"><ul>
+                <li>Prontuário aberto só para quem tem vínculo assistencial com o paciente.</li>
+                <li>Autenticação em dois fatores (2FA) e senhas com Argon2.</li>
+                <li>Sessão encerrada após 30 minutos sem uso e ao fechar o navegador.</li>
+                <li>Auditoria de leituras e alterações, consultável pela administração.</li>
+                <li>Registros clínicos não são apagados: correções e adendos preservam o original.</li>
+                <li>O navegador não carrega nada de servidores externos; tudo vem do próprio hospital.</li>
+                <li>Solicitações de titulares (LGPD) registradas e acompanhadas no sistema.</li>
+            </ul></div>
+        </div>
+        <div class="column is-6">
+            <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'alert-triangle' %}</span>Limitações atuais</h2>
+            <div class="content"><ul>
+                <li>Ainda não gera a produção SUS (BPA/AIH) nem consulta o CadSUS ou a RNDS.</li>
+                <li>Documentos ainda sem assinatura digital ICP-Brasil: não substitui o prontuário em papel.</li>
+                <li>Funciona só com conexão à rede do hospital; mantenha um plano de contingência em papel.</li>
+                <li>Regras clínicas (interações, doses) só são avaliadas com referências aprovadas pela instituição.</li>
+            </ul></div>
+        </div>
+    </div>
+
+    <hr class="my-6">
+
+    <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'server' %}</span>Como funciona</h2>
+    <div class="columns is-vcentered is-variable is-2 has-text-centered mb-4" role="img" aria-label="Navegador, depois proxy HTTPS Caddy, depois AegisShare com Django e Granian, que usa PostgreSQL e Redis">
+        <div class="column"><div class="box"><span class="icon">{% icon 'monitor' %}</span><p class="has-text-weight-semibold">Navegador</p><p class="is-size-7">computador, tablet ou celular</p></div></div>
+        <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
+        <div class="column"><div class="box"><span class="icon">{% icon 'lock' %}</span><p class="has-text-weight-semibold">Caddy</p><p class="is-size-7">HTTPS</p></div></div>
+        <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
+        <div class="column"><div class="box"><span class="icon">{% icon 'cpu' %}</span><p class="has-text-weight-semibold">AegisShare</p><p class="is-size-7">Django + Granian</p></div></div>
+        <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
+        <div class="column"><div class="box"><span class="icon">{% icon 'database' %}</span><p class="has-text-weight-semibold">PostgreSQL + Redis</p><p class="is-size-7">dados e tempo real</p></div></div>
+    </div>
+    <p class="is-size-7 has-text-grey mb-5">Instalado em um servidor do próprio hospital com Docker Compose. Backup cifrado do banco agendado diariamente.</p>
+
+    <hr class="my-6">
+
+    <div class="columns">
+        <div class="column is-6">
+            <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'help-circle' %}</span>Ajuda e suporte</h2>
+            <div class="content"><ul>
+                <li><a href="{{ fonte }}/blob/master/docs/manual-do-usuario.md" target="_blank" rel="noopener">Manual do usuário</a>: como usar cada módulo.</li>
+                <li><a href="{{ fonte }}/blob/master/docs/suporte-tecnico.md" target="_blank" rel="noopener">Guia de suporte técnico</a>: instalação, backup e problemas comuns.</li>
+                <li>Problemas de acesso ou senha: procure a equipe de TI do hospital.</li>
+            </ul></div>
+        </div>
+        <div class="column is-6">
+            <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'code' %}</span>Licença</h2>
+            <p class="mb-2">Software livre sob a licença <strong>AGPL-3.0</strong>. Qualquer hospital pode usar, estudar e adaptar; versões modificadas oferecidas em rede devem disponibilizar o código.</p>
+            <p><a href="{{ fonte }}" target="_blank" rel="noopener">Código-fonte no GitHub</a></p>
+        </div>
+    </div>
+
 </div>
-
-<!-- Objetivo -->
-<div class="container">
-  <div class="columns is-centered mb-6">
-    <div class="column is-10">
-      <h2 class="title is-3 has-text-centered has-text-link">Objetivo do Projeto</h2>
-      <p class="has-text-centered">
-        O AegisShare nasceu como projeto acadêmico de troca segura de arquivos e evoluiu para um sistema de informação hospitalar: prontuário, agenda, internação, prescrição, farmácia, enfermagem e laboratório, com segurança, rastreabilidade e minimização de dados como requisitos.
-      </p>
-    </div>
-  </div>
-
-  <hr class="my-5">
-
-  <!-- Cards -->
-  <h2 class="title is-4 has-text-centered mb-5">Escopo Técnico da Implementação</h2>
-  <div class="columns is-variable is-8">
-    
-    <!-- Card 1 -->
-    <div class="column">
-        <div class="box has-shadow">
-            <div class="has-text-centered mb-3">
-            {% icon "lock" class="has-text-link" style="width: 30px; height: 30px;" %}
-            </div>
-            <h5 class="title is-5 has-text-centered">Segurança</h5>
-            <p>
-            Acesso ao prontuário por vínculo assistencial, autenticação em dois fatores, auditoria de leituras e alterações e senhas com Argon2.
-            </p>
-            <div class="has-text-centered mt-3">
-            <span class="tag is-link">Arquitetura Segura</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 2 -->
-    <div class="column">
-        <div class="box has-shadow">
-            <div class="has-text-centered mb-3">
-            {% icon "zap" class="has-text-danger" style="width: 30px; height: 30px;" %}
-            </div>
-            <h5 class="title is-5 has-text-centered">Velocidade e Assíncrona</h5>
-            <p>
-              Redis e HTMX proporcionam atualizações em tempo real e responsividade, garantindo uma experiência fluida.
-            </p>
-            <div class="has-text-centered mt-3">
-            <span class="tag is-danger">Arquitetura Veloz</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 3 -->
-    <div class="column">
-        <div class="box has-shadow">
-            <div class="has-text-centered mb-3">
-            {% icon "server" class="has-text-success" style="width: 30px; height: 30px;" %}
-            </div>
-            <h5 class="title is-5 has-text-centered">Estrutura</h5>
-            <p>
-            Servido via Granian, o Django estrutura o sistema com MVC claro e robusto, integrando Frontend, Autenticação e Backend no mesmo Ambiente.
-            </p>
-            <div class="has-text-centered mt-3">
-            <span class="tag is-success">Arquitetura Estruturada</span>
-            </div>
-        </div>
-    </div>
-
-  </div>
-
-  <hr class="my-5">
-
-  <!-- Design Arquitetural -->
-  <div class="columns is-vcentered">
-    <div class="column is-6">
-      <h3 class="title is-4">Design Arquitetural e Ferramentas</h3>
-      <p class="has-text-grey mb-4">
-        Tecnologias utilizadas para orquestrar o ambiente de desenvolvimento e produção:
-      </p>
-      <ul class="content">
-        <li>
-          {% icon "code" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Backend e Servidor:</strong> Django (Python) e Granian (ASGI, Rust)
-        </li>
-        <li>
-          {% icon "globe" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Armazenamento:</strong> PostgreSQL
-        </li>
-        <li>
-          {% icon "message-square" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Comunicação:</strong> Redis, HTMX e Ajax
-        </li>
-        <li>
-          {% icon "box" style="width: 20px; height: 20px;" %}
-          <strong class="ml-2">Orquestração:</strong> Docker Compose (PostgreSQL, Redis, Django)
-        </li>
-      </ul>
-    </div>
-
-    <div class="column is-6 has-text-centered">
-      <figure class="image is-4by6" style="width: 45%; margin: 0 auto;">
-        <img src="{% static "images/fluxo.png" %}" alt="Diagrama de Arquitetura do Projeto Aegis Share">
-      </figure>
-      <small class="has-text-grey mt-2 is-block">Ilustração conceitual da arquitetura do projeto.</small>
-    </div>
-  </div>
-</div>
-
+</section>
 {% endblock %}
