@@ -32,7 +32,11 @@ class WebSurfaceTests(TestCase):
         nonce = re.search(r"'nonce-([^']+)'", policy).group(1)
         self.assertIn("script-src 'self' 'nonce-", policy)
         self.assertIn("frame-ancestors 'none'", policy)
-        inline = re.findall(r"<script(?![^>]*\bsrc=)([^>]*)>", response.content.decode())
+        inline = re.findall(
+            r"<script(?![^>]*\bsrc=)([^>]*)>",
+            response.content.decode(),
+            flags=re.IGNORECASE,
+        )
         self.assertTrue(inline)
         for attrs in inline:
             self.assertIn(f'nonce="{nonce}"', attrs)
