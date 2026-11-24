@@ -8,30 +8,20 @@ from .models import TrackedSession
 
 
 class PrivateWorkflowMiddleware:
-    """Inclui erros de CSRF e autorização na política de privacidade dos fluxos."""
+    """Nenhuma resposta fica no cache do navegador, salvo quem define o proprio Cache-Control.
+
+    Estacao compartilhada: o botao Voltar apos o logout nao pode mostrar dados de paciente.
+    Estaticos (WhiteNoise) e o PWA definem politica propria e ficam como estao.
+    """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.path_info == reverse(
-            "interoperability:patient_export"
-        ) or request.path_info.startswith(
-            (
-                reverse("compliance:request_list"),
-                reverse("interoperability:lab_inbox_list"),
-                reverse("lis:order_list").removesuffix("pedidos/"),
-                reverse("ris:order_list").removesuffix("pedidos/"),
-                reverse("inventory:item_list"),
-                reverse("scheduling:agenda"),
-                reverse("hr:employee_list"),
-                reverse("admin:hr_employee_changelist"),
-            )
-        ):
-            response["Cache-Control"] = "private, no-store"
-            response["X-Content-Type-Options"] = "nosniff"
-            patch_vary_headers(response, ("Cookie",))
+        if not response.has_header("Cache-Control"):
+            response["Cache-Control"] = "private, no-store, max-age=0"
+            patch_vary_headers(response, ("Cookie", "HX-Request"))
         return response
 
 

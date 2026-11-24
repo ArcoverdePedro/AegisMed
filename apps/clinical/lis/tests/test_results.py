@@ -39,6 +39,8 @@ class LabResultTests(TestCase):
         first = self.result(specimen, key)
         self.assertEqual(self.result(specimen, key), first)
         with self.assertRaises(LisConflict):
+            self.result(specimen, key, value="920")  # mesma chave, valor corrigido
+        with self.assertRaises(LisConflict):
             self.result(specimen, supersedes=first, reason="erro")  # ainda não liberado
         advance_result(user=self.user, result_id=first.pk)
         released = advance_result(user=self.user, result_id=first.pk)

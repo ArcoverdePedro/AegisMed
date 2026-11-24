@@ -1,5 +1,3 @@
-import uuid
-
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -17,7 +15,12 @@ from .permissions import (
     can_transfer_admission,
     has_adt_permission,
 )
-from .services import AdtConflictError, BedUnavailableError, IdempotencyConflictError
+from .services import (
+    AdtConflictError,
+    BedUnavailableError,
+    IdempotencyConflictError,
+    _normalize_operation_key,
+)
 
 
 class TransferStateError(AdtConflictError):
@@ -76,15 +79,6 @@ def change_bed_status(*, actor, bed_id, status, reason):
         return change
 
 
-def _operation_key(value):
-    if isinstance(value, uuid.UUID):
-        return value
-    try:
-        return uuid.UUID(str(value))
-    except (TypeError, ValueError, AttributeError) as exc:
-        raise IdempotencyConflictError("Chave de operação inválida.") from exc
-
-
 def _existing_transfer(existing, admission_id, destination_bed_id, actor):
     existing = Transfer.objects.select_related(
         "admission__encounter__patient",
@@ -118,7 +112,7 @@ def transfer_patient(
     transferred_at=None,
     reason="",
 ):
-    operation_key = _operation_key(operation_key)
+    operation_key = _normalize_operation_key(operation_key)
     transferred_at = transferred_at or timezone.now()
     try:
         with transaction.atomic():
@@ -252,7 +246,7 @@ def discharge_patient(
     discharged_at=None,
     reason="",
 ):
-    operation_key = _operation_key(operation_key)
+    operation_key = _normalize_operation_key(operation_key)
     discharged_at = discharged_at or timezone.now()
     try:
         with transaction.atomic():

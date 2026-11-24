@@ -162,6 +162,16 @@ class StockLedgerTests(TestCase):
                 operation_key=key,
             )
 
+    def test_same_key_with_changed_quantity_conflicts(self):
+        key = uuid.uuid4()
+        self.move("RECEIPT", 10)
+        issue = self.move("ISSUE", 5, operation_key=key)
+        self.assertEqual(self.move("ISSUE", 5, operation_key=key), issue)
+
+        with self.assertRaises(InventoryConflict):
+            self.move("ISSUE", 1, operation_key=key)
+        self.assertEqual(MaterialBalance.objects.get().quantity, 5)
+
     def test_lot_expiry_cannot_diverge(self):
         self.move("RECEIPT", 2, lot="L1", expires_on="2027-01-31")
         with self.assertRaises(InventoryConflict):

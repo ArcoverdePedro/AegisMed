@@ -1,9 +1,12 @@
 import hashlib
+import hmac
 import secrets
 
 import pyotp
 from django.core.cache import cache
 from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
 
 from aegis_med.models import UserSecuritySettings
 
@@ -35,6 +38,7 @@ def begin_totp_setup(user):
     security.totp_secret_encrypted = encrypt_secret(secret, purpose=f"totp:{user.id}")
     security.totp_enabled = False
     security.recovery_codes = []
+    security.totp_last_timestep = None
     security.save()
     uri = pyotp.TOTP(secret).provisioning_uri(
         name=user.email or user.username,
@@ -54,7 +58,18 @@ def verify_totp(user, code: str) -> bool:
         security.totp_secret_encrypted,
         purpose=f"totp:{user.id}",
     )
-    return pyotp.TOTP(secret).verify((code or "").strip(), valid_window=1)
+    totp = pyotp.TOTP(secret)
+    code = (code or "").strip()
+    current = totp.timecode(timezone.now())
+    for step in (current - 1, current, current + 1):
+        if hmac.compare_digest(code, totp.generate_otp(step)):
+            # Update condicional e atomico: so um login consome cada codigo.
+            return bool(
+                UserSecuritySettings.objects.filter(pk=security.pk)
+                .filter(Q(totp_last_timestep__isnull=True) | Q(totp_last_timestep__lt=step))
+                .update(totp_last_timestep=step)
+            )
+    return False
 
 
 def enable_totp(user, code: str):
@@ -74,6 +89,7 @@ def disable_totp(user):
     security.totp_enabled = False
     security.totp_secret_encrypted = ""
     security.recovery_codes = []
+    security.totp_last_timestep = None
     security.save()
 
 

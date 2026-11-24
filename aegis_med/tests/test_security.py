@@ -4,6 +4,7 @@ import pyotp
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from aegis_med.models import CustomUser
 from aegis_med.services.security import (
@@ -11,6 +12,7 @@ from aegis_med.services.security import (
     consume_recovery_code,
     enable_totp,
     too_many_attempts,
+    verify_totp,
 )
 from aegis_med.tests.helpers import make_user
 
@@ -44,6 +46,16 @@ class SecurityServiceTests(TestCase):
 
         self.assertTrue(consume_recovery_code(self.user, recovery_plain[0]))
         self.assertFalse(consume_recovery_code(self.user, recovery_plain[0]))
+
+    def test_totp_code_is_accepted_only_once(self):
+        secret, _ = begin_totp_setup(self.user)
+        totp = pyotp.TOTP(secret)
+        enable_totp(self.user, totp.generate_otp(totp.timecode(timezone.now()) - 1))
+
+        code = totp.now()
+        self.assertTrue(verify_totp(self.user, code))
+        self.assertFalse(verify_totp(self.user, code))
+        self.assertFalse(verify_totp(self.user, "000000"))
 
 
 @override_settings(FILE_ENCRYPTION_KEY=TEST_KEY, STORAGES=TEST_STORAGES)

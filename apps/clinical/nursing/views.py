@@ -5,7 +5,6 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.cache import patch_vary_headers
 from django.views.decorators.http import require_GET, require_http_methods
 
 from apps.clinical.pep.models import Encounter
@@ -28,12 +27,6 @@ from .services import (
     administer_medication,
     record_vital_signs,
 )
-
-
-def _no_store(response):
-    response["Cache-Control"] = "private, no-store, max-age=0"
-    patch_vary_headers(response, ("Cookie", "HX-Request"))
-    return response
 
 
 def _audit_access(*instances):
@@ -78,12 +71,10 @@ def nursing_worklist(request):
     page_obj = paginator.get_page(request.GET.get("page"))
     rendered_encounters = list(page_obj.object_list)
     _audit_access(*rendered_encounters)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/worklist.html",
-            {"encounters": rendered_encounters, "page_obj": page_obj},
-        )
+    return render(
+        request,
+        "clinical/nursing/worklist.html",
+        {"encounters": rendered_encounters, "page_obj": page_obj},
     )
 
 
@@ -98,23 +89,21 @@ def nursing_encounter(request, pk):
         encounter.nursing_vital_signs.select_related("recorded_by", "replaces").all()[:50]
     )
     _audit_access(encounter, *vital_signs)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/encounter.html",
-            {
-                "encounter": encounter,
-                "vital_signs": vital_signs,
-                "can_record_vitals": can_record_vitals(request.user, encounter),
-                "can_administer_medications": (
-                    encounter.status == Encounter.Status.OPEN
-                    and has_nursing_permission(
-                        request.user,
-                        PERM_ADMINISTER_MEDICATION,
-                    )
-                ),
-            },
-        )
+    return render(
+        request,
+        "clinical/nursing/encounter.html",
+        {
+            "encounter": encounter,
+            "vital_signs": vital_signs,
+            "can_record_vitals": can_record_vitals(request.user, encounter),
+            "can_administer_medications": (
+                encounter.status == Encounter.Status.OPEN
+                and has_nursing_permission(
+                    request.user,
+                    PERM_ADMINISTER_MEDICATION,
+                )
+            ),
+        },
     )
 
 
@@ -139,18 +128,16 @@ def vitals_create(request, encounter_id):
             data=form.cleaned_data,
         )
         messages.success(request, "Sinais vitais registrados com sucesso.")
-        return _no_store(redirect("nursing:encounter", pk=encounter.pk))
+        return redirect("nursing:encounter", pk=encounter.pk)
 
     _audit_access(encounter)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/vitals_form.html",
-            {
-                "form": form,
-                "encounter": encounter,
-            },
-        )
+    return render(
+        request,
+        "clinical/nursing/vitals_form.html",
+        {
+            "form": form,
+            "encounter": encounter,
+        },
     )
 
 
@@ -192,20 +179,18 @@ def vitals_correct(request, record_id):
             replaces=original,
         )
         messages.success(request, "Correção de sinais vitais registrada com sucesso.")
-        return _no_store(redirect("nursing:encounter", pk=encounter.pk))
+        return redirect("nursing:encounter", pk=encounter.pk)
 
     _audit_access(encounter, original)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/vitals_form.html",
-            {
-                "form": form,
-                "encounter": encounter,
-                "is_correction": True,
-                "original_record": original,
-            },
-        )
+    return render(
+        request,
+        "clinical/nursing/vitals_form.html",
+        {
+            "form": form,
+            "encounter": encounter,
+            "is_correction": True,
+            "original_record": original,
+        },
     )
 
 
@@ -234,15 +219,13 @@ def medication_list(request, encounter_id):
         .order_by("-dispense__dispensed_at", "request_item__sequence", "created_at")
     )
     _audit_access(encounter, *dispense_items)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/medications.html",
-            {
-                "encounter": encounter,
-                "dispense_items": dispense_items,
-            },
-        )
+    return render(
+        request,
+        "clinical/nursing/medications.html",
+        {
+            "encounter": encounter,
+            "dispense_items": dispense_items,
+        },
     )
 
 
@@ -296,19 +279,17 @@ def medication_administer(request, dispense_item_id):
         else:
             messages.success(request, "Administração registrada com sucesso.")
             encounter_id = dispense_item.dispense.medication_request.encounter_id
-            return _no_store(redirect("nursing:medication_list", encounter_id=encounter_id))
+            return redirect("nursing:medication_list", encounter_id=encounter_id)
 
     encounter = dispense_item.dispense.medication_request.encounter
     _audit_access(encounter, dispense_item)
-    return _no_store(
-        render(
-            request,
-            "clinical/nursing/medication_administer.html",
-            {
-                "form": form,
-                "dispense_item": dispense_item,
-                "encounter": encounter,
-            },
-            status=response_status,
-        )
+    return render(
+        request,
+        "clinical/nursing/medication_administer.html",
+        {
+            "form": form,
+            "dispense_item": dispense_item,
+            "encounter": encounter,
+        },
+        status=response_status,
     )

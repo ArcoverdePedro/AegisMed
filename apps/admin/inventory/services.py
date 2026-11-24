@@ -132,6 +132,20 @@ def _existing_operation(operation_key, user, item):
     return first
 
 
+def _same_movement(existing, kind, location, quantity):
+    """Retry so devolve o registro original se o conteudo tambem for o mesmo."""
+    if existing is None:
+        return None
+    expected_kind = "TRANSFER_OUT" if kind == "TRANSFER" else kind
+    # Ajuste grava a diferenca contada, entao a quantidade nao e comparavel.
+    same_quantity = kind == "ADJUSTMENT" or abs(existing.quantity_delta) == quantity
+    if (existing.kind, existing.balance.location_id) != (expected_kind, location.pk) or not (
+        same_quantity
+    ):
+        raise InventoryConflict("Operação incompatível.")
+    return existing
+
+
 def _open_encounter(user, encounter):
     encounter = get_object_or_404(Encounter.objects.select_for_update(), pk=encounter.pk)
     get_object_or_404(accessible_patients(user), pk=encounter.patient_id)
@@ -165,7 +179,9 @@ def record_movement(
         with transaction.atomic(), set_actor(user):
             # Trava o material: serializa movimentos do mesmo item e evita deadlock entre locais.
             item = get_object_or_404(InventoryItem.objects.select_for_update(), pk=item.pk)
-            existing = _existing_operation(operation_key, user, item)
+            existing = _same_movement(
+                _existing_operation(operation_key, user, item), kind, location, quantity
+            )
             if existing:
                 return existing
             if not item.active:
@@ -206,7 +222,9 @@ def record_movement(
             raise InventoryConflict("Tipo de movimento inválido.")
     except IntegrityError:
         # Outra requisicao gravou a mesma chave ao mesmo tempo: devolve o registro dela.
-        existing = _existing_operation(operation_key, user, item)
+        existing = _same_movement(
+            _existing_operation(operation_key, user, item), kind, location, quantity
+        )
         if existing is None:
             raise
         return existing

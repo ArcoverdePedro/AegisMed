@@ -274,6 +274,6 @@ class EmployeeTests(TestCase):
             [response.status_code for response in responses], [200, 405, 404, 403, 302]
         )
         for response in responses:
-            self.assertEqual(response["Cache-Control"], "private, no-store")
+            self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")
             self.assertIn("Cookie", response["Vary"])
             self.assertEqual(response["X-Content-Type-Options"], "nosniff")

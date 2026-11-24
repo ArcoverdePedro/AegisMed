@@ -271,7 +271,7 @@ class InboxTests(TestCase):
             self.client.get(reverse("interoperability:lab_inbox_detail", args=[uuid.uuid4()]))
         )
         for response in responses:
-            self.assertEqual(response["Cache-Control"], "private, no-store")
+            self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")
             self.assertIn("Cookie", response["Vary"])
             self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 

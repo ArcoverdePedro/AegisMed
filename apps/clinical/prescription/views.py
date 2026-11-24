@@ -13,7 +13,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.cache import patch_vary_headers
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import FormView, ListView
 
@@ -68,12 +67,6 @@ from .services import (
 )
 
 
-def _no_store(response):
-    response["Cache-Control"] = "private, no-store, max-age=0"
-    patch_vary_headers(response, ("Cookie", "HX-Request"))
-    return response
-
-
 def _submitted_formset_forms(formset):
     return [form for form in formset.forms if form.has_changed()]
 
@@ -97,13 +90,7 @@ def _scoped_dispense_or_404(user, pk):
     )
 
 
-class NoStoreResponseMixin:
-    def render_to_response(self, context, **response_kwargs):
-        response = super().render_to_response(context, **response_kwargs)
-        return _no_store(response)
-
-
-class DrugCatalogView(LoginRequiredMixin, NoStoreResponseMixin, ListView):
+class DrugCatalogView(LoginRequiredMixin, ListView):
     template_name = "clinical/prescription/drug_catalog.html"
     context_object_name = "drugs"
     paginate_by = 30
@@ -124,7 +111,7 @@ class DrugCatalogView(LoginRequiredMixin, NoStoreResponseMixin, ListView):
         return context
 
 
-class DrugCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
+class DrugCreateView(LoginRequiredMixin, FormView):
     template_name = "clinical/prescription/drug_form.html"
     form_class = DrugForm
 
@@ -143,7 +130,7 @@ class DrugCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
         return HttpResponseRedirect(reverse("prescription:drug_catalog"))
 
 
-class DrugUpdateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
+class DrugUpdateView(LoginRequiredMixin, FormView):
     template_name = "clinical/prescription/drug_form.html"
     form_class = DrugForm
 
@@ -178,7 +165,7 @@ class DrugUpdateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
         return HttpResponseRedirect(reverse("prescription:drug_catalog"))
 
 
-class PharmacyStockView(LoginRequiredMixin, NoStoreResponseMixin, ListView):
+class PharmacyStockView(LoginRequiredMixin, ListView):
     template_name = "clinical/prescription/pharmacy_stock.html"
     context_object_name = "stock_items"
     paginate_by = 30
@@ -229,12 +216,10 @@ def prescription_list(request):
     page = Paginator(visible_medication_requests(request.user), 30).get_page(request.GET.get("page"))
     for medication_request in page.object_list:
         accessed.send(medication_request.__class__, instance=medication_request)
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/prescription_list.html",
-            {"page_obj": page, "prescriptions": page.object_list},
-        )
+    return render(
+        request,
+        "clinical/prescription/prescription_list.html",
+        {"page_obj": page, "prescriptions": page.object_list},
     )
 
 
@@ -257,9 +242,7 @@ def prescription_create(request):
                     actor=request.user,
                     replaces_id=form.cleaned_data.get("replaces"),
                 )
-                for sequence, item_form in enumerate(
-                    _submitted_formset_forms(formset), start=1
-                ):
+                for sequence, item_form in enumerate(_submitted_formset_forms(formset), start=1):
                     add_medication_request_item(
                         request_id=medication_request.pk,
                         actor=request.user,
@@ -279,12 +262,10 @@ def prescription_create(request):
             messages.success(request, "Prescrição criada como rascunho.")
             return redirect("prescription:prescription_detail", pk=medication_request.pk)
 
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/new.html",
-            {"form": form, "item_formset": formset},
-        )
+    return render(
+        request,
+        "clinical/prescription/new.html",
+        {"form": form, "item_formset": formset},
     )
 
 
@@ -301,18 +282,16 @@ def prescription_detail(request, pk):
     reviews = medication_request.safety_reviews.prefetch_related(
         "findings__interaction", "findings__dose_rule", "findings__request_item"
     ).order_by("-created_at")
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/detail.html",
-            {
-                "prescription": medication_request,
-                "items": items,
-                "reviews": reviews,
-                "submit_form": MedicationRequestSubmitForm(),
-                "cancel_form": MedicationRequestCancelForm(),
-            },
-        )
+    return render(
+        request,
+        "clinical/prescription/detail.html",
+        {
+            "prescription": medication_request,
+            "items": items,
+            "reviews": reviews,
+            "submit_form": MedicationRequestSubmitForm(),
+            "cancel_form": MedicationRequestCancelForm(),
+        },
     )
 
 
@@ -356,9 +335,13 @@ def prescription_validate(request, pk):
         except PrescriptionValidationError as exc:
             form.add_error(None, str(exc))
             if exc.review_id:
-                blocked_review = MedicationSafetyReview.objects.prefetch_related(
-                    "findings__interaction", "findings__dose_rule", "findings__request_item"
-                ).filter(pk=exc.review_id).first()
+                blocked_review = (
+                    MedicationSafetyReview.objects.prefetch_related(
+                        "findings__interaction", "findings__dose_rule", "findings__request_item"
+                    )
+                    .filter(pk=exc.review_id)
+                    .first()
+                )
         except (PrescriptionStateError, SafetyStateError) as exc:
             form.add_error(None, str(exc))
         else:
@@ -368,17 +351,15 @@ def prescription_validate(request, pk):
     snapshot = None
     if medication_request.status == MedicationRequest.Status.SUBMITTED:
         snapshot = evaluate_medication_safety(medication_request)
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/validate.html",
-            {
-                "prescription": medication_request,
-                "form": form,
-                "safety": snapshot,
-                "blocked_review": blocked_review,
-            },
-        )
+    return render(
+        request,
+        "clinical/prescription/validate.html",
+        {
+            "prescription": medication_request,
+            "form": form,
+            "safety": snapshot,
+            "blocked_review": blocked_review,
+        },
     )
 
 
@@ -438,16 +419,14 @@ def dispense_create(request, pk):
             messages.success(request, "Dispensação concluída e estoque atualizado.")
             return redirect("prescription:dispense_detail", pk=dispense.pk)
 
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/dispense.html",
-            {
-                "prescription": medication_request,
-                "form": header_form,
-                "item_formset": item_formset,
-            },
-        )
+    return render(
+        request,
+        "clinical/prescription/dispense.html",
+        {
+            "prescription": medication_request,
+            "form": header_form,
+            "item_formset": item_formset,
+        },
     )
 
 
@@ -467,12 +446,10 @@ def dispense_list(request):
     page = Paginator(queryset, 30).get_page(request.GET.get("page"))
     for dispense in page.object_list:
         accessed.send(dispense.__class__, instance=dispense)
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/dispense_list.html",
-            {"page_obj": page, "dispenses": page.object_list},
-        )
+    return render(
+        request,
+        "clinical/prescription/dispense_list.html",
+        {"page_obj": page, "dispenses": page.object_list},
     )
 
 
@@ -484,16 +461,14 @@ def dispense_detail(request, pk):
         raise PermissionDenied
     accessed.send(dispense.__class__, instance=dispense)
     items = list(
-        dispense.items.select_related(
-            "request_item__drug", "lot__stock_item__drug"
-        ).order_by("created_at")
+        dispense.items.select_related("request_item__drug", "lot__stock_item__drug").order_by(
+            "created_at"
+        )
     )
     for item in items:
         accessed.send(item.__class__, instance=item)
-    return _no_store(
-        render(
-            request,
-            "clinical/prescription/dispense_detail.html",
-            {"dispense": dispense, "items": items},
-        )
+    return render(
+        request,
+        "clinical/prescription/dispense_detail.html",
+        {"dispense": dispense, "items": items},
     )

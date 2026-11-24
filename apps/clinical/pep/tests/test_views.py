@@ -40,6 +40,15 @@ class PatientViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Maria da Silva")
 
+    def test_patient_detail_is_not_kept_in_browser_cache(self):
+        # Estacao compartilhada: o Voltar apos logout nao pode reexibir o prontuario.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse("pep:patient_detail", args=[self.patient.id]))
+
+        self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")
+        self.assertIn("Cookie", response["Vary"])
+
     def test_employee_only_lists_patients_in_scope(self):
         self.client.force_login(self.other)
 

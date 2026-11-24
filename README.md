@@ -292,7 +292,6 @@ O AegisMed pode ser instalado como app (manifest + service worker), mas funciona
 ```text
 /health/live/      processo HTTP vivo
 /health/ready/     banco e cache prontos
-/health/services/  diagnóstico de configuração (banco, Redis)
 ```
 
 Aponte um monitor externo (Uptime Kuma, Zabbix ou similar) para `https://DOMINIO/health/ready/` com alerta para a equipe de TI, e configure `SENTRY_DSN` para receber erros da aplicação.

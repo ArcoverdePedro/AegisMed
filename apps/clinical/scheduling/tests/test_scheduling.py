@@ -174,7 +174,7 @@ class SchedulingTests(TestCase):
 
         agenda = self.client.get(reverse("scheduling:agenda") + f"?dia={self.tomorrow}")
         self.assertContains(agenda, "Carla Lima")
-        self.assertEqual(agenda["Cache-Control"], "private, no-store")
+        self.assertEqual(agenda["Cache-Control"], "private, no-store, max-age=0")
 
         self.client.force_login(self.doctor)
         agenda = self.client.get(reverse("scheduling:agenda") + f"?dia={self.tomorrow}")

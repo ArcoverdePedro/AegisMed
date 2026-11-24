@@ -46,6 +46,8 @@ class UserSecuritySettings(models.Model):
     totp_secret_encrypted = models.TextField(blank=True)
     totp_enabled = models.BooleanField(default=False)
     recovery_codes = models.JSONField(default=list, blank=True)
+    # Janela TOTP do ultimo codigo aceito: o mesmo codigo nao entra duas vezes.
+    totp_last_timestep = models.BigIntegerField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -73,6 +75,6 @@ auditlog.register(
 )
 auditlog.register(
     UserSecuritySettings,
-    exclude_fields=["totp_secret_encrypted", "recovery_codes"],
+    exclude_fields=["totp_secret_encrypted", "recovery_codes", "totp_last_timestep"],
 )
 auditlog.register(TrackedSession, exclude_fields=["session_key"])

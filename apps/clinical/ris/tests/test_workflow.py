@@ -254,6 +254,6 @@ class RisTests(TestCase):
         responses.append(self.client.get(self.list_url))
         self.assertEqual([r.status_code for r in responses], [200, 405, 403, 404, 302])
         for response in responses:
-            self.assertEqual(response["Cache-Control"], "private, no-store")
+            self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")
             self.assertIn("Cookie", response["Vary"])
             self.assertEqual(response["X-Content-Type-Options"], "nosniff")

@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.cache import patch_vary_headers
 from django.views.decorators.http import require_http_methods
 from django.views.generic import FormView, ListView, TemplateView
 
@@ -24,14 +23,6 @@ from .permissions import (
 )
 from .selectors import admissions_for_user, bed_map_groups
 from .services import AdtConflictError, admit_patient
-
-
-class NoStoreResponseMixin:
-    def render_to_response(self, context, **response_kwargs):
-        response = super().render_to_response(context, **response_kwargs)
-        response["Cache-Control"] = "private, no-store, max-age=0"
-        patch_vary_headers(response, ("Cookie", "HX-Request"))
-        return response
 
 
 def _success_url(user, admission):
@@ -56,7 +47,7 @@ def _audit_patient_once(patient, seen):
     _audit_access(patient)
 
 
-class AdmissionListView(LoginRequiredMixin, NoStoreResponseMixin, ListView):
+class AdmissionListView(LoginRequiredMixin, ListView):
     template_name = "clinical/adt/admission_list.html"
     context_object_name = "admissions"
     paginate_by = 25
@@ -81,7 +72,7 @@ class AdmissionListView(LoginRequiredMixin, NoStoreResponseMixin, ListView):
         return context
 
 
-class AdmissionCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
+class AdmissionCreateView(LoginRequiredMixin, FormView):
     template_name = "clinical/adt/admission_form.html"
     form_class = AdmissionForm
 
@@ -116,7 +107,7 @@ class AdmissionCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
         return _success_url(self.request.user, self.admission)
 
 
-class TransferCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
+class TransferCreateView(LoginRequiredMixin, FormView):
     template_name = "clinical/adt/transfer_form.html"
     form_class = TransferForm
 
@@ -149,7 +140,7 @@ class TransferCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
         return HttpResponseRedirect(_success_url(self.request.user, self.admission))
 
 
-class DischargeCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
+class DischargeCreateView(LoginRequiredMixin, FormView):
     template_name = "clinical/adt/discharge_form.html"
     form_class = DischargeForm
 
@@ -182,7 +173,7 @@ class DischargeCreateView(LoginRequiredMixin, NoStoreResponseMixin, FormView):
         return HttpResponseRedirect(_success_url(self.request.user, self.admission))
 
 
-class BedMapView(LoginRequiredMixin, NoStoreResponseMixin, TemplateView):
+class BedMapView(LoginRequiredMixin, TemplateView):
     template_name = "clinical/adt/bed_map.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -239,5 +230,4 @@ def bed_status_change(request, pk):
         {"bed": bed, "form": form, "history": bed.status_changes.select_related("changed_by")[:20]},
         status=status,
     )
-    response["Cache-Control"] = "private, no-store, max-age=0"
     return response

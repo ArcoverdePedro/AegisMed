@@ -96,5 +96,4 @@ def indicator_panel(request):
         "admin/indicators/panel.html",
         {"indicators": indicators(days=days), "days": days, "now": timezone.localtime()},
     )
-    response["Cache-Control"] = "private, no-store"
     return response

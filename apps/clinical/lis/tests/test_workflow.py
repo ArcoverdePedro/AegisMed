@@ -247,7 +247,7 @@ class LisTests(TestCase):
         self.client.logout()
         responses.append(self.client.get(self.url))
         for response in responses:
-            self.assertEqual(response["Cache-Control"], "private, no-store")
+            self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")
             self.assertIn("Cookie", response["Vary"])
             self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 

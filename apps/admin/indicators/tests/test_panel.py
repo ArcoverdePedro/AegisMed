@@ -75,4 +75,4 @@ class IndicatorTests(TestCase):
         self.client.force_login(admin)
         response = self.client.get(reverse("indicators:panel") + "?dias=abc")
         self.assertContains(response, "últimos 30 dias")
-        self.assertEqual(response["Cache-Control"], "private, no-store")
+        self.assertEqual(response["Cache-Control"], "private, no-store, max-age=0")

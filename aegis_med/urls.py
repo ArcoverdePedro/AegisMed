@@ -31,5 +31,4 @@ urlpatterns = [
     ),
     path("health/live/", health.live, name="health_live"),
     path("health/ready/", health.ready, name="health_ready"),
-    path("health/services/", health.services, name="health_services"),
 ]

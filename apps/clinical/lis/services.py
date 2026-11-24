@@ -213,7 +213,17 @@ def enter_result(*, user, specimen_id, operation_key, supersedes=None, reason=""
         specimen = _lock_specimen(user, "enter_result", pk=specimen_id)
         existing = LabResult.objects.filter(operation_key=operation_key).first()
         if existing:
-            if (existing.entered_by_id, existing.specimen_id) != (user.pk, specimen.pk):
+            # Mesma chave com valores diferentes e conflito, nunca o registro antigo (RF-LIS-06).
+            same = (
+                existing.entered_by_id == user.pk
+                and existing.specimen_id == specimen.pk
+                and existing.supersedes_id == getattr(supersedes, "pk", None)
+                and all(
+                    getattr(existing, field) == data.get(field, "").strip()
+                    for field in RESULT_FIELDS
+                )
+            )
+            if not same:
                 raise LisConflict("Operação incompatível. Consulte o histórico.")
             return existing
         if specimen.status != SpecimenEvent.Kind.RECEIVED:
