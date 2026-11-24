@@ -1,8 +1,8 @@
-# Segurança do AegisShare
+# Segurança do AegisMed
 
 ## Modelo de proteção
 
-O AegisShare trata o IPFS como armazenamento não confiável para confidencialidade. Novos arquivos são criptografados antes do upload.
+O AegisMed trata o IPFS como armazenamento não confiável para confidencialidade. Novos arquivos são criptografados antes do upload.
 
 ### Criptografia
 
