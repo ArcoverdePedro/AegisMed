@@ -1,6 +1,6 @@
 asyncapi: 3.0.0
 info:
-  title: AegisShare HIS - Prescription and Pharmacy Internal Events
+  title: AegisMed HIS - Prescription and Pharmacy Internal Events
   version: 0.1.0
   description: >-
     Contrato interno da Spec 003. Eventos são produzidos somente após commit e

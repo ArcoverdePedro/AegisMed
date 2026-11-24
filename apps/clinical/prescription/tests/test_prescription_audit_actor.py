@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.models import Encounter, Patient, PatientAccessGrant
 
 from ..models import Drug, MedicationRequest, MedicationRequestItem

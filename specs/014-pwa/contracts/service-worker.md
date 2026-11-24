@@ -23,7 +23,7 @@ O service worker adota **deny-by-default** para conteúdo autenticado/sensível.
 
 ## Segurança
 
-- interceptar apenas origem/escopo do AegisShare;
+- interceptar apenas origem/escopo do AegisMed;
 - não cachear respostas `no-store`, downloads ou respostas com dados sensíveis;
 - não persistir tokens, cookies ou cabeçalhos de autenticação;
 - logout aciona limpeza coordenada dos caches associados à sessão.

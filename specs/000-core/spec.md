@@ -4,7 +4,7 @@
 
 ## Contexto
 
-O AegisShare atual é o núcleo documental e de segurança que será preservado como **Core** do HIS. O objetivo desta spec é estabilizar o comportamento existente, eliminar incompatibilidades com a constituição do HIS e preparar a migração para bounded contexts sem quebrar funcionalidades.
+O AegisMed atual é o núcleo documental e de segurança que será preservado como **Core** do HIS. O objetivo desta spec é estabilizar o comportamento existente, eliminar incompatibilidades com a constituição do HIS e preparar a migração para bounded contexts sem quebrar funcionalidades.
 
 ## User Stories
 

@@ -3,7 +3,7 @@ revision = 5
 requires-python = ">=3.14"
 
 [[package]]
-name = "aegisshare"
+name = "aegismed"
 version = "0.2.0"
 source = { virtual = "." }
 dependencies = [

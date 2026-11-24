@@ -1,8 +1,8 @@
-# AegisShare
+# AegisMed
 
 **Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS, construído em Django.**
 
-O AegisShare reúne módulos clínicos e administrativos server-rendered: prontuário, agenda, ADT, prescrição/farmácia, enfermagem, laboratório, imagem, estoque e RH. A aplicação roda em Django/ASGI, usa PostgreSQL como fonte de verdade, Redis para Channels/cache e mantém segurança, rastreabilidade e minimização de dados como requisitos transversais.
+O AegisMed reúne módulos clínicos e administrativos server-rendered: prontuário, agenda, ADT, prescrição/farmácia, enfermagem, laboratório, imagem, estoque e RH. A aplicação roda em Django/ASGI, usa PostgreSQL como fonte de verdade, Redis para Channels/cache e mantém segurança, rastreabilidade e minimização de dados como requisitos transversais.
 
 > O projeto segue uma arquitetura Django monolítica e incremental, sem API REST pública (ADR 0004). Em 2026-11 foram removidos o produto original de troca de documentos (arquivos/IPFS, compartilhamento, chat, API `api/v1`), o centro cirúrgico, o faturamento particular, o piloto offline e o Web Push; o histórico continua no git.
 
@@ -64,7 +64,7 @@ A automação clínica é deliberadamente conservadora. Regras que dependem de c
                     Reverse Proxy
                            |
                   +--------v---------+
-                  |    AegisShare    |
+                  |    AegisMed    |
                   | Django ASGI/HIS  |
                   |     Granian      |
                   +----+---------+---+
@@ -163,7 +163,7 @@ Depois construa, aplique as migrations e suba a stack:
 
 ```bash
 docker compose build
-docker compose run --rm aegis_share python manage.py migrate
+docker compose run --rm aegis_med python manage.py migrate
 docker compose up -d
 ```
 
@@ -197,14 +197,14 @@ Com `CADDY_TLS=internal`, instale nas estações a CA raiz do Caddy (`docker com
 1. Leia as notas de atualização no [CHANGELOG](CHANGELOG.md).
 2. Faça backup (`scripts/backup.sh`).
 3. `git pull && docker compose build`
-4. `docker compose run --rm aegis_share python manage.py migrate`
+4. `docker compose run --rm aegis_med python manage.py migrate`
 5. `docker compose up -d`
 
 O container recusa iniciar se houver migration pendente, para que código novo nunca rode sobre o banco antigo.
 
 A stack atual usa PostgreSQL 18 e monta o volume em `/var/lib/postgresql`, conforme o layout das imagens oficiais 18+. **Não conecte diretamente um volume criado por PostgreSQL 17 ou anterior a uma imagem PostgreSQL 18.** Faça backup/restauração ou um procedimento de `pg_upgrade` apropriado antes de uma mudança de versão principal.
 
-Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` que redefina `DATABASE_URL`/`REDIS_URL` do serviço `aegis_share` (o Compose o aplica automaticamente). Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`.
+Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` que redefina `DATABASE_URL`/`REDIS_URL` do serviço `aegis_med` (o Compose o aplica automaticamente). Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`.
 
 ## Inicialização do container
 
@@ -214,7 +214,7 @@ O entrypoint normal:
 2. confere se há migrations pendentes e, se houver, para com instruções (ou as aplica com `RUN_MIGRATIONS=true`, só para desenvolvimento/CI);
 3. inicia Granian/ASGI como usuário sem privilégios (`aegis`, uid 10001).
 
-Quando um comando é fornecido explicitamente com `docker compose run aegis_share <comando>`, o entrypoint executa somente esse comando. Isso permite usar `manage.py`, scripts e rotinas administrativas sem iniciar o servidor.
+Quando um comando é fornecido explicitamente com `docker compose run aegis_med <comando>`, o entrypoint executa somente esse comando. Isso permite usar `manage.py`, scripts e rotinas administrativas sem iniciar o servidor.
 
 As opções do processo web podem ser controladas por:
 
@@ -266,7 +266,7 @@ python manage.py backup_open < db-STAMP.dump.aegisbak | pg_restore --no-owner -d
 Agende o backup diário no servidor (exemplo com cron, às 2h, retendo 30 dias):
 
 ```cron
-0 2 * * * cd /opt/aegisshare && BACKUP_KEEP_DAYS=30 scripts/backup.sh /srv/backups/aegisshare >> /var/log/aegisshare-backup.log 2>&1
+0 2 * * * cd /opt/aegismed && BACKUP_KEEP_DAYS=30 scripts/backup.sh /srv/backups/aegismed >> /var/log/aegismed-backup.log 2>&1
 ```
 
 O script só apaga lotes antigos depois que o lote novo foi aberto e conferido. Copie o diretório de backup para fora do servidor (outro prédio ou nuvem) e ensaie uma restauração em banco vazio pelo menos uma vez por mês. Pendentes (G11): RPO/RTO e local da cópia externa.
@@ -285,7 +285,7 @@ A interface permite filtrar por ator, modelo e ação.
 
 ## PWA
 
-O AegisShare pode ser instalado como app (manifest + service worker), mas funciona só online: o service worker guarda apenas o shell e uma página offline genérica, nunca conteúdo clínico. O logout envia `Clear-Site-Data` e apaga dados locais, inclusive filas do antigo piloto offline em navegadores que já o usaram.
+O AegisMed pode ser instalado como app (manifest + service worker), mas funciona só online: o service worker guarda apenas o shell e uma página offline genérica, nunca conteúdo clínico. O logout envia `Clear-Site-Data` e apaga dados locais, inclusive filas do antigo piloto offline em navegadores que já o usaram.
 
 ## Health checks
 
@@ -308,8 +308,8 @@ uv run python manage.py runserver
 Validações:
 
 ```bash
-uv run ruff check aegis_share apps mysite
-uv run ruff format --check aegis_share apps mysite
+uv run ruff check aegis_med apps mysite
+uv run ruff format --check aegis_med apps mysite
 uv run python manage.py check
 uv run python manage.py makemigrations --check --dry-run
 uv run python manage.py test --verbosity 2
@@ -327,4 +327,4 @@ Leia [SECURITY.md](SECURITY.md) antes de publicar uma instalação na internet. 
 
 ## Licença
 
-AegisShare é distribuído sob a **GNU Affero General Public License v3.0 only (`AGPL-3.0-only`)**. Consulte o texto integral em [LICENSE](LICENSE).
+AegisMed é distribuído sob a **GNU Affero General Public License v3.0 only (`AGPL-3.0-only`)**. Consulte o texto integral em [LICENSE](LICENSE).

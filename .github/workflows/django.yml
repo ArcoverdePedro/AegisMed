@@ -24,13 +24,13 @@ jobs:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_DB: aegisshare_ci
+          POSTGRES_DB: aegismed_ci
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d aegisshare_ci"
+          --health-cmd "pg_isready -U postgres -d aegismed_ci"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -49,7 +49,7 @@ jobs:
       ENVIRONMENT: ci
       SECRET_KEY: ci-only-secret-key-ci-only-secret-key-ci-only-secret-key-123
       FILE_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/aegisshare_ci
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/aegismed_ci
       REDIS_URL: redis://127.0.0.1:6379/0
       ALLOWED_HOSTS: localhost,127.0.0.1,testserver
       CSRF_TRUSTED_ORIGINS: http://localhost,http://testserver
@@ -73,7 +73,7 @@ jobs:
         run: uv sync --frozen --dev
 
       - name: Ruff
-        run: uv run ruff check aegis_share apps mysite
+        run: uv run ruff check aegis_med apps mysite
 
       - name: Django system check
         run: uv run manage.py check
@@ -91,7 +91,7 @@ jobs:
         run: uv run manage.py collectstatic --noinput
 
       - name: Validar compilacao Python
-        run: uv run python -m compileall -q aegis_share apps mysite
+        run: uv run python -m compileall -q aegis_med apps mysite
 
   docker:
     name: Docker Compose + browser journeys
@@ -113,8 +113,8 @@ jobs:
           SECURE_SSL_REDIRECT=false
           SESSION_COOKIE_SECURE=false
           CSRF_COOKIE_SECURE=false
-          POSTGRES_DB=aegisshare
-          POSTGRES_USER=aegisshare
+          POSTGRES_DB=aegismed
+          POSTGRES_USER=aegismed
           POSTGRES_PASSWORD=ci-postgres-password
           WEB_WORKERS=1
           APP_PORT=8000
@@ -127,12 +127,12 @@ jobs:
       - name: Subir stack completa (build, migrate explicito, up)
         run: |
           docker compose -f compose.yml build
-          docker compose -f compose.yml run --rm aegis_share python manage.py migrate --noinput
+          docker compose -f compose.yml run --rm aegis_med python manage.py migrate --noinput
           docker compose -f compose.yml up -d
 
       - name: Garantir que segredos locais nao foram copiados para a imagem
         run: >-
-          docker compose -f compose.yml exec -T aegis_share python -c
+          docker compose -f compose.yml exec -T aegis_med python -c
           "from pathlib import Path;
           root=Path('/app');
           forbidden=[root/'.env', root/'.secrets.generated.env', *root.glob('*.secrets.env')];
@@ -143,7 +143,7 @@ jobs:
         run: |
           for attempt in $(seq 1 45); do
             if curl --fail --silent http://127.0.0.1:8000/health/ready >/dev/null; then
-              echo "AegisShare pronto."
+              echo "AegisMed pronto."
               exit 0
             fi
             sleep 2
@@ -153,18 +153,18 @@ jobs:
 
       - name: Preparar dados das jornadas de navegador
         run: |
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_core_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_pep_users.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_adt_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_rx_accessibility.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_nursing_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_interop_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_compliance_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lis_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_lab_inbox.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_ris_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_inventory_journeys.py
-          docker compose -f compose.yml exec -T aegis_share python tests/e2e/prepare_hr_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_core_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_pep_users.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_adt_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_rx_accessibility.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_nursing_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_interop_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_compliance_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_lis_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_lab_inbox.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_ris_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_inventory_journeys.py
+          docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_hr_journeys.py
 
       - name: Instalar ferramentas de navegador
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.63.0 @axe-core/playwright@4.10.2 @lhci/cli@0.15.1
@@ -179,8 +179,8 @@ jobs:
 
       - name: Garantir ausência de plaintext clínico sintético nos logs
         run: |
-          docker compose -f compose.yml logs --no-color > /tmp/aegisshare-stack.log
-          if grep -Fq '37.77' /tmp/aegisshare-stack.log; then
+          docker compose -f compose.yml logs --no-color > /tmp/aegismed-stack.log
+          if grep -Fq '37.77' /tmp/aegismed-stack.log; then
             echo "Valor clínico sintético encontrado nos logs da stack."
             exit 1
           fi

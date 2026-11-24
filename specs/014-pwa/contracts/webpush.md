@@ -28,7 +28,7 @@ O servidor publica com `data=None`. Nenhum dos campos abaixo pode ser enviado ao
 
 O service worker fixa localmente:
 
-- título: `AegisShare`;
+- título: `AegisMed`;
 - corpo: `Você tem uma nova notificação.`;
 - destino: `/notificacoes/`.
 

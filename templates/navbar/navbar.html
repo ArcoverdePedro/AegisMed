@@ -27,7 +27,7 @@
             window.aegisSystemTheme = { media, apply: applySystemTheme };
         })();
     </script>
-    <title>{% block title %}AegisShare{% endblock %}</title>
+    <title>{% block title %}AegisMed{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     {% htmx_script %}
     <script defer src="{% static 'pwa/register.js' %}"></script>
@@ -106,7 +106,7 @@
     <div class="container is-fluid px-4">
         <div class="navbar-brand">
             <a class="navbar-item has-text-weight-bold" href="{% url 'home' %}">
-                <span class="icon">{% icon 'shield' %}</span><span>AegisShare</span>
+                <span class="icon">{% icon 'shield' %}</span><span>AegisMed</span>
             </a>
             <button class="navbar-burger" id="burgerButton" type="button" aria-label="menu" aria-expanded="false">
                 <span></span><span></span><span></span>
@@ -199,8 +199,8 @@
 </main>
 
 <footer class="aegis-source-footer">
-    AegisShare — AGPL-3.0-only ·
-    <a href="https://github.com/ArcoverdePedro/AegisShare" target="_blank" rel="noopener noreferrer">Código-fonte correspondente</a>
+    AegisMed — AGPL-3.0-only ·
+    <a href="https://github.com/ArcoverdePedro/AegisMed" target="_blank" rel="noopener noreferrer">Código-fonte correspondente</a>
 </footer>
 
 {% if messages %}

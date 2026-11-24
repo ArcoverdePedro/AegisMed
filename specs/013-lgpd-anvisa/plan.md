@@ -44,7 +44,7 @@ Reusar layout e estilo atuais. HTML nativo com POST/redirect/GET e mensagens Dja
 
 ## PWA e segurança
 
-`/lgpd/` network-only pelo service worker existente. Garantir `private, no-store`, `Vary: Cookie` e `nosniff` em HTML, redirects e erros, inclusive CSRF. O middleware compartilhado `aegis_share.middleware.PrivateWorkflowMiddleware` cobre a exportação da Spec 012 e as rotas deste módulo, inclusive respostas antecipadas.
+`/lgpd/` network-only pelo service worker existente. Garantir `private, no-store`, `Vary: Cookie` e `nosniff` em HTML, redirects e erros, inclusive CSRF. O middleware compartilhado `aegis_med.middleware.PrivateWorkflowMiddleware` cobre a exportação da Spec 012 e as rotas deste módulo, inclusive respostas antecipadas.
 
 Não inserir payload na fila offline, notificações ou push. Excluir resumo/nota do auditlog; aplicar redaction de POST em relatórios de erro e respostas genéricas a falhas de banco. Nenhum estado altera autorização PEP, exporta ou elimina dados.
 

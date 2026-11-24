@@ -1,14 +1,14 @@
 {% extends 'navbar/navbar.html' %}
 {% load icon %}
 
-{% block title %}Sobre - AegisShare{% endblock %}
+{% block title %}Sobre - AegisMed{% endblock %}
 
 {% block page_content %}
 <section class="section pt-5">
 <div class="container" style="max-width: 1100px;">
 
     <div class="box has-background-link has-text-white has-text-centered mb-6">
-        <h1 class="title has-text-white is-2 mb-3">AegisShare</h1>
+        <h1 class="title has-text-white is-2 mb-3">AegisMed</h1>
         <p class="subtitle has-text-white is-5 mb-3">Sistema de informação hospitalar (HIS) para hospitais de pequeno porte do SUS.</p>
         <span class="tag is-warning is-medium">Em desenvolvimento · uso com pacientes reais depende de homologação pela instituição</span>
     </div>
@@ -56,12 +56,12 @@
     <hr class="my-6">
 
     <h2 class="title is-4"><span class="icon has-text-link mr-2">{% icon 'server' %}</span>Como funciona</h2>
-    <div class="columns is-vcentered is-variable is-2 has-text-centered mb-4" role="img" aria-label="Navegador, depois proxy HTTPS Caddy, depois AegisShare com Django e Granian, que usa PostgreSQL e Redis">
+    <div class="columns is-vcentered is-variable is-2 has-text-centered mb-4" role="img" aria-label="Navegador, depois proxy HTTPS Caddy, depois AegisMed com Django e Granian, que usa PostgreSQL e Redis">
         <div class="column"><div class="box"><span class="icon">{% icon 'monitor' %}</span><p class="has-text-weight-semibold">Navegador</p><p class="is-size-7">computador, tablet ou celular</p></div></div>
         <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
         <div class="column"><div class="box"><span class="icon">{% icon 'lock' %}</span><p class="has-text-weight-semibold">Caddy</p><p class="is-size-7">HTTPS</p></div></div>
         <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
-        <div class="column"><div class="box"><span class="icon">{% icon 'cpu' %}</span><p class="has-text-weight-semibold">AegisShare</p><p class="is-size-7">Django + Granian</p></div></div>
+        <div class="column"><div class="box"><span class="icon">{% icon 'cpu' %}</span><p class="has-text-weight-semibold">AegisMed</p><p class="is-size-7">Django + Granian</p></div></div>
         <div class="column is-narrow"><span class="icon">{% icon 'arrow-right' %}</span></div>
         <div class="column"><div class="box"><span class="icon">{% icon 'database' %}</span><p class="has-text-weight-semibold">PostgreSQL + Redis</p><p class="is-size-7">dados e tempo real</p></div></div>
     </div>

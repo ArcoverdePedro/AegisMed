@@ -8,7 +8,7 @@ Nível 1/2/3: reutilizar primeiro o projeto, Django nativo e funções simples. 
 | apps/clinical/pep/permissions.py | is_internal_professional e accessible_patients; não inventar novo escopo |
 | apps/clinical/lis/models.py, forms.py, services.py, views.py | Padrão de catálogo/snapshot, UUID de operação, locks, Forms e FBVs |
 | apps/clinical/lis/tests/test_concurrency.py | Teste real de retries concorrentes no PostgreSQL |
-| aegis_share/middleware.py | PrivateWorkflowMiddleware, incluindo redirects/erros |
+| aegis_med/middleware.py | PrivateWorkflowMiddleware, incluindo redirects/erros |
 | apps/interoperability e caixa laboratorial | Fronteira de arquivos de laboratório; não usar como transporte de imagem |
 | templates/clinical/pep/encounter_detail.html e navbar/navbar.html | Entrada contextual e navegação existente |
 | tests/e2e/lis_journeys.spec.js | Jornadas, mobile/axe e inspeção de persistência offline |

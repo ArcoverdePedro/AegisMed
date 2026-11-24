@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O PEP é o primeiro bounded context clínico do AegisShare HIS. Deve oferecer cadastro e consulta longitudinal do paciente, encontros assistenciais, evoluções, condições, alergias, observações, prescrições relacionadas e documentos clínicos, preservando auditoria, consentimento e controle de acesso.
+O PEP é o primeiro bounded context clínico do AegisMed HIS. Deve oferecer cadastro e consulta longitudinal do paciente, encontros assistenciais, evoluções, condições, alergias, observações, prescrições relacionadas e documentos clínicos, preservando auditoria, consentimento e controle de acesso.
 
 ## User Stories
 

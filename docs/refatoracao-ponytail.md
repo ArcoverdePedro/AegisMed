@@ -8,7 +8,7 @@ Nível usado: 1/2/3 — reuso do projeto, Django nativo e funções simples.
 - **Eventos:** `apps.clinical.events.send_after_commit` substitui quatro implementações de transporte. Cada módulo continua validando seu próprio payload e contrato; sem publicação antes do commit ou após rollback.
 - **Permissões:** prescrição e enfermagem reutilizam `is_internal_professional`, mantendo a exclusão de clientes e a exigência das capacidades específicas.
 - **ADT:** forms usam diretamente `active_admissions_for_user`; removidos dois wrappers sem comportamento. `dict` nativo substitui `OrderedDict` no agrupamento por localização, preservando a ordem.
-- **Core:** removidos o módulo de reexports `aegis_share.views` e dois adaptadores de utils sem consumidores encontrados no repositório. Integrações externas que importem esses símbolos devem importar diretamente os controllers em `aegis_share.web`, `files_for_user` ou `grant_access`; rotas HTTP não foram removidas.
+- **Core:** removidos o módulo de reexports `aegis_med.views` e dois adaptadores de utils sem consumidores encontrados no repositório. Integrações externas que importem esses símbolos devem importar diretamente os controllers em `aegis_med.web`, `files_for_user` ou `grant_access`; rotas HTTP não foram removidas.
 
 Saldo do código de aplicação: **215 linhas a menos**, incluindo o novo helper de eventos e excluindo testes/documentação. Nenhuma dependência ou migration adicionada.
 

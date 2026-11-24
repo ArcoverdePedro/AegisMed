@@ -6,7 +6,7 @@
 
 ## Contexto
 
-A Spec 004 define o primeiro recorte de Enfermagem do AegisShare HIS. O escopo inicial é deliberadamente pequeno: **registro estruturado de sinais vitais/antropometria** e **administração de medicamento à beira do leito**. Evolução de enfermagem livre, SAE completa, escalas, balanço hídrico, dispositivos, curativos e planos de cuidado ficam fora deste ciclo.
+A Spec 004 define o primeiro recorte de Enfermagem do AegisMed HIS. O escopo inicial é deliberadamente pequeno: **registro estruturado de sinais vitais/antropometria** e **administração de medicamento à beira do leito**. Evolução de enfermagem livre, SAE completa, escalas, balanço hídrico, dispositivos, curativos e planos de cuidado ficam fora deste ciclo.
 
 O módulo reutiliza `Patient` e `Encounter` canônicos do PEP, o contexto operacional do ADT e a prescrição/dispensação da Spec 003. Não cria cadastro paralelo de paciente, atendimento, medicamento, lote ou prescrição.
 

@@ -96,7 +96,7 @@ Proibido nesta versão.
 - formulário não registra listener de fila offline;
 - POST falha sem rede;
 - Cache Storage não recebe a mutação;
-- IndexedDB `aegisshare-offline` não recebe envelope de administração;
+- IndexedDB `aegismed-offline` não recebe envelope de administração;
 - Background Sync não confirma administração;
 - a superfície de administração não carrega `offline_queue.js` nem `vitals_offline.js`.
 
@@ -127,5 +127,5 @@ Exigem revisão clínica/operacional antes de implementação:
 - checagens de horário/janela terapêutica de administração;
 - identificação por código de barras;
 - checagens automáticas de “certos” de medicação;
-- administração de medicamento trazido pelo paciente ou fora do estoque/dispensação AegisShare;
+- administração de medicamento trazido pelo paciente ou fora do estoque/dispensação AegisMed;
 - qualquer administração offline.

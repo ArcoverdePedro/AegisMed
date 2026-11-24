@@ -1,6 +1,6 @@
 # language: pt
 Funcionalidade: Jornadas essenciais do Core
-  Como usuário do AegisShare
+  Como usuário do AegisMed
   Quero autenticar, localizar documentos e compartilhar acesso de forma controlada
   Para que documentos sejam acessíveis apenas pelos fluxos autorizados
 

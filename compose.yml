@@ -1,12 +1,12 @@
-name: aegisshare
+name: aegismed
 
 services:
   postgres:
     image: postgres:19-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-aegisshare}
-      POSTGRES_USER: ${POSTGRES_USER:-aegisshare}
+      POSTGRES_DB: ${POSTGRES_DB:-aegismed}
+      POSTGRES_USER: ${POSTGRES_USER:-aegismed}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
     volumes:
       - postgres_data:/var/lib/postgresql
@@ -30,7 +30,7 @@ services:
       retries: 10
       start_period: 5s
 
-  aegis_share:
+  aegis_med:
     build:
       context: .
       dockerfile: dockerfile
@@ -39,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-aegisshare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aegisshare}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aegismed}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aegismed}
       REDIS_URL: redis://redis:6379/0
       PORT: ${PORT:-8000}
     ports:
@@ -78,7 +78,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      aegis_share:
+      aegis_med:
         condition: service_healthy
 
 volumes:

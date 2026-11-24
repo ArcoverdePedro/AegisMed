@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.adt.models import Bed, Location
 from apps.clinical.pep.models import Encounter, Patient
 from apps.clinical.pep.tests.test_views import TEST_STORAGES

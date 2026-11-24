@@ -1,13 +1,13 @@
-# Contribuindo com o AegisShare
+# Contribuindo com o AegisMed
 
 ## Objetivo de arquitetura
 
 O projeto privilegia manutenção simples. Evite criar novas camadas sem necessidade.
 
-- `aegis_share/models.py`: estado e invariantes simples do domínio.
-- `aegis_share/services/`: regras reutilizáveis, segurança e integrações externas.
-- `aegis_share/web/`: controllers HTTP/HTML/API.
-- `aegis_share/tests/`: testes organizados por responsabilidade.
+- `aegis_med/models.py`: estado e invariantes simples do domínio.
+- `aegis_med/services/`: regras reutilizáveis, segurança e integrações externas.
+- `aegis_med/web/`: controllers HTTP/HTML/API.
+- `aegis_med/tests/`: testes organizados por responsabilidade.
 - `templates/`: apresentação; não deve conter regra de autorização.
 - `mysite/settings.py`: configuração somente por ambiente.
 
@@ -30,8 +30,8 @@ Sem `DATABASE_URL`, o modo `DEBUG=true` usa SQLite. Sem Redis, Channels/cache us
 Execute:
 
 ```bash
-uv run ruff check aegis_share apps mysite
-uv run ruff format --check aegis_share apps mysite
+uv run ruff check aegis_med apps mysite
+uv run ruff format --check aegis_med apps mysite
 uv run python manage.py check
 uv run python manage.py makemigrations --check --dry-run
 uv run python manage.py test --verbosity 2

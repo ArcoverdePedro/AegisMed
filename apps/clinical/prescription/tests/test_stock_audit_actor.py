@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 
 from ..models import Drug, StockMovement
 from ..stock_services import adjust_stock, create_lot, create_stock_item

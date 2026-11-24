@@ -2,7 +2,7 @@
 
 ## Objetivo e escopo
 
-Este documento fecha a T-CORE-09 com um inventário técnico dos dados tratados pelo Core e uma política inicial de retenção compatível com os controles já existentes no AegisShare.
+Este documento fecha a T-CORE-09 com um inventário técnico dos dados tratados pelo Core e uma política inicial de retenção compatível com os controles já existentes no AegisMed.
 
 Ele **não substitui avaliação jurídica, registro de operações de tratamento, bases legais, prazos regulatórios ou política institucional definitiva**. Esses pontos permanecem como responsabilidade da futura Spec 013 de LGPD/compliance, especialmente para dados clínicos. O objetivo aqui é impedir retenção indefinida por acidente, tornar lacunas explícitas e estabelecer limites técnicos seguros até a política definitiva.
 

@@ -61,7 +61,7 @@ async function inspectOfflineState(page) {
     const databases = typeof indexedDB.databases === 'function' ? await indexedDB.databases() : [];
     return {
       cachedPaths,
-      queueDatabaseExists: databases.some((database) => database.name === 'aegisshare-offline'),
+      queueDatabaseExists: databases.some((database) => database.name === 'aegismed-offline'),
       queueRuntimeLoaded: typeof window.AegisOfflineQueue !== 'undefined',
     };
   });

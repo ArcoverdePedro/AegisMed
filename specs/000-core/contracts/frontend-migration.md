@@ -4,7 +4,7 @@ Status: planejamento da Spec 000. Este documento atende T-CORE-11 e **não troca
 
 ## Contexto atual
 
-O frontend do AegisShare usa `django-simple-bulma`, `crispy-bulma`, `django-crispy-forms`, HTMX, Feather Icons e estilos locais nos templates. O shell global (`templates/navbar/navbar.html`) concentra Bulma, navegação, mensagens, tema claro/escuro e integração PWA. Templates de cadastro/perfil também usam `crispy_forms_tags` e o primeiro cadastro carrega Bulma diretamente.
+O frontend do AegisMed usa `django-simple-bulma`, `crispy-bulma`, `django-crispy-forms`, HTMX, Feather Icons e estilos locais nos templates. O shell global (`templates/navbar/navbar.html`) concentra Bulma, navegação, mensagens, tema claro/escuro e integração PWA. Templates de cadastro/perfil também usam `crispy_forms_tags` e o primeiro cadastro carrega Bulma diretamente.
 
 A migração deve preservar comportamento, acessibilidade, HTMX, CSRF, PWA e limites de segurança. O objetivo não é reescrever views ou regras de negócio junto com CSS.
 
@@ -112,7 +112,7 @@ Migrar lista de conversas, mensagens, estados unread e layout responsivo. Valida
 
 ### Lote 6 — auditoria
 
-Migrar tabela/filtros administrativos próprios do AegisShare. O Django Admin continua fora do escopo.
+Migrar tabela/filtros administrativos próprios do AegisMed. O Django Admin continua fora do escopo.
 
 ### Lote 7 — PEP clínico
 

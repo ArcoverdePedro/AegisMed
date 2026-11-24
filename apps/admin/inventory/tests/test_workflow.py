@@ -11,7 +11,7 @@ from django.test import Client, RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.tests.test_views import TEST_STORAGES
 from apps.clinical.prescription.models import StockItem, StockMovement
 
@@ -282,7 +282,7 @@ class InventoryTests(TestCase):
             related = [
                 q
                 for q in queries
-                if q["sql"].startswith("SELECT") and '"aegis_share_customuser"' in q["sql"]
+                if q["sql"].startswith("SELECT") and '"aegis_med_customuser"' in q["sql"]
             ]
             self.assertLessEqual(len(related), 3)
             self.assertEqual(len(self.client.get(url, {"page": 2}).context["page_obj"]), 1)

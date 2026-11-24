@@ -16,7 +16,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "aegis_share.middleware.PrivateWorkflowMiddleware",
+    "aegis_med.middleware.PrivateWorkflowMiddleware",
     *MIDDLEWARE,  # noqa: F405
 ]
 

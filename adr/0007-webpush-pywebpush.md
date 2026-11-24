@@ -5,7 +5,7 @@ Aceito para a Spec 014 em 2026-09-14. **Substituído em 2026-11:** Web Push remo
 
 ## Contexto
 
-A Spec 014 exige notificações Web Push genéricas, sem PHI, e o AegisShare roda em Python 3.14/Django moderno. A fundação PWA já serve manifest, service worker e fallback diretamente pelo monólito, portanto adicionar um wrapper Django apenas para Push aumentaria acoplamento sem benefício funcional.
+A Spec 014 exige notificações Web Push genéricas, sem PHI, e o AegisMed roda em Python 3.14/Django moderno. A fundação PWA já serve manifest, service worker e fallback diretamente pelo monólito, portanto adicionar um wrapper Django apenas para Push aumentaria acoplamento sem benefício funcional.
 
 Na validação de compatibilidade, `pywebpush` 2.5.0 oferece suporte a Python >= 3.10, Web Push/VAPID e tratamento dos códigos HTTP dos provedores. O wrapper `django-webpush` não é necessário para a arquitetura atual.
 

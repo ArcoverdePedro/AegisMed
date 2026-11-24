@@ -18,7 +18,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.conf import settings
 from granian.utils.proxies import wrap_asgi_with_proxy_headers
 
-from aegis_share.routing import websocket_urlpatterns
+from aegis_med.routing import websocket_urlpatterns
 from apps.interoperability.asgi import bounded_inbox
 
 router = ProtocolTypeRouter(

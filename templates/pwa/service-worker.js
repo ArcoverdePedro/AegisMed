@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'aegisshare-shell-v3';
+const CACHE_VERSION = 'aegismed-shell-v3';
 const OFFLINE_URL = '{% url "pwa:offline" %}';
-const OFFLINE_DATABASES = ['aegisshare-offline'];
+const OFFLINE_DATABASES = ['aegismed-offline'];
 const PRECACHE_URLS = [
     OFFLINE_URL,
     '{% url "pwa:manifest" %}',
@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
         caches.keys()
             .then((keys) => Promise.all(
                 keys
-                    .filter((key) => key.startsWith('aegisshare-') && key !== CACHE_VERSION)
+                    .filter((key) => key.startsWith('aegismed-') && key !== CACHE_VERSION)
                     .map((key) => caches.delete(key))
             ))
             .then(() => self.clients.claim())
@@ -82,7 +82,7 @@ self.addEventListener('message', (event) => {
         Promise.all([
             caches.keys().then((keys) => Promise.all(
                 keys
-                    .filter((key) => key.startsWith('aegisshare-'))
+                    .filter((key) => key.startsWith('aegismed-'))
                     .map((key) => caches.delete(key))
             )),
             ...OFFLINE_DATABASES.map(deleteIndexedDb),

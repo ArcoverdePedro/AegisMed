@@ -1,6 +1,6 @@
 asyncapi: 3.0.0
 info:
-  title: AegisShare HIS - ADT Internal Events
+  title: AegisMed HIS - ADT Internal Events
   version: 0.2.0
   description: >-
     Contrato interno para eventos ADT pós-commit e sinais WebSocket de invalidação.

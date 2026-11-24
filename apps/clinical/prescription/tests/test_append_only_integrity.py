@@ -6,7 +6,7 @@ from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.models import Encounter, Patient
 
 from ..models import (

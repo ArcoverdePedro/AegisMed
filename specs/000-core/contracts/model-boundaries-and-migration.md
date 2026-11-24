@@ -4,7 +4,7 @@ Status: plano arquitetural da Spec 000. Este documento atende T-CORE-05 e T-CORE
 
 ## Objetivo
 
-Separar gradualmente o monólito legado `aegis_share` em responsabilidades mais explícitas (`core`, `documents` e `audit`) sem renomear tabelas, perder histórico de auditoria ou introduzir uma migração de banco de alto risco.
+Separar gradualmente o monólito legado `aegis_med` em responsabilidades mais explícitas (`core`, `documents` e `audit`) sem renomear tabelas, perder histórico de auditoria ou introduzir uma migração de banco de alto risco.
 
 A regra principal é: **primeiro separar código e dependências; mover ownership de modelos somente depois que imports, serviços e testes estiverem estáveis**.
 
@@ -44,7 +44,7 @@ Embora `Folder` dependa de `Workspace`, o workspace continua sendo responsabilid
 
 ### `audit`
 
-O histórico principal não é um modelo próprio de `aegis_share`: ele usa `django-auditlog` e `auditlog.models.LogEntry`. O destino lógico `audit` deve concentrar:
+O histórico principal não é um modelo próprio de `aegis_med`: ele usa `django-auditlog` e `auditlog.models.LogEntry`. O destino lógico `audit` deve concentrar:
 
 - registro/configuração dos modelos auditados;
 - consulta administrativa e filtros de auditoria;
@@ -85,7 +85,7 @@ Regras:
 
 ### Etapa 1 — criar fronteiras sem mover modelos
 
-Criar pacotes/apps alvo e mover primeiro código sem estado de banco: services, selectors, adapters, views auxiliares e testes. Durante essa etapa, os modelos continuam fisicamente em `aegis_share.models`.
+Criar pacotes/apps alvo e mover primeiro código sem estado de banco: services, selectors, adapters, views auxiliares e testes. Durante essa etapa, os modelos continuam fisicamente em `aegis_med.models`.
 
 Preferir imports por fachadas estáveis, por exemplo:
 

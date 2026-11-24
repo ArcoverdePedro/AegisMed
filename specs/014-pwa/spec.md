@@ -4,11 +4,11 @@
 
 ## Contexto
 
-O AegisShare HIS deve ser instalável em smartphones e tablets e continuar útil em conectividade intermitente, sem criar app nativo ou API REST pública. A PWA é uma camada de apresentação do mesmo monólito Django.
+O AegisMed HIS deve ser instalável em smartphones e tablets e continuar útil em conectividade intermitente, sem criar app nativo ou API REST pública. A PWA é uma camada de apresentação do mesmo monólito Django.
 
 ## User Stories
 
-- Como profissional assistencial, quero instalar o AegisShare na tela inicial do dispositivo.
+- Como profissional assistencial, quero instalar o AegisMed na tela inicial do dispositivo.
 - Como enfermeiro, quero abrir telas críticas previamente preparadas mesmo sem conexão.
 - Como profissional, quero que ações offline autorizadas sejam sincronizadas quando a rede retornar.
 - Como usuário, quero que a interface acompanhe o tema claro/escuro do dispositivo.
@@ -39,8 +39,8 @@ O AegisShare HIS deve ser instalável em smartphones e tablets e continuar útil
 ## Critérios de Aceitação
 
 ```gherkin
-Cenário: Instalar AegisShare no Android
-  Dado que um profissional acessa o AegisShare via Chrome
+Cenário: Instalar AegisMed no Android
+  Dado que um profissional acessa o AegisMed via Chrome
   Quando instala o aplicativo a partir do navegador
   Então o ícone aparece na tela inicial
   E a aplicação abre em modo standalone
@@ -59,7 +59,7 @@ Cenário: Registrar dado crítico offline autorizado
 
 ```gherkin
 Cenário: Tema acompanha o dispositivo
-  Dado que o AegisShare está aberto
+  Dado que o AegisMed está aberto
   Quando o sistema operacional muda entre tema claro e escuro
   Então a interface atualiza sem exigir novo login
   E mantém contraste compatível com WCAG 2.1 AA

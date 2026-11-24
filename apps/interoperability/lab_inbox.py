@@ -7,7 +7,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.views.decorators.debug import sensitive_variables
 
-from aegis_share.services.crypto import encrypt_file, sha256_hex
+from aegis_med.services.crypto import encrypt_file, sha256_hex
 from apps.clinical.pep.permissions import is_internal_professional
 
 from .models import LaboratoryInboxReceipt, LaboratorySource
@@ -69,7 +69,7 @@ def receive_laboratory_file(*, user, source_id, uploaded_file):
         receipt_id = uuid.uuid4()
         ciphertext, wrapped_key, plain_hash, cipher_hash = encrypt_file(
             content,
-            aad=f"aegisshare:lab-inbox:{receipt_id}".encode(),
+            aad=f"aegismed:lab-inbox:{receipt_id}".encode(),
         )
         return LaboratoryInboxReceipt.objects.create(
             id=receipt_id,

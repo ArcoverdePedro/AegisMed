@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 
 from ..models import Employee, EmployeeAbsence, absent_on
 

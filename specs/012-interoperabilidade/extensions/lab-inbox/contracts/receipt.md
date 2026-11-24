@@ -6,7 +6,7 @@
 
 `LaboratoryInboxReceipt`: UUID; source FK PROTECT; received_by FK User PROTECT; received_at auto_now_add; size PositiveInteger; plaintext_sha256(64); ciphertext_sha256(64); ciphertext BinaryField; wrapped_key TextField; encryption_version constante `aegis1`. UniqueConstraint(source, plaintext_sha256); índice (-received_at, -id). `__str__` contém somente tipo/UUID. Sem admin de recibos, delete ou update pela aplicação. Deduplicação não sobrescreve payload, autoria ou timestamp.
 
-AAD exata: `aegisshare:lab-inbox:<UUID>` codificada em UTF-8. Reusar formato retornado por `encrypt_file` sem implementar AES/nonce/wrapping paralelos. Chave mestra nunca armazenada junto ao recibo. Campos criptográficos, hashes e label excluídos da auditoria genérica. Relação M2M de operadores auditada pelo mecanismo já disponível em django-auditlog.
+AAD exata: `aegismed:lab-inbox:<UUID>` codificada em UTF-8. Reusar formato retornado por `encrypt_file` sem implementar AES/nonce/wrapping paralelos. Chave mestra nunca armazenada junto ao recibo. Campos criptográficos, hashes e label excluídos da auditoria genérica. Relação M2M de operadores auditada pelo mecanismo já disponível em django-auditlog.
 
 Capacidades no recibo: `interoperability.view_lab_inbox` e `interoperability.receive_lab_file`. Consulta é pré-requisito de upload. Usuário deve ser interno e associado à origem; superusuário usa a regra global Django. Sem concessões automáticas.
 

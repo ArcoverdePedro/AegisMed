@@ -13,12 +13,12 @@ umask 077
 mkdir -p "$dest"
 
 "${compose[@]}" exec -T postgres sh -c 'pg_dump -Fc -U "$POSTGRES_USER" "$POSTGRES_DB"' \
-  | "${compose[@]}" exec -T aegis_share python manage.py backup_seal \
+  | "${compose[@]}" exec -T aegis_med python manage.py backup_seal \
   > "$dest/db-$stamp.dump.aegisbak.partial"
 
 # Confere autenticacao completa antes de considerar o backup valido.
 for part in "$dest"/*-"$stamp".*.partial; do
-  "${compose[@]}" exec -T aegis_share python manage.py backup_open < "$part" > /dev/null
+  "${compose[@]}" exec -T aegis_med python manage.py backup_open < "$part" > /dev/null
   mv "$part" "${part%.partial}"
 done
 sha256sum "$dest"/*-"$stamp".*.aegisbak > "$dest/SHA256SUMS-$stamp"

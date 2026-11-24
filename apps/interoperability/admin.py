@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from aegis_share.models import CustomUser
+from aegis_med.models import CustomUser
 from apps.clinical.pep.permissions import is_internal_professional
 
 from .models import LaboratorySource

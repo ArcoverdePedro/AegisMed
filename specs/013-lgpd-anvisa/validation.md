@@ -10,7 +10,7 @@ Cadastro, lista paginada, detalhe e transições administrativas em FBVs. Autori
 
 | Gate | Resultado |
 |---|---|
-| Ruff em aegis_share/apps/mysite e preparação E2E | Passou |
+| Ruff em aegis_med/apps/mysite e preparação E2E | Passou |
 | Ruff format do novo app | Passou |
 | Django check; makemigrations --check --dry-run | Sem problemas; sem migrations pendentes |
 | Suíte Django completa em PostgreSQL 18 descartável | **418 testes passaram, sem testes pulados** |

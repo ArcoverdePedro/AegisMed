@@ -1,4 +1,4 @@
-# Guia de suporte técnico — AegisShare
+# Guia de suporte técnico — AegisMed
 
 Para a equipe de TI que instala, atualiza e mantém o sistema. O uso de cada módulo está no [Manual do usuário](manual-do-usuario.md). Detalhes de configuração ficam no [README](../README.md) e as mudanças de cada versão no [CHANGELOG](../CHANGELOG.md).
 
@@ -23,7 +23,7 @@ Para a equipe de TI que instala, atualiza e mantém o sistema. O uso de cada mó
 Estações (navegador) ──HTTPS──> caddy (perfil "proxy", portas 80/443)
                                    │
                                    ▼
-                            aegis_share (Django + Granian, porta 8000 só em 127.0.0.1)
+                            aegis_med (Django + Granian, porta 8000 só em 127.0.0.1)
                               │                 │
                               ▼                 ▼
                          postgres            redis
@@ -32,7 +32,7 @@ Estações (navegador) ──HTTPS──> caddy (perfil "proxy", portas 80/443)
 
 | Serviço | Função | Dados persistentes |
 |---|---|---|
-| `aegis_share` | aplicação web (usuário `aegis`, sem root) | nenhum: tudo no banco |
+| `aegis_med` | aplicação web (usuário `aegis`, sem root) | nenhum: tudo no banco |
 | `postgres` | banco PostgreSQL 18, fonte de verdade | volume `postgres_data` |
 | `redis` | cache, limite de tentativas de login e tempo real (mapa de leitos) | volume `redis_data` (descartável) |
 | `caddy` | HTTPS e certificados | volumes `caddy_data` (inclui a CA interna) e `caddy_config` |
@@ -44,8 +44,8 @@ Estações (navegador) ──HTTPS──> caddy (perfil "proxy", portas 80/443)
 ## 2. Instalação
 
 ```bash
-git clone https://github.com/ArcoverdePedro/AegisShare.git /opt/aegisshare
-cd /opt/aegisshare
+git clone https://github.com/ArcoverdePedro/AegisMed.git /opt/aegismed
+cd /opt/aegismed
 cp .env-example .env
 python3 scripts/generate_secrets.py --install-env .env
 ```
@@ -67,9 +67,9 @@ Suba a stack:
 
 ```bash
 docker compose build
-docker compose run --rm aegis_share python manage.py migrate
+docker compose run --rm aegis_med python manage.py migrate
 docker compose --profile proxy up -d
-docker compose run --rm aegis_share python manage.py sync_role_groups --apply
+docker compose run --rm aegis_med python manage.py sync_role_groups --apply
 ```
 
 Depois:
@@ -78,7 +78,7 @@ Depois:
 2. Entre, ative o **2FA** do administrador em **Segurança**.
 3. Com `CADDY_TLS=internal`, copie a CA raiz e instale como confiável nas estações (por GPO, por exemplo):
    ```bash
-   docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./aegisshare-ca.crt
+   docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./aegismed-ca.crt
    ```
 4. Configure o DNS interno para que `DOMINIO` aponte para o servidor.
 5. Agende o backup (seção 4) e o monitoramento (seção 7).
@@ -87,13 +87,13 @@ Depois:
 ## 3. Atualização de versão
 
 1. Leia as **Notas de atualização** no CHANGELOG: algumas versões apagam tabelas ou exigem passos manuais.
-2. Faça backup: `scripts/backup.sh /srv/backups/aegisshare`.
+2. Faça backup: `scripts/backup.sh /srv/backups/aegismed`.
 3. Atualize o código e a imagem:
    ```bash
    git pull
    docker compose build
    ```
-4. Aplique as migrations: `docker compose run --rm aegis_share python manage.py migrate`
+4. Aplique as migrations: `docker compose run --rm aegis_med python manage.py migrate`
 5. Suba: `docker compose --profile proxy up -d`
 6. Confira `https://DOMINIO/health/ready/` e faça login.
 
@@ -112,18 +112,18 @@ python3 -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).deco
 Agende o backup diário (`crontab -e` do usuário que opera o Docker):
 
 ```cron
-0 2 * * * cd /opt/aegisshare && BACKUP_KEEP_DAYS=30 scripts/backup.sh /srv/backups/aegisshare >> /var/log/aegisshare-backup.log 2>&1
+0 2 * * * cd /opt/aegismed && BACKUP_KEEP_DAYS=30 scripts/backup.sh /srv/backups/aegismed >> /var/log/aegismed-backup.log 2>&1
 ```
 
-O script cifra o `pg_dump`, confere se o arquivo abre e só então apaga os lotes com mais de `BACKUP_KEEP_DAYS` dias. **Copie `/srv/backups/aegisshare` para outro local** (outro prédio, NAS ou nuvem) e confira o log todos os dias.
+O script cifra o `pg_dump`, confere se o arquivo abre e só então apaga os lotes com mais de `BACKUP_KEEP_DAYS` dias. **Copie `/srv/backups/aegismed` para outro local** (outro prédio, NAS ou nuvem) e confira o log todos os dias.
 
 **Ensaio de restauração (mensal, num servidor de teste):**
 
 ```bash
 docker compose up -d postgres
-docker compose exec -T postgres createdb -U aegisshare restauro
-docker compose run --rm -T aegis_share python manage.py backup_open < db-STAMP.dump.aegisbak \
-  | docker compose exec -T postgres pg_restore --no-owner -U aegisshare -d restauro
+docker compose exec -T postgres createdb -U aegismed restauro
+docker compose run --rm -T aegis_med python manage.py backup_open < db-STAMP.dump.aegisbak \
+  | docker compose exec -T postgres pg_restore --no-owner -U aegismed -d restauro
 ```
 
 Registre a data do ensaio e o tempo gasto. Esse tempo é o seu RTO real.
@@ -133,11 +133,11 @@ Registre a data do ensaio e o tempo gasto. Esse tempo é o seu RTO real.
 | Tarefa | Comando |
 |---|---|
 | Situação dos serviços | `docker compose ps` |
-| Logs da aplicação (JSON) | `docker compose logs -f --tail 200 aegis_share` |
+| Logs da aplicação (JSON) | `docker compose logs -f --tail 200 aegis_med` |
 | Saúde | `curl -sk https://DOMINIO/health/ready/` |
-| Reiniciar a aplicação | `docker compose restart aegis_share` |
-| Shell Django | `docker compose run --rm aegis_share python manage.py shell` |
-| Revisão de acessos (CSV) | `docker compose run --rm -T aegis_share python manage.py access_review > acessos.csv` |
+| Reiniciar a aplicação | `docker compose restart aegis_med` |
+| Shell Django | `docker compose run --rm aegis_med python manage.py shell` |
+| Revisão de acessos (CSV) | `docker compose run --rm -T aegis_med python manage.py access_review > acessos.csv` |
 | Atualizar tabelas IBGE/etnias/países | `uv run python manage.py update_sus_tables` no repositório de desenvolvimento, depois commit e nova versão |
 | Espaço em disco | `df -h` e `docker system df` |
 
@@ -150,11 +150,11 @@ Faça a **revisão de acessos** (`access_review`) periodicamente, por exemplo a 
 - **Acesso a pacientes:** grupos não dão acesso a prontuários. Conceda em **Admin → Pep → Patient access grants** (usuário, paciente, motivo, expiração opcional). Leitos e unidades: **Admin → Adt → User location accesses**.
 - **Redefinir senha:**
   ```bash
-  docker compose run --rm aegis_share python manage.py changepassword USUARIO
+  docker compose run --rm aegis_med python manage.py changepassword USUARIO
   ```
 - **Desativar 2FA de quem perdeu o celular** (confirme a identidade antes):
   ```bash
-  docker compose run --rm aegis_share python manage.py shell -c "from aegis_share.models import CustomUser; from aegis_share.services.security import disable_totp; disable_totp(CustomUser.objects.get(username='USUARIO'))"
+  docker compose run --rm aegis_med python manage.py shell -c "from aegis_med.models import CustomUser; from aegis_med.services.security import disable_totp; disable_totp(CustomUser.objects.get(username='USUARIO'))"
   ```
 - **Bloqueio por tentativas:** após 10 tentativas de login (ou 8 de 2FA) o usuário espera cerca de 5 minutos. Não é preciso intervir.
 - **Desligamento:** desative o usuário no Admin (`Active` desmarcado). Não apague: a autoria dos registros clínicos depende dele.
@@ -172,8 +172,8 @@ Faça a **revisão de acessos** (`access_review`) periodicamente, por exemplo a 
 
 | Sintoma | Causa provável | O que fazer |
 |---|---|---|
-| Container `aegis_share` reinicia e o log diz "Ha migrations pendentes" | atualização sem migrate | faça backup e rode `docker compose run --rm aegis_share python manage.py migrate` |
-| Container "unhealthy" | banco fora, erro de configuração | `docker compose logs aegis_share`; confira `postgres` com `docker compose ps` |
+| Container `aegis_med` reinicia e o log diz "Ha migrations pendentes" | atualização sem migrate | faça backup e rode `docker compose run --rm aegis_med python manage.py migrate` |
+| Container "unhealthy" | banco fora, erro de configuração | `docker compose logs aegis_med`; confira `postgres` com `docker compose ps` |
 | "Bad Request (400)" | domínio fora de `ALLOWED_HOSTS` | inclua o nome usado no navegador e reinicie |
 | "Forbidden (403) CSRF" ao enviar formulário | origem fora de `CSRF_TRUSTED_ORIGINS` | inclua `https://DOMINIO` (com porta, se não for 443) |
 | Aviso de certificado no navegador | CA interna não instalada, ou DNS/`DOMAIN` divergentes | instale a CA (seção 2) e confira `DOMAIN` |
@@ -182,7 +182,7 @@ Faça a **revisão de acessos** (`access_review`) periodicamente, por exemplo a 
 | Usuário não vê um paciente | sem concessão de acesso | conceda em Patient access grants (seção 6) |
 | Item do menu não aparece | falta permissão ou grupo | ajuste os grupos do usuário no Admin |
 | Auditoria mostra o IP do proxy, não o do usuário | `TRUSTED_PROXY_IPS` sem a rede Docker | ajuste e recrie o container (`docker compose up -d`) |
-| Páginas sem estilo | imagem construída sem estáticos | `docker compose build --no-cache aegis_share` e suba de novo |
+| Páginas sem estilo | imagem construída sem estáticos | `docker compose build --no-cache aegis_med` e suba de novo |
 | Usuários desconectados com frequência | expiração de 30 min sem uso (proposital) | ajuste `SESSION_IDLE_TIMEOUT_SECONDS`, se a política permitir |
 | Erro 500 | falha da aplicação | veja os logs (ou o Sentry), anote o horário e abra um chamado (seção 10) |
 | Disco cheio | backups ou logs do Docker | confira `BACKUP_KEEP_DAYS` e configure rotação de logs do Docker |
@@ -203,7 +203,7 @@ Faça a **revisão de acessos** (`access_review`) periodicamente, por exemplo a 
 
 ## 10. Como pedir ajuda
 
-Abra uma issue no [repositório](https://github.com/ArcoverdePedro/AegisShare/issues) com:
+Abra uma issue no [repositório](https://github.com/ArcoverdePedro/AegisMed/issues) com:
 
 - versão (`git log -1 --oneline`) e data da atualização;
 - o que foi feito, o resultado esperado e o resultado obtido;

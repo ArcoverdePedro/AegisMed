@@ -9,7 +9,7 @@ Nível 1/2/3: reuso do projeto, Django nativo e FBVs.
 | apps/clinical/surgery/models.py, forms.py, services.py e admin.py | Catálogo ativo, snapshots, Admin restrito, operação UUID, lock e constraint identificada |
 | apps/admin/billing/models.py | Limites inteiros, confirmação, capacidades explícitas e guardas append-only |
 | apps/clinical/pep/permissions.py | is_internal_professional; accessible_patients não se aplica a registros sem paciente |
-| aegis_share/middleware.py | Namespace privado com reverse; incluir /estoque/ quando implementado |
+| aegis_med/middleware.py | Namespace privado com reverse; incluir /estoque/ quando implementado |
 | templates/navbar/navbar.html e templates/pwa/service-worker.js | Navegação administrativa e estratégia atual network-only |
 | testes/CI das Specs 007/008 | PostgreSQL concorrente, auditoria, mobile/axe/offline e gates existentes |
 

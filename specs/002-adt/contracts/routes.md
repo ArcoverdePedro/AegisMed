@@ -48,4 +48,4 @@ O contrato técnico correspondente está em `events.asyncapi.yaml`.
 
 ## Garantia de ausência de API REST pública
 
-`aegis_share.tests.test_architecture.PublicApiArchitectureTests` congela a superfície `/api/` nos três endpoints legados já existentes antes do ADT. `AdtContractTests.test_adt_does_not_define_public_api_routes` adiciona uma garantia local de que `apps.clinical.adt.urls` não introduz prefixo `api/`.
+`aegis_med.tests.test_architecture.PublicApiArchitectureTests` congela a superfície `/api/` nos três endpoints legados já existentes antes do ADT. `AdtContractTests.test_adt_does_not_define_public_api_routes` adiciona uma garantia local de que `apps.clinical.adt.urls` não introduz prefixo `api/`.

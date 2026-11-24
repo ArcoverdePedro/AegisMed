@@ -36,9 +36,9 @@ async function offlineStorageSnapshot(page) {
     const databaseNames = databases.map((database) => database.name).filter(Boolean);
     let queueRecords = [];
 
-    if (databaseNames.includes('aegisshare-offline')) {
+    if (databaseNames.includes('aegismed-offline')) {
       const database = await new Promise((resolve, reject) => {
-        const request = indexedDB.open('aegisshare-offline');
+        const request = indexedDB.open('aegismed-offline');
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
       });

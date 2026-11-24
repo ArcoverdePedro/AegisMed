@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-# `docker compose run aegis_share <comando>` deve executar o comando solicitado
+# `docker compose run aegis_med <comando>` deve executar o comando solicitado
 # sem iniciar o servidor/migrations automaticamente.
 if [ "$#" -gt 0 ]; then
   exec "$@"
@@ -45,11 +45,11 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
   python manage.py migrate --noinput
 elif ! python manage.py migrate --check >/dev/null; then
   echo "Ha migrations pendentes. Faca o backup e rode:"
-  echo "  docker compose run --rm aegis_share python manage.py migrate"
+  echo "  docker compose run --rm aegis_med python manage.py migrate"
   exit 1
 fi
 
-echo "Iniciando AegisShare na porta ${PORT} com ${WEB_WORKERS} worker(s)..."
+echo "Iniciando AegisMed na porta ${PORT} com ${WEB_WORKERS} worker(s)..."
 exec granian mysite.asgi:application \
   --host 0.0.0.0 \
   --port "$PORT" \

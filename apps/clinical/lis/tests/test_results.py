@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.models import PatientAccessGrant
 from apps.clinical.pep.tests.test_views import TEST_STORAGES
 

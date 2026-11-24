@@ -1,5 +1,5 @@
 [project]
-name = "aegisshare"
+name = "aegismed"
 version = "0.2.0"
 description = "Sistema de informação hospitalar e colaboração segura em Django"
 readme = "README.md"
@@ -50,7 +50,7 @@ exclude = [
     "*.db",
     "*.sqlite3",
     "*.log",
-    "aegis_share/migrations/",
+    "aegis_med/migrations/",
     "test_tmp_*",
 ]
 

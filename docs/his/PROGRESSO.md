@@ -12,7 +12,7 @@ Mapa de capacidades na base (fluxo real, não nome de app): PEP com Patient/Enco
 | H19 | READY | `apps/admin/inventory/tests/test_stock.py`, `test_concurrency.py` (PostgreSQL) | Reserva, conversão de embalagem e ponto de pedido aguardam G09; falta homologação com almoxarifado real |
 | H20 | READY | `apps/admin/inventory/tests/test_purchases.py`, `test_concurrency.py` | Cotação/alçadas/anexos/devolução ao fornecedor e vínculo financeiro aguardam G09/H25 |
 | H03 | BLOCKED | `apps/clinical/pep/tests/test_registration.py`; spec 001 "Extensão de cadastro" | Parte técnica entregue; desconhecido/provisório, múltiplos identificadores, responsáveis e mesclagem dependem de G02 |
-| H30 | READY | `aegis_share/tests/test_backup.py`; ensaio de restauração registrado no README | Agendamento, retenção, RPO/RTO, cópia externa, alertas e rotação/reempacotamento de chaves dependem de G11 |
+| H30 | READY | `aegis_med/tests/test_backup.py`; ensaio de restauração registrado no README | Agendamento, retenção, RPO/RTO, cópia externa, alertas e rotação/reempacotamento de chaves dependem de G11 |
 | H11 | READY | `apps/clinical/scheduling/tests/`; `docs/agenda-ambulatorial.md` | Acesso do profissional ao paciente agendado (G02/H02), integração com escala (H26), canal externo e painel público pendentes |
 | H27 | BLOCKED | caixa laboratorial já deduplica e mantém quarentena | Processador/retry sem formato de equipamento (G07) e RNDS sem credenciais (G11); FHIR ampliado depende de H04/H05 |
 | H13 | READY | `apps/clinical/adt/tests/test_bed_status.py`; spec 002 "Extensão operacional" | Reserva, isolamento, previsão de alta e integração com alta clínica pendentes (G01/G02, H04/H06/H08) |
@@ -26,7 +26,7 @@ Mapa de capacidades na base (fluxo real, não nome de app): PEP com Patient/Enco
 | H21 | REMOVIDO | app `billing` (faturamento particular) removido na simplificação 2026-11 | Produção SUS (BPA/AIH) substitui |
 | H23 | REMOVIDO | app `billing` (faturamento particular) removido na simplificação 2026-11 | Produção SUS (BPA/AIH) substitui |
 | H04 | BLOCKED | lista de problemas versionada (`apps/clinical/pep/tests/test_problems.py`) | Terminologia aprovada, antecedentes, reconciliação, multiprofissional e resumo de alta dependem de conteúdo clínico aprovado/H06/H08 |
-| H02 | BLOCKED | `sync_role_groups` (proposta; `aegis_share/tests/test_role_groups.py`) | Aprovar matriz (G02), vínculos de equipe/unidade, multi-instituição (G01), acesso emergencial e consulta de inativos |
+| H02 | BLOCKED | `sync_role_groups` (proposta; `aegis_med/tests/test_role_groups.py`) | Aprovar matriz (G02), vínculos de equipe/unidade, multi-instituição (G01), acesso emergencial e consulta de inativos |
 | H15 | BLOCKED | resultados manuais com validação/liberação/retificação (`apps/clinical/lis/tests/test_results.py`) | Catálogo, críticos, importação de equipamento e assinatura dependem de G07/G11/G05 |
 | H18 | REMOVIDO | idem H17 | — |
 | H16 | BLOCKED | laudo versionado com liberação (`apps/clinical/ris/tests/test_reports.py`) | PACS/DICOM (G11), agenda/preparo (G07), assinatura (G05) |

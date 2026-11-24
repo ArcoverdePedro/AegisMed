@@ -61,8 +61,8 @@ test('manifest exposes installable standalone metadata and both required icons',
   expect(response.ok()).toBe(true);
 
   const manifest = await response.json();
-  expect(manifest.name).toBe('AegisShare HIS');
-  expect(manifest.short_name).toBe('AegisShare');
+  expect(manifest.name).toBe('AegisMed HIS');
+  expect(manifest.short_name).toBe('AegisMed');
   expect(manifest.start_url).toBe('/');
   expect(manifest.scope).toBe('/');
   expect(manifest.display).toBe('standalone');

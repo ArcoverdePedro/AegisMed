@@ -20,8 +20,8 @@ class ManifestView(View):
     def get(self, request, *args, **kwargs):
         response = JsonResponse(
             {
-                "name": "AegisShare HIS",
-                "short_name": "AegisShare",
+                "name": "AegisMed HIS",
+                "short_name": "AegisMed",
                 "description": "Sistema Hospitalar Interno",
                 "start_url": "/",
                 "scope": "/",

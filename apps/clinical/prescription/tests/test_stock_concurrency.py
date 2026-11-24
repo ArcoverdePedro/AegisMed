@@ -10,7 +10,7 @@ from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 
 from ..models import Drug, StockMovement
 from ..stock_services import (

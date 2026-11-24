@@ -1,6 +1,6 @@
 asyncapi: 3.0.0
 info:
-  title: AegisShare HIS - Nursing Internal Events
+  title: AegisMed HIS - Nursing Internal Events
   version: 1.0.0
   description: >-
     Contrato interno estável da Spec 004. Eventos são produzidos somente após

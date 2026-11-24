@@ -1,6 +1,6 @@
 # Decisões externas do HIS
 
-Registro dos gates do plano (`docs/AEGISSHARE_PLANO_EXECUCAO_IA.md`, seção 04). Nenhuma aprovação humana foi registrada até agora; "Pendente" significa que o código só pode avançar na parte técnica reversível, com a ativação desligada.
+Registro dos gates do plano (`docs/AEGISMED_PLANO_EXECUCAO_IA.md`, seção 04). Nenhuma aprovação humana foi registrada até agora; "Pendente" significa que o código só pode avançar na parte técnica reversível, com a ativação desligada.
 
 | ID | Pergunta | Responsável | Alternativas | Impacto | Decisão | Data/versão | Evidência |
 | --- | --- | --- | --- | --- | --- | --- | --- |

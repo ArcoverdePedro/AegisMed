@@ -1,6 +1,6 @@
 asyncapi: 3.0.0
 info:
-  title: AegisShare HIS Core Internal Events
+  title: AegisMed HIS Core Internal Events
   version: 0.2.0
   description: Eventos internos via WebSocket/Celery/Redis. Não constitui API pública.
 channels:

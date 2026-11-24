@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir a matriz RBAC + ABAC do módulo ADT sem ampliar implicitamente os papéis atuais do AegisShare. O princípio é `deny-by-default`: autenticação por sessão é obrigatória e cada mutação exige capacidade ADT explícita, além do escopo clínico do PEP quando houver paciente identificável.
+Definir a matriz RBAC + ABAC do módulo ADT sem ampliar implicitamente os papéis atuais do AegisMed. O princípio é `deny-by-default`: autenticação por sessão é obrigatória e cada mutação exige capacidade ADT explícita, além do escopo clínico do PEP quando houver paciente identificável.
 
 ## Capacidades ADT
 

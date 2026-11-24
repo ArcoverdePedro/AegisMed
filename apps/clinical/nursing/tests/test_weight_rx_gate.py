@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.utils import timezone
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.models import Encounter, Patient, PatientAccessGrant
 from apps.clinical.prescription.models import DoseRule, Drug, MedicationSafetyReview
 from apps.clinical.prescription.safety import evaluate_medication_safety

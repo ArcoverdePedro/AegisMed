@@ -60,7 +60,7 @@ async function expectNoRxCache(page) {
 
 async function expectNoOfflineQueueDatabase(page) {
   const exists = await page.evaluate(async () =>
-    (await indexedDB.databases()).some((database) => database.name === 'aegisshare-offline'),
+    (await indexedDB.databases()).some((database) => database.name === 'aegismed-offline'),
   );
   expect(exists).toBe(false);
 }

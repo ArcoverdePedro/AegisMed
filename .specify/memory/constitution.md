@@ -1,4 +1,4 @@
-# Constituição — AegisShare HIS
+# Constituição — AegisMed HIS
 
 ## Status
 Aprovada como baseline do ciclo SDD inicial.
@@ -11,7 +11,7 @@ Aprovada como baseline do ciclo SDD inicial.
 4. **PWA como camada de apresentação** — instalação em dispositivos móveis, offline parcial e sincronização controlada, sem duplicar codebase.
 5. **Interoperabilidade por arquivos e mensageria** — HL7 v2.x, DICOM, TISS e FHIR somente por importação/exportação de arquivos ou fluxos internos.
 6. **Rastreabilidade clínica** — toda leitura ou alteração relevante de dado clínico deve ser auditável.
-7. **Modularidade dentro do monólito** — bounded contexts claros; o AegisShare documental atual passa a ser o Core.
+7. **Modularidade dentro do monólito** — bounded contexts claros; o AegisMed documental atual passa a ser o Core.
 8. **Testes guiados por spec** — unitários, views/integração, aceitação Gherkin, E2E, segurança, acessibilidade e carga quando aplicável.
 9. **Conformidade regulatória** — LGPD e requisitos regulatórios aplicáveis, incluindo avaliação de ANVISA/RDC 657/2022 quando houver enquadramento como SaMD.
 10. **Observabilidade desde o início** — logs estruturados, métricas, traces e health checks.

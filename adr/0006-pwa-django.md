@@ -5,7 +5,7 @@ Aceito em 2026-09-11 após aprovação explícita da Spec 014.
 
 ## Contexto
 
-O AegisShare HIS é fullstack, interno e sem API REST pública. Equipes assistenciais precisam usar o sistema em tablets e smartphones, inclusive em áreas com conectividade instável.
+O AegisMed HIS é fullstack, interno e sem API REST pública. Equipes assistenciais precisam usar o sistema em tablets e smartphones, inclusive em áreas com conectividade instável.
 
 ## Decisão
 

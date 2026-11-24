@@ -17,7 +17,7 @@ Data: 2026-09-16. Aprovação: instrução do mantenedor “aprovado, continue�
 
 | Gate | Resultado |
 |---|---|
-| Ruff: `aegis_share apps mysite` e fixture E2E nova | Passou |
+| Ruff: `aegis_med apps mysite` e fixture E2E nova | Passou |
 | Ruff format: novo app/settings/urls | Passou |
 | Django check e makemigrations --check --dry-run | Passaram; sem alterações de schema pendentes |
 | Suíte Django completa | 397 testes, OK, 30 pulados no ambiente SQLite |

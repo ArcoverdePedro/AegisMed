@@ -1,8 +1,8 @@
-# Manual do usuário — AegisShare
+# Manual do usuário — AegisMed
 
 Guia para quem usa o sistema no dia a dia: recepção, médicos, enfermagem, farmácia, laboratório, imagem, almoxarifado e administração. Para instalação, backup e problemas técnicos, veja o [Guia de suporte técnico](suporte-tecnico.md).
 
-> O AegisShare está em desenvolvimento. Use com pacientes reais somente depois da homologação pela instituição e mantenha um procedimento de contingência em papel.
+> O AegisMed está em desenvolvimento. Use com pacientes reais somente depois da homologação pela instituição e mantenha um procedimento de contingência em papel.
 
 ## Sumário
 

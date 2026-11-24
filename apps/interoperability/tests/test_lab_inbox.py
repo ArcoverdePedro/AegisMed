@@ -13,8 +13,8 @@ from django.test import Client, RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from aegis_share.services.crypto import CryptoConfigurationError, decrypt_file
-from aegis_share.tests.helpers import make_user
+from aegis_med.services.crypto import CryptoConfigurationError, decrypt_file
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.tests.test_views import TEST_STORAGES
 
 from ..admin import LaboratorySourceForm
@@ -76,7 +76,7 @@ class InboxTests(TestCase):
     def test_encryption_exact_bytes_and_immutable_receipt(self):
         self.assertEqual(self.upload().status_code, 302)
         item = LaboratoryInboxReceipt.objects.get()
-        aad = f"aegisshare:lab-inbox:{item.pk}".encode()
+        aad = f"aegismed:lab-inbox:{item.pk}".encode()
         cipher = bytes(item.ciphertext)
         self.assertNotIn(PAYLOAD, cipher)
         self.assertEqual(decrypt_file(cipher, item.wrapped_key, aad=aad), PAYLOAD)

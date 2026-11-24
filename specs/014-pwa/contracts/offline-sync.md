@@ -33,7 +33,7 @@ retry_count
 
 `static/pwa/offline_queue.js` implementa o armazenamento local protegido sem habilitar nenhum fluxo clínico automaticamente.
 
-- o IndexedDB canônico é `aegisshare-offline`, o mesmo removido pelo service worker durante a limpeza local;
+- o IndexedDB canônico é `aegismed-offline`, o mesmo removido pelo service worker durante a limpeza local;
 - cada payload é serializado e cifrado com AES-GCM 256 antes da persistência;
 - a chave é criada pela Web Crypto API como `CryptoKey` não extraível e persistida no próprio IndexedDB;
 - um IV aleatório de 96 bits é usado por operação;
@@ -65,4 +65,4 @@ A habilitação deste piloto **não** torna outras mutações elegíveis. Cada n
 - alterações administrativas sensíveis;
 - **admissão, transferência e alta ADT**: dependem do estado concorrente atual de leitos e permanecem `network-only` conforme RF-ADT-12; não podem usar Cache Storage, IndexedDB ou Background Sync para persistir a mutação.
 
-A regressão ADT é exercitada por Playwright em `tests/e2e/adt_journeys.spec.js`: com service worker ativo, os POSTs críticos devem falhar quando a rede é removida e nenhuma entrada pode surgir no cache ou no IndexedDB `aegisshare-offline`.
+A regressão ADT é exercitada por Playwright em `tests/e2e/adt_journeys.spec.js`: com service worker ativo, os POSTs críticos devem falhar quando a rede é removida e nenhuma entrada pode surgir no cache ou no IndexedDB `aegismed-offline`.

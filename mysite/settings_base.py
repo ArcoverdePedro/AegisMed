@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     "django_simple_bulma",
     "crispy_bulma",
     "django_feather",
-    "aegis_share",
+    "aegis_med",
     "apps.pwa.apps.PwaConfig",
     "apps.clinical.pep.apps.PepConfig",
     "apps.clinical.adt.apps.AdtConfig",
@@ -109,8 +109,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
-    "aegis_share.middleware.TrackedSessionMiddleware",
-    "aegis_share.middleware.FirstAccessRedirectMiddleware",
+    "aegis_med.middleware.TrackedSessionMiddleware",
+    "aegis_med.middleware.FirstAccessRedirectMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -178,7 +178,7 @@ else:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "aegisshare-local",
+            "LOCATION": "aegismed-local",
         }
     }
 
@@ -190,7 +190,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 
-AUTH_USER_MODEL = "aegis_share.CustomUser"
+AUTH_USER_MODEL = "aegis_med.CustomUser"
 LOGIN_URL = "login"
 LOGOUT_REDIRECT_URL = "home"
 
@@ -283,7 +283,7 @@ LOGGING = {
             "level": "WARNING",
             "propagate": False,
         },
-        "aegis_share": {
+        "aegis_med": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
             "propagate": False,

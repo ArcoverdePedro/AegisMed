@@ -8,7 +8,7 @@ Aceito em 2026-09-11 após aprovação explícita da arquitetura HIS.
 
 ## Contexto
 
-O AegisShare atual possui rotas `api/v1/*` para arquivos. O HIS alvo é uma aplicação interna fullstack monolítica, com Django Templates + HTMX + Alpine.js, e define que integrações externas devem ocorrer por arquivos, mensageria ou jobs internos.
+O AegisMed atual possui rotas `api/v1/*` para arquivos. O HIS alvo é uma aplicação interna fullstack monolítica, com Django Templates + HTMX + Alpine.js, e define que integrações externas devem ocorrer por arquivos, mensageria ou jobs internos.
 
 ## Decisão
 

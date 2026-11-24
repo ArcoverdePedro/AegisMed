@@ -4,8 +4,8 @@
 
 | Campo | Valor/Regra |
 |---|---|
-| `name` | `AegisShare HIS` |
-| `short_name` | `AegisShare` |
+| `name` | `AegisMed HIS` |
+| `short_name` | `AegisMed` |
 | `description` | Sistema Hospitalar Interno |
 | `start_url` | `/` |
 | `scope` | `/` |

@@ -43,7 +43,7 @@ Admissão, transferência e alta permanecem deliberadamente `network-only`. O te
 3. confirma que o runtime `AegisOfflineQueue` não é carregado pelas páginas ADT;
 4. corta a rede e tenta `POST` nos três endpoints;
 5. exige falha de rede para todas as tentativas;
-6. confirma novamente que o IndexedDB `aegisshare-offline` não foi criado e que nenhum endpoint mutável foi armazenado em cache.
+6. confirma novamente que o IndexedDB `aegismed-offline` não foi criado e que nenhum endpoint mutável foi armazenado em cache.
 
 Qualquer futura mutação ADT offline exige nova alteração de contrato na Spec 014 e revisão explícita deste requisito.
 

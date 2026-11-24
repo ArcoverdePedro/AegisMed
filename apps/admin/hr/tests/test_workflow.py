@@ -12,7 +12,7 @@ from django.test import Client, RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 from apps.clinical.pep.tests.test_views import TEST_STORAGES
 
 from ..models import Employee
@@ -240,7 +240,7 @@ class EmployeeTests(TestCase):
         joined = [
             q
             for q in queries
-            if q["sql"].startswith("SELECT") and 'JOIN "aegis_share_customuser"' in q["sql"]
+            if q["sql"].startswith("SELECT") and 'JOIN "aegis_med_customuser"' in q["sql"]
         ]
         self.assertEqual(len(joined), 1)
         self.assertEqual(len(self.client.get(self.list_url, {"page": 2}).context["page_obj"]), 2)

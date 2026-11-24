@@ -1,6 +1,6 @@
 # Changelog
 
-Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
+Todas as mudanças relevantes do AegisMed serão registradas neste arquivo.
 
 ## [0.2.0] - Em desenvolvimento
 
@@ -16,7 +16,7 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 ### Notas de atualização (segurança e deploy)
 
 - A porta da aplicação passa a ser publicada só em `127.0.0.1`. Para acesso pela rede, use o perfil `proxy` (ou outro proxy HTTPS) ou defina `APP_BIND=0.0.0.0` conscientemente.
-- A partir desta versão, rode `docker compose run --rm aegis_share python manage.py migrate` a cada atualização (veja o README).
+- A partir desta versão, rode `docker compose run --rm aegis_med python manage.py migrate` a cada atualização (veja o README).
 
 ### Removido (simplificação, 2026-11)
 
@@ -67,7 +67,7 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 - PEP: nove FBVs substituem as classes e três mixins; rotas, forms e templates mantidos.
 - Transporte de eventos pós-commit compartilhado entre PEP, ADT, prescrição e enfermagem.
 - Reuso da regra de profissional interno e do queryset de internações ativas.
-- Removidos `aegis_share.views` e os adaptadores `arquivos_por_permissao`/`dar_acesso`, sem consumidores no repositório; imports devem usar `aegis_share.web` e os serviços existentes.
+- Removidos `aegis_med.views` e os adaptadores `arquivos_por_permissao`/`dar_acesso`, sem consumidores no repositório; imports devem usar `aegis_med.web` e os serviços existentes.
 
 ### Corrigido
 
@@ -135,12 +135,12 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 
 ### Alterado
 
-- AegisShare passa a documentar explicitamente o escopo atual como HIS + plataforma segura de colaboração.
+- AegisMed passa a documentar explicitamente o escopo atual como HIS + plataforma segura de colaboração.
 - As rotas públicas `api/v1/*` existentes passam a ser tratadas como compatibilidade legada em depreciação; novos módulos usam views/forms Django e integrações internas.
 - Licença alterada de MIT para `AGPL-3.0-only`, com `NOTICE` preservando o copyright do projeto.
 - Python de produção padronizado em 3.14.
-- Views divididas em controllers sob `aegis_share/web/` no núcleo legado; módulos clínicos seguem organização por bounded context e FBV-first.
-- Regras de negócio e integrações do núcleo documental movidas para `aegis_share/services/`.
+- Views divididas em controllers sob `aegis_med/web/` no núcleo legado; módulos clínicos seguem organização por bounded context e FBV-first.
+- Regras de negócio e integrações do núcleo documental movidas para `aegis_med/services/`.
 - Política de upload centralizada.
 - Acesso a arquivos novos deixa de apontar diretamente para gateways IPFS.
 - Dockerfile convertido para build multi-stage.
@@ -163,7 +163,7 @@ Todas as mudanças relevantes do AegisShare serão registradas neste arquivo.
 ### Compatibilidade
 
 - Arquivos existentes são preservados como `FileVersion v1` legada e não criptografada.
-- `aegis_share.views` permanece temporariamente como camada de compatibilidade para imports antigos.
+- `aegis_med.views` permanece temporariamente como camada de compatibilidade para imports antigos.
 - As três rotas públicas legadas de arquivos permanecem disponíveis enquanto seus consumidores não forem migrados; um teste de arquitetura impede expansão silenciosa dessa superfície.
 
 ### Governança clínica pendente

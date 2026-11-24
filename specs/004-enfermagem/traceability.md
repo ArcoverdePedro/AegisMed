@@ -22,7 +22,7 @@
 | RF-NUR-14 | `contracts/events.asyncapi.yaml` | `events.py`, `set_actor()` nos services, `ACCESS` nas leituras e `transaction.on_commit()` | `test_audit_events.py` |
 | RNF-NUR-01 | `data-model.md` | modelos Django persistidos no PostgreSQL; migration `0001_initial.py` | suíte Django em PostgreSQL no CI |
 | RNF-NUR-02 | `data-model.md` | services append-only; nenhuma edição/exclusão clínica destrutiva pela UI | `test_models.py`, `test_services.py`, `test_administration_services.py` |
-| RNF-NUR-03 | `contracts/routes.md` | FBVs em `apps/clinical/nursing/urls.py`; todas as rotas sob `/enfermagem/` | `aegis_share/tests/test_architecture.py::PublicApiArchitectureTests` |
+| RNF-NUR-03 | `contracts/routes.md` | FBVs em `apps/clinical/nursing/urls.py`; todas as rotas sob `/enfermagem/` | `aegis_med/tests/test_architecture.py::PublicApiArchitectureTests` |
 | RNF-NUR-04 | contratos de eventos/offline | auditlog com campos clínicos excluídos, eventos mínimos e logging sem payload clínico | `test_audit_events.py`, `tests/e2e/nursing_local_data_privacy.spec.js`, gate de logs em `.github/workflows/django.yml` |
 | RNF-NUR-05 | `spec.md` | templates server-rendered responsivos | `tests/e2e/nursing_offline.spec.js`, `tests/e2e/nursing_medication_accessibility.spec.js` com axe-core e telefone/tablet |
 | RNF-NUR-06 | contratos offline/administração | `idempotency_key`/`operation_key` e conflitos seguros | `test_offline_sync.py`, `test_services.py`, `test_administration_services.py`, Playwright |
@@ -42,7 +42,7 @@ O Gherkin canônico permanece em `features/acceptance.feature`. `apps/clinical/n
 
 A Spec 004 não adiciona API REST pública. `apps/clinical/nursing/urls.py` registra somente superfícies sob `/enfermagem/`, incluindo a sincronização interna autenticada por sessão e CSRF em `/enfermagem/sinais-vitais/sincronizar/`.
 
-A proteção não depende apenas desta documentação: `aegis_share/tests/test_architecture.py::PublicApiArchitectureTests.test_no_new_public_api_routes_are_introduced` coleta todas as rotas do projeto iniciadas por `api/` e exige igualdade com a allowlist legada de três rotas de arquivos. Qualquer nova rota pública `/api/` faz a suíte falhar.
+A proteção não depende apenas desta documentação: `aegis_med/tests/test_architecture.py::PublicApiArchitectureTests.test_no_new_public_api_routes_are_introduced` coleta todas as rotas do projeto iniciadas por `api/` e exige igualdade com a allowlist legada de três rotas de arquivos. Qualquer nova rota pública `/api/` faz a suíte falhar.
 
 ## Eventos internos
 

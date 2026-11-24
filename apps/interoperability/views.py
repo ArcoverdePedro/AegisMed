@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.views.decorators.http import require_GET, require_http_methods
 
-from aegis_share.services.crypto import CryptoConfigurationError
+from aegis_med.services.crypto import CryptoConfigurationError
 from apps.clinical.pep.permissions import accessible_patients, is_internal_professional
 
 from .forms import LaboratoryInboxFilterForm, LaboratoryInboxForm, PatientExportForm

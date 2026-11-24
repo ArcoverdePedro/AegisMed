@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from aegis_share.tests.helpers import make_user
+from aegis_med.tests.helpers import make_user
 
 from ..models import Drug
 

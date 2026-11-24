@@ -133,7 +133,7 @@ test('CA-INV-02: revogar capacidade no Admin com formulário aberto',async ({pag
   try {
     const adminPage=await adminContext.newPage();
     await login(adminPage,'admin');
-    await adminPage.goto('/aegis-admin/aegis_share/customuser/09000000-0000-4000-8000-000000000003/change/');
+    await adminPage.goto('/aegis-admin/aegis_med/customuser/09000000-0000-4000-8000-000000000003/change/');
     const permission=adminPage.locator('#id_user_permissions_to option').filter({hasText:'Pode requisitar material'});
     const value=await permission.getAttribute('value');
     await adminPage.locator('#id_user_permissions_to').selectOption(value);

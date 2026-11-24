@@ -33,5 +33,5 @@ urlpatterns = [
     path("", include("apps.admin.inventory.urls")),
     path("", include("apps.admin.hr.urls")),
     path("", include("apps.admin.indicators.urls")),
-    path("", include("aegis_share.urls")),
+    path("", include("aegis_med.urls")),
 ]
