@@ -1,16 +1,22 @@
-# Proxy HTTPS do AegisMed (perfil "proxy" do compose.yml).
-# CADDY_TLS=acme: certificado publico (Let's Encrypt) para um dominio acessivel da internet.
-# CADDY_TLS=internal: CA propria do Caddy, para nome so da rede do hospital; instale a raiz
-# exportada de /data/caddy/pki/authorities/local/root.crt nas estacoes.
-(tls_acme) {
-}
+# Exemplo de proxy HTTPS do AegisMed com Caddy instalado no proprio servidor.
+# O compose nao sobe proxy: a aplicacao escuta so em 127.0.0.1:8000 (APP_BIND/APP_PORT).
+#
+# Uso: troque his.exemplo.gov.br pelo seu dominio, copie para /etc/caddy/Caddyfile
+# e rode `systemctl reload caddy`.
+#
+# Dominio publico: o Caddy emite o certificado (Let's Encrypt) sozinho; libere as portas 80/443.
+# Nome so da rede do hospital: descomente `tls internal` e instale nas estacoes a CA raiz
+# (/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt).
+#
+# No .env: TRUSTED_PROXY_IPS=172.16.0.0/12 (o container ve o gateway da rede Docker como origem).
 
-(tls_internal) {
-	tls internal
-}
-
-{$DOMAIN} {
-	import tls_{$CADDY_TLS:acme}
+his.exemplo.gov.br {
+	# tls internal
 	encode zstd gzip
-	reverse_proxy aegis_med:{$PORT:8000}
+	# Mesmo limite de FILE_MAX_UPLOAD_MB (+ folga do multipart).
+	request_body {
+		max_size 52MB
+	}
+	# Repassa X-Forwarded-For/Proto e WebSocket automaticamente.
+	reverse_proxy 127.0.0.1:8000
 }

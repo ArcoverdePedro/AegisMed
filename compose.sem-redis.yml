@@ -1,0 +1,19 @@
+# PostgreSQL do compose; Redis externo via REDIS_URL no .env, ou nenhum
+# (sem REDIS_URL: cache/Channels em memoria e WEB_WORKERS=1).
+# Uso: docker compose -f compose.sem-redis.yml up -d  (ou COMPOSE_FILE no .env)
+name: aegismed
+
+services:
+  postgres:
+    extends: {file: compose.base.yml, service: postgres}
+
+  aegis_med:
+    extends: {file: compose.base.yml, service: aegis_med}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aegismed}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aegismed}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

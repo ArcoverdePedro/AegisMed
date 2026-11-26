@@ -51,7 +51,7 @@ A automação clínica é deliberadamente conservadora. Regras que dependem de c
 
 - PostgreSQL 18 e Redis.
 - Django ASGI servido por Granian.
-- Um único `compose.yml`.
+- `compose.yml` com PostgreSQL e Redis, ou variantes com qualquer um deles externo.
 - PWA com cache deny-by-default para superfícies sensíveis.
 - CI com PostgreSQL, Redis, Ruff, migrations, suíte Django, Compose, Playwright, privacidade dos logs e Lighthouse.
 - CodeQL e teste arquitetural que impede rotas públicas `/api/`.
@@ -171,26 +171,18 @@ No primeiro acesso, se ainda não houver administrador, `/setup/` permite criar 
 
 ## Docker Compose
 
-Uma única stack: Django + PostgreSQL + Redis.
+Django + PostgreSQL + Redis. O compose não inclui proxy HTTPS.
 
-PostgreSQL e Redis ficam somente na rede Docker. A aplicação publica a porta só em `127.0.0.1` (`APP_BIND`); o acesso pela rede passa pelo proxy HTTPS.
+PostgreSQL e Redis ficam somente na rede Docker. A aplicação publica a porta só em `127.0.0.1` (`APP_BIND`); o acesso pela rede passa pelo proxy HTTPS do próprio servidor.
 
-### HTTPS com o proxy Caddy
+### HTTPS com proxy reverso no servidor
 
-O perfil `proxy` adiciona um Caddy na frente da aplicação, com certificado automático:
+Instale Caddy ou nginx no host e use um dos exemplos, trocando o domínio:
 
-```env
-DOMAIN=his.hospital.gov.br
-CADDY_TLS=acme          # domínio público: certificado Let's Encrypt
-# CADDY_TLS=internal    # nome só da rede interna: CA própria do Caddy
-TRUSTED_PROXY_IPS=172.16.0.0/12   # rede Docker, para registrar o IP real do usuário
-```
+- [deploy/Caddyfile](deploy/Caddyfile): certificado automático (Let's Encrypt) ou `tls internal` para nome só da rede interna.
+- [deploy/nginx.conf](deploy/nginx.conf): certificado do certbot ou da CA do hospital.
 
-```bash
-docker compose --profile proxy up -d
-```
-
-Com `CADDY_TLS=internal`, instale nas estações a CA raiz do Caddy (`docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt .`). Sem o perfil, coloque outro proxy HTTPS na frente da porta `127.0.0.1:8000`.
+Ambos repassam `X-Forwarded-For`/`X-Forwarded-Proto` e WebSocket para `127.0.0.1:8000`. No `.env`, use `TRUSTED_PROXY_IPS=172.16.0.0/12` (rede Docker) para a auditoria registrar o IP real do usuário.
 
 ### Atualização de versão
 
@@ -204,7 +196,18 @@ O container recusa iniciar se houver migration pendente, para que código novo n
 
 A stack atual usa PostgreSQL 18 e monta o volume em `/var/lib/postgresql`, conforme o layout das imagens oficiais 18+. **Não conecte diretamente um volume criado por PostgreSQL 17 ou anterior a uma imagem PostgreSQL 18.** Faça backup/restauração ou um procedimento de `pg_upgrade` apropriado antes de uma mudança de versão principal.
 
-Para usar um PostgreSQL ou Redis já existentes, crie um `compose.override.yml` que redefina `DATABASE_URL`/`REDIS_URL` do serviço `aegis_med` (o Compose o aplica automaticamente). Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`.
+### PostgreSQL e Redis do compose ou externos
+
+| Arquivo | PostgreSQL | Redis |
+| --- | --- | --- |
+| `compose.yml` (padrão) | do compose | do compose |
+| `compose.sem-postgres.yml` | externo (`DATABASE_URL` no `.env`) | do compose |
+| `compose.sem-redis.yml` | do compose | externo (`REDIS_URL` no `.env`) ou nenhum |
+| `compose.sem-redis-sem-postgres.yml` | externo (`DATABASE_URL` no `.env`) | externo ou nenhum |
+
+Escolha com `docker compose -f <arquivo> ...` ou, para não repetir o `-f`, com `COMPOSE_FILE=<arquivo>` no `.env`. As definições comuns ficam em `compose.base.yml`. Sem Redis, o entrypoint reduz `WEB_WORKERS` para `1`. Com PostgreSQL externo, `scripts/backup.sh` não se aplica: faça o backup no servidor do banco. O host do banco externo precisa ser acessível de dentro do container (`localhost` aponta para o próprio container).
+
+O container da aplicação roda como `aegis` (uid 10001), sem capabilities, com `no-new-privileges` e sistema de arquivos somente leitura (apenas `/tmp` gravável).
 
 ## Inicialização do container
 
@@ -241,7 +244,6 @@ DB_STARTUP_ATTEMPTS=30
 | `RUN_MIGRATIONS` | `false` em produção; migrations rodam como passo explícito |
 | `SESSION_IDLE_TIMEOUT_SECONDS` | sessão expira após esse tempo sem uso (padrão 1800) e ao fechar o navegador |
 | `APP_BIND` / `APP_PORT` | endereço e porta publicados da aplicação (padrão `127.0.0.1:8000`) |
-| `DOMAIN`, `CADDY_TLS`, `HTTP_PORT`, `HTTPS_PORT` | proxy HTTPS do perfil `proxy` |
 | `TRUSTED_PROXY_IPS` | IPs/redes do proxy autorizados a informar o IP do cliente |
 | `BACKUP_KEEP_DAYS` | dias de retenção do `scripts/backup.sh` (padrão 30; 0 desativa) |
 

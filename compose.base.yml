@@ -1,0 +1,67 @@
+# Definicoes compartilhadas pelos 4 composes (nao use este arquivo diretamente):
+#   compose.yml                         PostgreSQL + Redis do compose
+#   compose.sem-postgres.yml            Redis do compose; PostgreSQL externo (DATABASE_URL)
+#   compose.sem-redis.yml               PostgreSQL do compose; Redis externo (REDIS_URL) ou nenhum
+#   compose.sem-redis-sem-postgres.yml  PostgreSQL externo; Redis externo ou nenhum
+services:
+  postgres:
+    image: postgres:19-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aegismed}
+      POSTGRES_USER: ${POSTGRES_USER:-aegismed}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  aegis_med:
+    build:
+      context: .
+      dockerfile: dockerfile
+    restart: unless-stopped
+    init: true
+    # Sem root: reforca o USER do dockerfile, sem capabilities nem escalada de privilegio.
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs:
+      - /tmp
+    env_file:
+      - .env
+    environment:
+      PORT: ${PORT:-8000}
+    ports:
+      # So no host local: na rede, o acesso passa pelo proxy HTTPS do servidor
+      # (exemplos em deploy/Caddyfile e deploy/nginx.conf).
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8000}:${PORT:-8000}"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${PORT:-8000}/health/live', timeout=2).read()"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s

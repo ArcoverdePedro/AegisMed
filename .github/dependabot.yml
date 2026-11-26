@@ -37,7 +37,7 @@ updates:
     commit-message:
       prefix: "deps(docker)"
 
-  # Imagens usadas pelo compose.yml
+  # Imagens usadas pelos composes (definidas em compose.base.yml)
   - package-ecosystem: "docker-compose"
     directory: "/"
     target-branch: "master"

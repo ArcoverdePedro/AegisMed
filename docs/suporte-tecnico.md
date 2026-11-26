@@ -20,7 +20,7 @@ Para a equipe de TI que instala, atualiza e mantém o sistema. O uso de cada mó
 ## 1. Arquitetura
 
 ```text
-Estações (navegador) ──HTTPS──> caddy (perfil "proxy", portas 80/443)
+Estações (navegador) ──HTTPS──> proxy do servidor (Caddy ou nginx, portas 80/443)
                                    │
                                    ▼
                             aegis_med (Django + Granian, porta 8000 só em 127.0.0.1)
@@ -35,7 +35,6 @@ Estações (navegador) ──HTTPS──> caddy (perfil "proxy", portas 80/443)
 | `aegis_med` | aplicação web (usuário `aegis`, sem root) | nenhum: tudo no banco |
 | `postgres` | banco PostgreSQL 18, fonte de verdade | volume `postgres_data` |
 | `redis` | cache, limite de tentativas de login e tempo real (mapa de leitos) | volume `redis_data` (descartável) |
-| `caddy` | HTTPS e certificados | volumes `caddy_data` (inclui a CA interna) e `caddy_config` |
 
 **O que precisa de backup:** o banco (via `scripts/backup.sh`), o arquivo `.env` e as chaves (seção 9). O Redis pode ser perdido sem prejuízo.
 
@@ -54,10 +53,8 @@ Edite o `.env` e ajuste pelo menos:
 
 ```env
 POSTGRES_PASSWORD=<senha forte>
-DOMAIN=his.seuhospital.gov.br
 ALLOWED_HOSTS=his.seuhospital.gov.br
 CSRF_TRUSTED_ORIGINS=https://his.seuhospital.gov.br
-CADDY_TLS=internal              # nome só da rede interna; use acme se o domínio for público
 TRUSTED_PROXY_IPS=172.16.0.0/12 # rede Docker, para a auditoria registrar o IP real
 BACKUP_ENCRYPTION_KEY=<gere com o comando da seção 4>
 TIME_ZONE=America/Fortaleza     # ajuste ao fuso do hospital
@@ -68,7 +65,7 @@ Suba a stack:
 ```bash
 docker compose build
 docker compose run --rm aegis_med python manage.py migrate
-docker compose --profile proxy up -d
+docker compose up -d
 docker compose run --rm aegis_med python manage.py sync_role_groups --apply
 ```
 
@@ -76,10 +73,7 @@ Depois:
 
 1. Acesse `https://DOMINIO/setup/` e crie o **primeiro administrador** (a tela só existe enquanto não houver um).
 2. Entre, ative o **2FA** do administrador em **Segurança**.
-3. Com `CADDY_TLS=internal`, copie a CA raiz e instale como confiável nas estações (por GPO, por exemplo):
-   ```bash
-   docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./aegismed-ca.crt
-   ```
+3. Configure o proxy HTTPS no servidor a partir de `deploy/Caddyfile` ou `deploy/nginx.conf` (troque o domínio). Com `tls internal` no Caddy, instale a CA raiz (`/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt`) como confiável nas estações (por GPO, por exemplo).
 4. Configure o DNS interno para que `DOMINIO` aponte para o servidor.
 5. Agende o backup (seção 4) e o monitoramento (seção 7).
 6. Cadastre os catálogos no Admin: locais/leitos, exames, medicamentos, materiais.
@@ -94,7 +88,7 @@ Depois:
    docker compose build
    ```
 4. Aplique as migrations: `docker compose run --rm aegis_med python manage.py migrate`
-5. Suba: `docker compose --profile proxy up -d`
+5. Suba: `docker compose up -d`
 6. Confira `https://DOMINIO/health/ready/` e faça login.
 
 O container **não inicia** se houver migration pendente. É proposital: código novo nunca roda sobre banco antigo.
@@ -177,7 +171,7 @@ Faça a **revisão de acessos** (`access_review`) periodicamente, por exemplo a 
 | "Bad Request (400)" | domínio fora de `ALLOWED_HOSTS` | inclua o nome usado no navegador e reinicie |
 | "Forbidden (403) CSRF" ao enviar formulário | origem fora de `CSRF_TRUSTED_ORIGINS` | inclua `https://DOMINIO` (com porta, se não for 443) |
 | Aviso de certificado no navegador | CA interna não instalada, ou DNS/`DOMAIN` divergentes | instale a CA (seção 2) e confira `DOMAIN` |
-| Caddy não emite certificado (`acme`) | domínio não público ou portas 80/443 bloqueadas | use `CADDY_TLS=internal` ou libere as portas |
+| Caddy não emite certificado | domínio não público ou portas 80/443 bloqueadas | use `tls internal` no Caddyfile ou libere as portas |
 | Mapa de leitos não atualiza sozinho | WebSocket bloqueado ou Redis fora | confira `redis` no `docker compose ps`; proxies extras precisam repassar WebSocket |
 | Usuário não vê um paciente | sem concessão de acesso | conceda em Patient access grants (seção 6) |
 | Item do menu não aparece | falta permissão ou grupo | ajuste os grupos do usuário no Admin |

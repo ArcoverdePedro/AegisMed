@@ -1,0 +1,10 @@
+# Sem PostgreSQL e sem Redis do compose: DATABASE_URL externo obrigatorio;
+# REDIS_URL externo opcional (sem ele: cache/Channels em memoria e WEB_WORKERS=1).
+# Uso: docker compose -f compose.sem-redis-sem-postgres.yml up -d  (ou COMPOSE_FILE no .env)
+name: aegismed
+
+services:
+  aegis_med:
+    extends: {file: compose.base.yml, service: aegis_med}
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env (PostgreSQL externo)}
