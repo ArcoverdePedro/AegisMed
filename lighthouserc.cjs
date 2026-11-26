@@ -2,7 +2,8 @@ module.exports = {
   ci: {
     collect: {
       url: ['http://127.0.0.1:8000/'],
-      numberOfRuns: 1,
+      // Mediana de 3: uma execucao isolada no runner do GitHub oscila muito.
+      numberOfRuns: 3,
       settings: {
         chromeFlags: '--headless --no-sandbox --disable-dev-shm-usage',
         onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],

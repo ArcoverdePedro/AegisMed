@@ -15,7 +15,7 @@ Uma mesma regra de negócio não deve ser duplicada em formulário, view e API. 
 
 ## Ambiente local
 
-Requer Python 3.14 e `uv`.
+Requer Python 3.15 e `uv`.
 
 ```bash
 uv sync --dev

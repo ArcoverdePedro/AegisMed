@@ -22,7 +22,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:18-alpine
+        image: postgres:19-alpine
         env:
           POSTGRES_DB: aegismed_ci
           POSTGRES_USER: postgres
@@ -61,10 +61,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Configurar Python 3.14
+      - name: Configurar Python 3.15
         uses: actions/setup-python@v7
         with:
-          python-version: "3.14"
+          python-version: "3.15"
 
       - name: Instalar uv
         run: python -m pip install --disable-pip-version-check uv
@@ -167,7 +167,7 @@ jobs:
           docker compose -f compose.yml exec -T aegis_med python tests/e2e/prepare_hr_journeys.py
 
       - name: Instalar ferramentas de navegador
-        run: npm install --no-save --no-audit --no-fund @playwright/test@1.63.0 @axe-core/playwright@4.10.2 @lhci/cli@0.15.1
+        run: npm install --no-save --no-audit --no-fund @playwright/test@1.65.1 @axe-core/playwright@4.14.1 @lhci/cli@0.16.1
 
       - name: Instalar Chromium do Playwright
         run: npx playwright install --with-deps chromium
@@ -189,6 +189,14 @@ jobs:
         run: |
           export CHROME_PATH="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           npx lhci autorun --config=./lighthouserc.cjs
+
+      - name: Publicar relatório do Lighthouse
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          if-no-files-found: ignore
 
       - name: Logs em caso de falha
         if: failure()

@@ -265,7 +265,31 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         environment=ENVIRONMENT,
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE"),
-        send_default_pii=False,
+        # Equivalente ao antigo send_default_pii=False (guia de migracao do SDK 3): os padroes
+        # do 3.x enviam usuario, corpos HTTP e mais headers, o que nao cabe em dado de saude.
+        data_collection={
+            "user_info": False,
+            "http_bodies": [],
+            "graphql": {"document": False, "variables": False},
+            "gen_ai": {"inputs": False, "outputs": False},
+            "mcp": {"inputs": False, "outputs": False},
+            "database_query_data": False,
+            "queues": False,
+            "http_headers": {
+                "request": {
+                    "mode": "denylist",
+                    "terms": ["forwarded", "-ip", "remote-", "via", "-user"],
+                },
+            },
+            "cookies": {
+                "mode": "denylist",
+                "terms": ["forwarded", "-ip", "remote-", "via", "-user"],
+            },
+            # Buscas por nome/CPF passam na URL: nenhum parametro vai para o Sentry.
+            "url_query_params": {"mode": "off"},
+            # Variaveis locais dos frames carregam pacientes, prescricoes e a propria URL.
+            "stack_frame_variables": False,
+        },
     )
 
 LOG_LEVEL = env.str("LOG_LEVEL", default="INFO")
