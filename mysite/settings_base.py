@@ -162,7 +162,9 @@ if REDIS_URL:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {"hosts": [REDIS_URL]},
+            # redis-py 8 lê com timeout padrão de 5 s, o mesmo do BZPOPMIN (brpop_timeout)
+            # do channels_redis; sem folga, sockets ociosos caem com TimeoutError.
+            "CONFIG": {"hosts": [{"address": REDIS_URL, "socket_timeout": 10}]},
         }
     }
     CACHES = {
