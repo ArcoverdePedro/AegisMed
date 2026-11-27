@@ -257,6 +257,30 @@ AUDITLOG_STORE_JSON_CHANGES = True
 AUDITLOG_DISABLE_ON_RAW_SAVE = True
 AUDITLOG_CHANGE_DISPLAY_TRUNCATE_LENGTH = 140
 
+# Equivalente ao antigo send_default_pii=False (guia de migracao do SDK 3): os padroes
+# do 3.x enviam usuario, corpos HTTP e mais headers, o que nao cabe em dado de saude.
+# Cookies ficam no padrao do SDK, que ja mascara sessao e CSRF.
+SENTRY_DATA_COLLECTION = {
+    "user_info": False,
+    "http_bodies": [],
+    "graphql": {"document": False, "variables": False},
+    "gen_ai": {"inputs": False, "outputs": False},
+    "mcp": {"inputs": False, "outputs": False},
+    "database_query_data": False,
+    "queues": False,
+    "http_headers": {
+        "request": {
+            "mode": "denylist",
+            # referer e hx-current-url trazem a URL inteira, com a busca por nome/CPF.
+            "terms": ["forwarded", "-ip", "remote-", "via", "-user", "referer", "hx-current-url"],
+        },
+    },
+    # Buscas por nome/CPF passam na URL: nenhum parametro vai para o Sentry.
+    "url_query_params": {"mode": "off"},
+    # Variaveis locais dos frames carregam pacientes, prescricoes e a propria URL.
+    "stack_frame_variables": False,
+}
+
 SENTRY_DSN = env.str("SENTRY_DSN", default="")
 if SENTRY_DSN:
     import sentry_sdk
@@ -265,31 +289,7 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         environment=ENVIRONMENT,
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE"),
-        # Equivalente ao antigo send_default_pii=False (guia de migracao do SDK 3): os padroes
-        # do 3.x enviam usuario, corpos HTTP e mais headers, o que nao cabe em dado de saude.
-        data_collection={
-            "user_info": False,
-            "http_bodies": [],
-            "graphql": {"document": False, "variables": False},
-            "gen_ai": {"inputs": False, "outputs": False},
-            "mcp": {"inputs": False, "outputs": False},
-            "database_query_data": False,
-            "queues": False,
-            "http_headers": {
-                "request": {
-                    "mode": "denylist",
-                    "terms": ["forwarded", "-ip", "remote-", "via", "-user"],
-                },
-            },
-            "cookies": {
-                "mode": "denylist",
-                "terms": ["forwarded", "-ip", "remote-", "via", "-user"],
-            },
-            # Buscas por nome/CPF passam na URL: nenhum parametro vai para o Sentry.
-            "url_query_params": {"mode": "off"},
-            # Variaveis locais dos frames carregam pacientes, prescricoes e a propria URL.
-            "stack_frame_variables": False,
-        },
+        data_collection=SENTRY_DATA_COLLECTION,
     )
 
 LOG_LEVEL = env.str("LOG_LEVEL", default="INFO")
