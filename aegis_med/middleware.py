@@ -56,6 +56,38 @@ class FirstAccessRedirectMiddleware:
         return self.get_response(request)
 
 
+class CallPanelKioskMiddleware:
+    """A conta da TV tem sessão longa, então só alcança o painel; o resto volta para ele."""
+
+    ALLOWED_PREFIXES = (
+        "/static/",
+        "/health/",
+        "/manifest.webmanifest",
+        "/service-worker.js",
+        "/pwa/icons/",
+        "/offline/",
+    )
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.allowed_paths = {
+            reverse("scheduling:call_panel"),
+            reverse("scheduling:call_panel_partial"),
+            reverse("logout"),
+        }
+
+    def __call__(self, request):
+        user = request.user
+        if (
+            user.is_authenticated
+            and user.is_call_panel()
+            and request.path not in self.allowed_paths
+            and not request.path.startswith(self.ALLOWED_PREFIXES)
+        ):
+            return redirect("scheduling:call_panel")
+        return self.get_response(request)
+
+
 class TrackedSessionMiddleware:
     """Mantem inventario leve das sessoes autenticadas para revogacao pelo usuario."""
 

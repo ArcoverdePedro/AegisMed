@@ -1,6 +1,7 @@
 from auditlog.signals import accessed
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import SetPasswordForm
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -8,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from django_htmx.http import HttpResponseClientRefresh
 
 from apps.clinical.pep.permissions import accessible_patients
 
@@ -17,12 +19,15 @@ from .services import (
     SchedulingConflict,
     block_slot,
     book_appointment,
+    call_panel_account,
     call_patient,
+    can_view_call_panel,
     cancel_appointment,
     check_in,
     create_slots,
     mark_no_show,
     require_permission,
+    save_call_panel_password,
 )
 
 
@@ -183,4 +188,63 @@ def appointment_detail(request, pk):
         request,
         "clinical/scheduling/appointment_detail.html",
         {"appointment": appointment, "history": history, "cancel_form": cancel_form},
+    )
+
+
+CALL_PANEL_SIZE = 6
+
+
+def _called_today():
+    """Somente senha (derivada do id), local e horário; o paciente nem é carregado."""
+    return list(
+        Appointment.objects.filter(
+            status=Appointment.Status.CALLED,
+            called_at__date=timezone.localdate(),
+        )
+        .select_related("slot")
+        .only("id", "called_at", "slot", "slot__location")
+        .order_by("-called_at")[:CALL_PANEL_SIZE]
+    )
+
+
+@login_required
+@require_GET
+def call_panel(request):
+    if not can_view_call_panel(request.user):
+        raise PermissionDenied
+    return render(request, "clinical/scheduling/call_panel.html", {"calls": _called_today()})
+
+
+@require_GET
+def call_panel_partial(request):
+    if not request.user.is_authenticated:
+        # Sessão expirou: recarrega a página inteira, que leva ao login sem trocar o fragmento.
+        return HttpResponseClientRefresh()
+    if not can_view_call_panel(request.user):
+        raise PermissionDenied
+    return render(request, "clinical/scheduling/_call_panel.html", {"calls": _called_today()})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def call_panel_account_password(request):
+    """Admin define a senha da conta fixa da TV; o nome não muda."""
+    if not request.user.is_admin():
+        raise PermissionDenied
+    account = call_panel_account()
+    if account.pk and (account.is_superuser or account.nivel_permissao != "FUNC"):
+        messages.error(request, "O nome da conta do painel está em uso por outro perfil. Corrija no admin.")
+        return redirect("home")
+    form = SetPasswordForm(account, request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        save_call_panel_password(form)
+        messages.success(
+            request,
+            f"Senha da conta {account.username} definida. Na TV, entre com ela e abra o painel.",
+        )
+        return redirect("home")
+    return render(
+        request,
+        "clinical/scheduling/call_panel_account.html",
+        {"form": form, "account": account, "first_setup": "inicio" in request.GET},
     )

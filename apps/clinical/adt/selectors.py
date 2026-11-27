@@ -1,9 +1,12 @@
-from django.db.models import Exists, OuterRef, Prefetch
+import datetime as dt
+
+from django.db.models import Exists, OuterRef, Prefetch, Q
+from django.utils import timezone
 
 from apps.clinical.pep.models import Encounter
 from apps.clinical.pep.permissions import accessible_patients
 
-from .models import Admission, Bed, BedOccupancy
+from .models import Admission, Bed, BedOccupancy, Discharge
 from .permissions import accessible_locations
 
 
@@ -102,3 +105,87 @@ def bed_map_groups(user):
         }
         groups.setdefault(bed.location, []).append(row)
     return list(groups.items())
+
+
+def _pct(num, den):
+    return round(100 * num / den, 2) if den else None
+
+
+def _ratio(num, den):
+    return round(num / den, 2) if den else None
+
+
+def hospital_census(user, start, end):
+    """Indicadores do censo hospitalar (Padronização da Nomenclatura do Censo Hospitalar, MS)."""
+    locations = accessible_locations(user)
+    tz = timezone.get_current_timezone()
+    days = (end - start).days + 1
+    period_start = dt.datetime.combine(start, dt.time.min, tz)
+    # Censo à meia-noite: conta quem estava no leito ao fim de cada dia.
+    census = [
+        dt.datetime.combine(start + dt.timedelta(days=n + 1), dt.time.min, tz)
+        for n in range(days)
+    ]
+
+    occupancies = (
+        BedOccupancy.objects.filter(bed__location__in=locations, started_at__lt=census[-1])
+        .filter(Q(ended_at__isnull=True) | Q(ended_at__gt=census[0]))
+        .values_list("started_at", "ended_at")
+    )
+    patient_days = sum(
+        1
+        for started, ended in occupancies
+        for moment in census
+        if started <= moment and (ended is None or ended > moment)
+    )
+
+    discharges = list(
+        Discharge.objects.filter(
+            final_occupancy__bed__location__in=locations,
+            discharged_at__gte=period_start,
+            discharged_at__lt=census[-1],
+        ).values_list("disposition", "discharged_at", "admission__admitted_at")
+    )
+    # MS: quem interna e sai no mesmo dia conta 1 paciente-dia.
+    patient_days += sum(
+        1
+        for _, out, admitted in discharges
+        if timezone.localdate(out) == timezone.localdate(admitted)
+    )
+    death_stays = [
+        out - admitted
+        for disposition, out, admitted in discharges
+        if disposition == Discharge.Disposition.DEATH
+    ]
+    # Saídas = altas + transferências externas + óbitos; transferência interna não é saída.
+    exits = len(discharges)
+
+    # shortcut: usa a situação atual dos leitos; reconstruir via BedStatusChange se o hospital pedir histórico.
+    beds = (
+        Bed.objects.filter(location__in=locations, active=True)
+        .exclude(
+            operational_status__in=[
+                Bed.OperationalStatus.BLOCKED,
+                Bed.OperationalStatus.OUT_OF_SERVICE,
+            ]
+        )
+        .count()
+    )
+    bed_days = beds * days
+
+    return {
+        "Período": f"{start:%d/%m/%Y} a {end:%d/%m/%Y}",
+        "Leitos operacionais": beds,
+        "Leito-dia": bed_days,
+        "Paciente-dia": patient_days,
+        "Saídas": exits,
+        "Óbitos": len(death_stays),
+        "Taxa de ocupação (%)": _pct(patient_days, bed_days),
+        "Média de permanência (dias)": _ratio(patient_days, exits),
+        "Giro de rotatividade": _ratio(exits, beds),
+        "Intervalo de substituição (dias)": _ratio(bed_days - patient_days, exits),
+        "Taxa de mortalidade hospitalar (%)": _pct(len(death_stays), exits),
+        "Taxa de mortalidade institucional (%)": _pct(
+            sum(1 for stay in death_stays if stay >= dt.timedelta(hours=24)), exits
+        ),
+    }

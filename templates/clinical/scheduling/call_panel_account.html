@@ -1,0 +1,40 @@
+{% extends 'navbar/navbar.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Conta do painel de chamada - AegisMed{% endblock %}
+
+{% block page_content %}
+<section class="section pt-4">
+    <div class="container" style="max-width:640px;">
+        {% if first_setup %}<p class="heading">Configuração inicial · passo 2 de 2</p>{% endif %}
+        <h1 class="title is-3">Conta da TV do painel de chamada</h1>
+        <p class="mb-4">
+            A TV da recepção entra com uma conta fixa que só exibe o painel (senha curta, consultório e hora).
+            O nome não muda; aqui você define ou troca apenas a senha.
+        </p>
+
+        <div class="box aegis-card">
+            <div class="field">
+                <label class="label" for="callPanelUsername">Usuário</label>
+                <div class="control"><input class="input mono" id="callPanelUsername" type="text" value="{{ account.username }}" readonly></div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="buttons mt-4">
+                    <button class="button is-link" type="submit">{% if account.pk %}Trocar senha{% else %}Criar conta do painel{% endif %}</button>
+                    {% if first_setup %}<a class="button is-text" href="{% url 'home' %}">Configurar depois</a>{% endif %}
+                </div>
+            </form>
+        </div>
+
+        <div class="notification is-light">
+            <ul>
+                <li>A sessão da TV não expira por inatividade nem ao desligar a TV.</li>
+                <li>A conta não acessa agenda, fila, prontuário nem outra tela: qualquer endereço volta para o painel.</li>
+                <li>Trocar a senha aqui desconecta a TV na hora. Use isso se a senha vazar ou a TV for trocada.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

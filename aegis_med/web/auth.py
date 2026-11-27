@@ -8,6 +8,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
 from aegis_med.forms import ClienteForm, FirstUserForm, FormUserADM, FotoForm, TOTPCodeForm
+from aegis_med.models import CALL_PANEL_SESSION_SECONDS
 from aegis_med.services.security import (
     consume_recovery_code,
     too_many_attempts,
@@ -49,7 +50,7 @@ class FirstSuperuserCreateView(View):
             user = form.save()
             login(request, user)
             messages.success(request, "Administrador inicial criado com sucesso.")
-            return redirect("home")
+            return redirect(f"{reverse('scheduling:call_panel_account')}?inicio=1")
         return render(request, self.template_name, {"form": form})
 
 
@@ -78,6 +79,10 @@ def custom_login(request):
         return redirect("login_2fa")
 
     login(request, user)
+    if user.is_call_panel():
+        # TV do painel: sessão persistente, sobrevive a desligar a TV e ao tempo ocioso.
+        request.session.set_expiry(CALL_PANEL_SESSION_SECONDS)
+        return redirect("scheduling:call_panel")
     messages.success(request, "Login realizado com sucesso!")
     return redirect(_safe_next(request, redirect_to))
 

@@ -5,6 +5,11 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# Conta fixa da TV do painel de chamada: o nome é padrão, só a senha é definida pelo admin.
+CALL_PANEL_USERNAME = "aegis.expositor"
+# shortcut: "nunca expira" = 10 anos; troca de senha ou revogação encerram a sessão.
+CALL_PANEL_SESSION_SECONDS = 10 * 365 * 24 * 60 * 60
+
 
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -32,6 +37,9 @@ class CustomUser(AbstractUser):
 
     def is_client(self):
         return self.nivel_permissao == "CLI"
+
+    def is_call_panel(self):
+        return self.username == CALL_PANEL_USERNAME
 
     def __str__(self):
         return f"{self.username} ({self.nivel_permissao})"

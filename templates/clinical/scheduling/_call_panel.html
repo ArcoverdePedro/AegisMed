@@ -1,0 +1,26 @@
+<div id="callPanel"
+     hx-get="{% url 'scheduling:call_panel_partial' %}"
+     hx-trigger="call-panel-refresh from:body, every 30s"
+     hx-swap="outerHTML">
+    {% with current=calls.0 %}
+        {% if current %}
+            <section class="current" aria-live="assertive" aria-atomic="true">
+                <p class="caption">Senha</p>
+                <p class="ticket">{{ current.ticket }}</p>
+                <p class="room">{{ current.slot.location }}</p>
+            </section>
+        {% else %}
+            <section class="current"><p class="caption">Aguarde ser chamado</p></section>
+        {% endif %}
+    {% endwith %}
+    {% if calls|length > 1 %}
+        <section class="history">
+            <p class="caption">Chamadas anteriores</p>
+            <ul>
+                {% for call in calls|slice:"1:" %}
+                    <li><span class="ticket-small">{{ call.ticket }}</span><span>{{ call.slot.location }}</span><span>{{ call.called_at|time:'H:i' }}</span></li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+</div>

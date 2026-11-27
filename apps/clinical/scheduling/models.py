@@ -39,6 +39,7 @@ class AgendaSlot(models.Model):
             ("book_appointment", "Pode agendar, remarcar e cancelar"),
             ("overbook_appointment", "Pode autorizar encaixe acima da capacidade"),
             ("checkin_appointment", "Pode registrar chegada, chamada e falta"),
+            ("view_call_panel", "Pode exibir o painel de chamada (somente senha e local)"),
         ]
 
     def __str__(self):

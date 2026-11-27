@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from PIL import Image, UnidentifiedImageError
 
-from .models import CustomUser
+from .models import CALL_PANEL_USERNAME, CustomUser
 from .utils import clear_strings
 
 # Mascara aplicada por static/js/phone_mask.js; a validacao continua no servidor.
@@ -14,6 +14,12 @@ PHONE_INPUT_ATTRS = {
 }
 
 class PhoneUserCreationMixin:
+    def clean_username(self):
+        username = super().clean_username()
+        if username.lower() == CALL_PANEL_USERNAME:
+            raise forms.ValidationError("Nome reservado para a conta do painel de chamada.")
+        return username
+
     def clean_telefone(self):
         telefone = clear_strings(self.cleaned_data.get("telefone"))
         if not (10 <= len(telefone) <= 11):

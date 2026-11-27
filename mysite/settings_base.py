@@ -111,6 +111,7 @@ MIDDLEWARE = [
     "auditlog.middleware.AuditlogMiddleware",
     "aegis_med.middleware.TrackedSessionMiddleware",
     "aegis_med.middleware.FirstAccessRedirectMiddleware",
+    "aegis_med.middleware.CallPanelKioskMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",

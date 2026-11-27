@@ -1,0 +1,60 @@
+{% extends 'navbar/navbar.html' %}
+{% load icon %}
+
+{% block title %}Censo hospitalar - AegisMed{% endblock %}
+
+{% block page_content %}
+<section class="section pt-4">
+    <div class="container is-fluid">
+        <div class="level mb-5">
+            <div class="level-left">
+                <div>
+                    <p class="heading">ADT</p>
+                    <h1 class="title is-3 mb-1">Censo hospitalar</h1>
+                    <p class="muted">Indicadores do Ministério da Saúde calculados a partir das ocupações e altas do seu escopo. Censo à meia-noite.</p>
+                </div>
+            </div>
+            <div class="level-right">
+                <a class="button" href="{% url 'adt:admission_list' %}">{% icon 'clipboard' %}<span>Admissões</span></a>
+            </div>
+        </div>
+
+        <div class="box aegis-card">
+            <form method="get" class="columns is-vcentered">
+                {% for field in form %}
+                    <div class="column is-narrow">
+                        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="control">{{ field }}</div>
+                        {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="column is-narrow">
+                    <button class="button is-link" type="submit">{% icon 'activity' %}<span>Calcular</span></button>
+                </div>
+            </form>
+            {% for error in form.non_field_errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+        </div>
+
+        {% if indicators %}
+            <div class="box aegis-card">
+                <div class="level">
+                    <div class="level-left"><h2 class="title is-5">Indicadores</h2></div>
+                    <div class="level-right">
+                        <a class="button is-small" href="?{{ request.GET.urlencode }}&amp;formato=csv">{% icon 'download' %}<span>Baixar CSV</span></a>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-hoverable">
+                        <tbody>
+                        {% for name, value in indicators.items %}
+                            <tr><th>{{ name }}</th><td>{{ value|default_if_none:"—" }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="is-size-7 muted">Leitos operacionais excluem bloqueados e fora de serviço, conforme a situação atual dos leitos.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

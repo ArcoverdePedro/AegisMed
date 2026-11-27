@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load django_htmx %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Painel de chamada</title>
+    {% htmx_script %}
+    <style>
+        body { margin: 0; min-height: 100vh; font-family: system-ui, sans-serif; background: #11141a; color: #f5f7fb; }
+        #callPanel { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
+        .current { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4vh 2vw; text-align: center; }
+        .caption { margin: 0; font-size: 3vw; text-transform: uppercase; letter-spacing: .1em; color: #9aa4b2; }
+        .ticket { margin: 0; font-size: 16vw; font-weight: 800; letter-spacing: .08em; line-height: 1.1; font-family: ui-monospace, monospace; }
+        .room { margin: 0; font-size: 6vw; font-weight: 600; overflow-wrap: anywhere; }
+        .history { padding: 2vh 4vw; border-top: 2px solid #2a303b; }
+        .history ul { list-style: none; margin: 1vh 0 0; padding: 0; }
+        .history li { display: grid; grid-template-columns: 1fr 2fr auto; gap: 2vw; font-size: 3vw; padding: .5vh 0; }
+        .ticket-small { font-family: ui-monospace, monospace; font-weight: 700; }
+        .offline { position: fixed; bottom: 1vh; right: 1vw; font-size: 1.5vw; color: #f5a524; }
+        .offline[hidden] { display: none; }
+    </style>
+</head>
+<body>
+    {% include 'clinical/scheduling/_call_panel.html' %}
+    <p class="offline" id="callPanelOffline" hidden>Reconectando…</p>
+
+<script nonce="{{ csp_nonce }}">
+(() => {
+    // O socket só avisa que houve chamada; os dados vêm do GET autorizado do fragmento.
+    const offline = document.getElementById('callPanelOffline');
+    let socket;
+    let reconnectTimer;
+
+    const scheduleReconnect = () => {
+        offline.hidden = false;
+        if (reconnectTimer) return;
+        reconnectTimer = window.setTimeout(() => {
+            reconnectTimer = null;
+            connect();
+        }, 5000);
+    };
+
+    const connect = () => {
+        const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        socket = new WebSocket(`${scheme}://${window.location.host}/ws/clinical/scheduling/call-panel/`);
+        socket.addEventListener('open', () => {
+            offline.hidden = true;
+            htmx.trigger(document.body, 'call-panel-refresh');
+        });
+        socket.addEventListener('message', (event) => {
+            try {
+                if (JSON.parse(event.data).type === 'call_panel_refresh') {
+                    htmx.trigger(document.body, 'call-panel-refresh');
+                }
+            } catch (_error) {
+                // Payload inválido é ignorado.
+            }
+        });
+        socket.addEventListener('close', (event) => {
+            // 4401/4403: sessão expirada ou permissão retirada; recarregar leva ao login ou ao 403.
+            if (event.code === 4401 || event.code === 4403) {
+                window.location.reload();
+                return;
+            }
+            scheduleReconnect();
+        });
+        socket.addEventListener('error', () => socket.close());
+    };
+
+    connect();
+})();
+</script>
+</body>
+</html>

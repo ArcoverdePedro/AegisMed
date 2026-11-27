@@ -8,6 +8,7 @@ from .views import (
     DischargeCreateView,
     TransferCreateView,
     bed_status_change,
+    census,
 )
 
 app_name = "adt"
@@ -23,5 +24,6 @@ urlpatterns = [
         TransferCreateView.as_view(),
         name="transfer_create",
     ),
+    path("censo/", census, name="census"),
     path("altas/nova/", DischargeCreateView.as_view(), name="discharge_create"),
 ]

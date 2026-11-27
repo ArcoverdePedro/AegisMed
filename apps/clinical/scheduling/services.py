@@ -1,18 +1,27 @@
 from datetime import datetime, timedelta
 
 from auditlog.context import set_actor
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
+from aegis_med.models import CALL_PANEL_USERNAME
 from apps.admin.hr.models import absent_on
+from apps.clinical.events import send_after_commit
 from apps.clinical.pep.events import emit_clinical_event
 from apps.clinical.pep.models import Encounter
-from apps.clinical.pep.permissions import can_access_patient, require_module_permission
+from apps.clinical.pep.permissions import (
+    can_access_patient,
+    is_internal_professional,
+    require_module_permission,
+)
 
 from .models import AgendaSlot, Appointment
 
 MAX_SLOTS_PER_BATCH = 96
+CALL_PANEL_GROUP = "clinical_scheduling_call_panel"
 
 
 class SchedulingConflict(ValueError):
@@ -21,6 +30,40 @@ class SchedulingConflict(ValueError):
 
 def require_permission(user, capability=None):
     require_module_permission(user, "scheduling", "view_agenda", capability)
+
+
+def can_view_call_panel(user):
+    """Painel de TV: permissão própria, sem exigir acesso à agenda nem ao PEP."""
+    return is_internal_professional(user) and user.has_perm("scheduling.view_call_panel")
+
+
+def call_panel_account():
+    """Conta fixa da TV; ainda não salva na primeira configuração."""
+    User = get_user_model()
+    return User.objects.filter(username=CALL_PANEL_USERNAME).first() or User(
+        username=CALL_PANEL_USERNAME,
+        first_name="Painel de chamada",
+        nivel_permissao="FUNC",
+    )
+
+
+@transaction.atomic
+def save_call_panel_password(form):
+    """Salva a senha e reimpõe o perfil mínimo: FUNC, sem grupos, só o painel.
+
+    Trocar a senha encerra as sessões abertas da TV (hash de sessão do Django).
+    """
+    user = form.save(commit=False)
+    user.username = CALL_PANEL_USERNAME
+    user.nivel_permissao = "FUNC"
+    user.is_superuser = user.is_staff = False
+    user.is_active = True
+    user.save()
+    user.groups.clear()
+    user.user_permissions.set(
+        [Permission.objects.get(content_type__app_label="scheduling", codename="view_call_panel")]
+    )
+    return user
 
 
 def create_slots(*, user, professional, day, start, end, minutes, capacity, location):
@@ -201,7 +244,7 @@ def check_in(*, user, appointment):
 
 
 def call_patient(*, user, appointment):
-    return _transition(
+    appointment = _transition(
         user,
         appointment,
         "checkin_appointment",
@@ -209,3 +252,6 @@ def call_patient(*, user, appointment):
         status=Appointment.Status.CALLED,
         called_at=lambda _: timezone.now(),
     )
+    # Sinal sem dados: o painel refaz o GET autorizado.
+    send_after_commit(CALL_PANEL_GROUP, {"type": "call_panel_refresh"})
+    return appointment

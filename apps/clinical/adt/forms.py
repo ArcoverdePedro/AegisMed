@@ -190,3 +190,15 @@ class DischargeForm(forms.Form):
 class BedStatusForm(forms.Form):
     status = forms.ChoiceField(label="Novo estado", choices=Bed.OperationalStatus.choices)
     reason = forms.CharField(label="Motivo", max_length=255)
+
+
+class CensusPeriodForm(forms.Form):
+    start = forms.DateField(label="De", widget=forms.DateInput(attrs={"type": "date"}))
+    end = forms.DateField(label="Até", widget=forms.DateInput(attrs={"type": "date"}))
+
+    def clean(self):
+        cleaned = super().clean()
+        start, end = cleaned.get("start"), cleaned.get("end")
+        if start and end and not 0 <= (end - start).days < 366:
+            raise forms.ValidationError("Informe um período de até 1 ano, com início antes do fim.")
+        return cleaned

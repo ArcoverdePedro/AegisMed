@@ -1,15 +1,17 @@
+import csv
+
 from auditlog.signals import accessed
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods
 from django.views.generic import FormView, ListView, TemplateView
 
-from .forms import AdmissionForm, BedStatusForm, DischargeForm, TransferForm
+from .forms import AdmissionForm, BedStatusForm, CensusPeriodForm, DischargeForm, TransferForm
 from .lifecycle import change_bed_status, discharge_patient, transfer_patient
 from .models import Bed
 from .permissions import (
@@ -21,7 +23,7 @@ from .permissions import (
     can_view_bed_map,
     has_adt_permission,
 )
-from .selectors import admissions_for_user, bed_map_groups
+from .selectors import admissions_for_user, bed_map_groups, hospital_census
 from .services import AdtConflictError, admit_patient
 
 
@@ -231,3 +233,22 @@ def bed_status_change(request, pk):
         status=status,
     )
     return response
+
+
+@login_required
+@require_GET
+def census(request):
+    if not can_view_admissions(request.user):
+        raise PermissionDenied
+    form = CensusPeriodForm(request.GET or None)
+    indicators = None
+    if form.is_valid():
+        indicators = hospital_census(
+            request.user, form.cleaned_data["start"], form.cleaned_data["end"]
+        )
+        if request.GET.get("formato") == "csv":
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = 'attachment; filename="censo-hospitalar.csv"'
+            csv.writer(response).writerows(indicators.items())
+            return response
+    return render(request, "clinical/adt/census.html", {"form": form, "indicators": indicators})
