@@ -40,6 +40,9 @@ class EmployeeAdmin(admin.ModelAdmin):
         "registration_state",
         "registration_valid_until",
         "specialty",
+        "cns",
+        "cpf",
+        "cbo",
     ]
     fields = ["user", "department", "job_title", "active", *REGISTRATION]
 

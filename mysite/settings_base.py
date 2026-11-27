@@ -253,6 +253,40 @@ del _decoded_file_key
 # Chave propria dos backups; guardar separada da FILE_ENCRYPTION_KEY e do proprio backup.
 BACKUP_ENCRYPTION_KEY = env.str("BACKUP_ENCRYPTION_KEY", default="")
 
+# RNDS (Rede Nacional de Dados em Saude): desligada por padrao; ver docs/rnds.md.
+RNDS_ENABLED = env.bool("RNDS_ENABLED", default=False)
+RNDS_ENVIRONMENT = env.str("RNDS_ENVIRONMENT", default="hmg")
+RNDS_REQUESTER_ID = env.str("RNDS_REQUESTER_ID", default="")
+RNDS_CERT_FILE = env.str("RNDS_CERT_FILE", default="")
+RNDS_KEY_FILE = env.str("RNDS_KEY_FILE", default="")
+# Resultados liberados antes desta data nao sao enviados (evita reenvio de historico).
+RNDS_SEND_SINCE = env.str("RNDS_SEND_SINCE", default="")
+ESTABLISHMENT_CNES = env.str("ESTABLISHMENT_CNES", default="")
+ESTABLISHMENT_UF = env.str("ESTABLISHMENT_UF", default="").upper()
+
+if RNDS_ENVIRONMENT not in {"hmg", "prod"}:
+    raise ImproperlyConfigured("RNDS_ENVIRONMENT deve ser 'hmg' ou 'prod'.")
+if RNDS_ENABLED:
+    _rnds_missing = [
+        name
+        for name in (
+            "RNDS_REQUESTER_ID",
+            "RNDS_CERT_FILE",
+            "RNDS_KEY_FILE",
+            "RNDS_SEND_SINCE",
+            "ESTABLISHMENT_CNES",
+            "ESTABLISHMENT_UF",
+        )
+        if not globals()[name]
+    ]
+    if _rnds_missing:
+        raise ImproperlyConfigured(f"RNDS ativa exige: {', '.join(_rnds_missing)}.")
+    if not (ESTABLISHMENT_CNES.isdigit() and len(ESTABLISHMENT_CNES) == 7):
+        raise ImproperlyConfigured("ESTABLISHMENT_CNES deve ter 7 digitos.")
+    if not (ESTABLISHMENT_UF.isalpha() and len(ESTABLISHMENT_UF) == 2):
+        raise ImproperlyConfigured("ESTABLISHMENT_UF deve ser a sigla da UF do CNES.")
+    del _rnds_missing
+
 
 AUDITLOG_STORE_JSON_CHANGES = True
 AUDITLOG_DISABLE_ON_RAW_SAVE = True

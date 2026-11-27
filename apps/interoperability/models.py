@@ -105,3 +105,47 @@ auditlog.register(
         "ciphertext_sha256",
     ],
 )
+
+
+class RndsSubmission(models.Model):
+    """Envio de um resultado liberado à RNDS; guarda só metadados técnicos, sem PHI."""
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Aguardando envio"
+        SENDING = "SENDING", "Enviando"
+        SENT = "SENT", "Enviado"
+        FAILED = "FAILED", "Falhou (nova tentativa)"
+        BLOCKED = "BLOCKED", "Bloqueado (faltam dados)"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    lab_result = models.OneToOneField(
+        "lis.LabResult", on_delete=models.PROTECT, related_name="rnds_submission"
+    )
+    replaces = models.OneToOneField(
+        "self", null=True, blank=True, on_delete=models.PROTECT, related_name="replaced_by"
+    )
+    # Bundle.identifier.value: o mesmo no documento original e nas substituições.
+    document_key = models.UUIDField(default=uuid.uuid4, editable=False)
+    environment = models.CharField(max_length=4)
+    status = models.CharField(max_length=8, choices=Status.choices, default=Status.PENDING)
+    detail = models.CharField("Motivo técnico", max_length=255, blank=True)
+    rnds_id = models.CharField("Código RNDS", max_length=100, blank=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["status", "updated_at"], name="rnds_status_idx")]
+        verbose_name = "Envio RNDS"
+        verbose_name_plural = "Envios RNDS"
+
+    def __str__(self):
+        return f"Envio RNDS {self.pk}"
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Envios RNDS não podem ser excluídos.")
+
+
+auditlog.register(RndsSubmission)

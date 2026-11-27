@@ -5,6 +5,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.clinical.pep.validators import normalize_cpf, validate_cns, validate_cpf
+
 
 class Employee(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -17,6 +19,10 @@ class Employee(models.Model):
     registration_state = models.CharField("UF do registro", max_length=2, blank=True)
     registration_valid_until = models.DateField("Registro válido até", null=True, blank=True)
     specialty = models.CharField("Especialidade", max_length=120, blank=True)
+    # Identificação SUS do profissional: exigida pela RNDS (CNS) e pelo CMD (CPF, CBO).
+    cns = models.CharField("CNS do profissional", max_length=15, blank=True)
+    cpf = models.CharField("CPF do profissional", max_length=11, blank=True)
+    cbo = models.CharField("CBO (ocupação)", max_length=6, blank=True)
 
     class Meta:
         ordering = ["id"]
@@ -33,6 +39,13 @@ class Employee(models.Model):
         self.council = self.council.strip().upper()
         self.registration_state = self.registration_state.strip().upper()
         self.registration_number = self.registration_number.strip()
+        self.cns, self.cpf, self.cbo = (normalize_cpf(v) for v in (self.cns, self.cpf, self.cbo))
+        if self.cns:
+            validate_cns(self.cns)
+        if self.cpf:
+            validate_cpf(self.cpf)
+        if self.cbo and len(self.cbo) != 6:
+            raise ValidationError({"cbo": "CBO deve ter 6 dígitos."})
         if self.registration_number and not (self.council and self.registration_state):
             raise ValidationError({"council": "Informe conselho e UF do registro."})
         if not self._state.adding:
@@ -80,5 +93,5 @@ def absent_on(user, day):
     ).exists()
 
 
-auditlog.register(Employee, exclude_fields=["department", "job_title"])
+auditlog.register(Employee, exclude_fields=["department", "job_title", "cns", "cpf"])
 auditlog.register(EmployeeAbsence)

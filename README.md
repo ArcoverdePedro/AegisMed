@@ -10,6 +10,7 @@ O AegisMed reúne módulos clínicos e administrativos server-rendered: prontuá
 
 - [Manual do usuário](docs/manual-do-usuario.md): como usar cada módulo no dia a dia.
 - [Guia de suporte técnico](docs/suporte-tecnico.md): instalação, atualização, backup, usuários e solução de problemas.
+- [RNDS](docs/rnds.md): envio de resultados de exame à Rede Nacional de Dados em Saúde (desligado por padrão).
 
 ## Estado atual
 

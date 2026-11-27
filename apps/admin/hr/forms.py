@@ -17,6 +17,9 @@ class EmployeeAdminForm(forms.ModelForm):
             "registration_state",
             "registration_valid_until",
             "specialty",
+            "cns",
+            "cpf",
+            "cbo",
         ]
 
     def __init__(self, *args, **kwargs):

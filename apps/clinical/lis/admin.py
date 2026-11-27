@@ -7,8 +7,15 @@ from .models import LabTest
 
 @admin.register(LabTest)
 class LabTestAdmin(admin.ModelAdmin):
-    list_display = ["code", "name", "specimen_type", "active"]
-    list_filter = ["active"]
+    list_display = ["code", "name", "specimen_type", "active", "rnds_exam_code"]
+    list_filter = ["active", "rnds_exam_system"]
+    fieldsets = [
+        (None, {"fields": ["code", "name", "specimen_type", "active"]}),
+        (
+            "RNDS (preenchido pelo laboratório; vazio = não envia)",
+            {"fields": list(LabTest.RNDS_FIELDS)},
+        ),
+    ]
     search_fields = ["code", "name"]
 
     def has_view_permission(self, request, obj=None):

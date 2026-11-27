@@ -4,7 +4,7 @@ from django.contrib import admin
 from aegis_med.models import CustomUser
 from apps.clinical.pep.permissions import is_internal_professional
 
-from .models import LaboratorySource
+from .models import LaboratorySource, RndsSubmission
 
 
 class LaboratorySourceForm(forms.ModelForm):
@@ -41,3 +41,37 @@ class LaboratorySourceAdmin(admin.ModelAdmin):
         return is_internal_professional(request.user) and super().has_delete_permission(
             request, obj
         )
+
+
+@admin.register(RndsSubmission)
+class RndsSubmissionAdmin(admin.ModelAdmin):
+    """Somente leitura e só metadados: nenhum dado do paciente nem do resultado aparece."""
+
+    list_display = ["created_at", "status", "environment", "attempts", "rnds_id", "detail"]
+    list_filter = ["status", "environment"]
+    list_per_page = 50
+    fields = [
+        "id",
+        "status",
+        "environment",
+        "detail",
+        "rnds_id",
+        "attempts",
+        "document_key",
+        "created_at",
+        "updated_at",
+        "sent_at",
+    ]
+    readonly_fields = fields
+
+    def has_view_permission(self, request, obj=None):
+        return is_internal_professional(request.user) and super().has_view_permission(request, obj)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

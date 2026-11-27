@@ -6,15 +6,48 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
+class RndsExamSystem(models.TextChoices):
+    # Laboratório público usa a tabela GAL; LOINC é para laboratório privado.
+    GAL = "GAL", "GAL (laboratório público)"
+    LOINC = "LOINC", "LOINC (laboratório privado)"
+
+
+class RndsResultKind(models.TextChoices):
+    QUALITATIVE = "QUALITATIVE", "Qualitativo (Detectável/Não detectável/Inconclusivo)"
+    QUANTITATIVE = "QUANTITATIVE", "Quantitativo (número)"
+
+
 class LabTest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField("Código", max_length=64, unique=True)
     name = models.CharField("Nome", max_length=200)
     specimen_type = models.CharField("Material", max_length=100)
     active = models.BooleanField("Ativo", default=True)
+    # Codificação RNDS, preenchida pelo laboratório; vazia = exame não é enviado à RNDS.
+    rnds_exam_system = models.CharField(
+        "Tabela do exame (RNDS)", max_length=5, choices=RndsExamSystem.choices, blank=True
+    )
+    rnds_exam_code = models.CharField("Código do exame (RNDS)", max_length=40, blank=True)
+    rnds_specimen_code = models.CharField("Tipo de amostra GAL (RNDS)", max_length=20, blank=True)
+    sus_subgroup = models.CharField("Subgrupo da Tabela SUS", max_length=4, blank=True)
+    rnds_result_kind = models.CharField(
+        "Tipo de resultado (RNDS)", max_length=12, choices=RndsResultKind.choices, blank=True
+    )
 
     class Meta:
         ordering = ["name", "code"]
+
+    RNDS_FIELDS = (
+        "rnds_exam_system",
+        "rnds_exam_code",
+        "rnds_specimen_code",
+        "sus_subgroup",
+        "rnds_result_kind",
+    )
+
+    @property
+    def sends_to_rnds(self):
+        return all(getattr(self, field) for field in self.RNDS_FIELDS)
 
     def __str__(self):
         return f"Exame {self.pk}"
@@ -25,6 +58,15 @@ class LabTest(models.Model):
             if not value:
                 raise ValidationError({field: "Este campo é obrigatório."})
             setattr(self, field, value)
+        for field in self.RNDS_FIELDS:
+            setattr(self, field, getattr(self, field).strip())
+        filled = [field for field in self.RNDS_FIELDS if getattr(self, field)]
+        if filled and len(filled) != len(self.RNDS_FIELDS):
+            raise ValidationError(
+                "Preencha todos os campos RNDS ou nenhum (exame não enviado à RNDS)."
+            )
+        if self.sus_subgroup and not (self.sus_subgroup.isdigit() and len(self.sus_subgroup) == 4):
+            raise ValidationError({"sus_subgroup": "Subgrupo da Tabela SUS tem 4 dígitos."})
 
     def save(self, *args, **kwargs):
         self.full_clean()

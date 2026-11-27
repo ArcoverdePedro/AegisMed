@@ -2,7 +2,17 @@
 
 ## Status
 
-**Proposta em 2026-11-27. Não aprovada e nada implementado.** Este documento organiza o que o hospital e o código precisam para enviar dados à Rede Nacional de Dados em Saúde (RNDS). Cada fase só começa quando o gate correspondente estiver resolvido em `docs/his/DECISOES.md`.
+**Proposta em 2026-11-27.** Este documento organiza o que o hospital e o código precisam para enviar dados à Rede Nacional de Dados em Saúde (RNDS).
+
+**Código pronto para homologação (branch `feat/rnds`, 2026-11-27), desligado por padrão:**
+- F1 (dados mestres) está implementada.
+- F2 e F3 estão implementadas para o REL v2.0. Guia operacional: [docs/rnds.md](../../../../docs/rnds.md); decisão: [ADR-0009](../../../../adr/0009-integracao-saida-rnds.md).
+
+**Ainda dependem do hospital ou do DATASUS:**
+- F0: credenciamento, certificado e identificador do solicitante.
+- Homologação real e pedido de produção.
+- Codificação GAL do catálogo pelo laboratório (G07).
+- F5 (CMD).
 
 ## Contexto normativo
 
@@ -19,7 +29,7 @@
 - **Endereços:** a homologação tem um endereço único (`ehr-services.hmg.saude.gov.br`). Em produção há um endereço por UF (`xx-ehr-services.saude.gov.br`), definido pela UF do CNES. Produção não pode ser usada para testes.
 - **Serviços:** `GET /api/token`; consultas `Patient`, `Organization`, `Practitioner` e `PractitionerRole`; `POST Bundle` para enviar ou substituir resultado de exame (a substituição usa `relatesTo`).
 - **Homologação:** exige PDF de evidências com o Bundle enviado, a captura de tela do validador oficial aprovando o Bundle e o código que a RNDS atribuiu ao documento (cabeçalhos `location`/`content-location`). Esse código também precisa ser guardado para substituições.
-- **Resultado de Exame Laboratorial (REL):** Bundle `document` com `Composition`, `Condition` (suspeita diagnóstica), `Observation` e `Specimen`. Os modelos documentados são de exames de notificação (COVID-19, Monkeypox).
+- **Resultado de Exame Laboratorial (REL):** o exemplo oficial v2.0 é um Bundle `document` com `Composition`, `Observation` e `Specimen`, **sem `Condition`**. A página do modelo computacional, ainda em rascunho, cita também `Condition`; a implementação segue o exemplo v2.0. Os modelos documentados são de exames de notificação (COVID-19, Monkeypox).
   - O código do exame vem da **tabela GAL para laboratórios públicos**; LOINC é para laboratórios privados.
   - A amostra usa `BRTipoAmostraGAL` e a categoria usa o subgrupo da Tabela SUS.
   - Datas devem ter fuso explícito.
