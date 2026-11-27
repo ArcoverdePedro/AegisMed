@@ -64,6 +64,14 @@ class CallPanelAccountTests(TestCase):
         self.client.force_login(make_user("tv-employee", role="FUNC"))
         self.assertEqual(self._set_tv_password(self.client).status_code, 403)
 
+    def test_menu_link_only_for_admin(self):
+        url = reverse("scheduling:call_panel_account")
+        admin = self._make_admin()
+        self.client.force_login(make_user("tv-employee", role="FUNC"))
+        self.assertNotContains(self.client.get(reverse("home")), url)
+        self.client.force_login(admin)
+        self.assertContains(self.client.get(reverse("home")), url)
+
     def test_tv_session_is_persistent_locked_to_panel_and_ends_on_password_change(self):
         admin = self._make_admin()
         self.client.force_login(admin)

@@ -23,7 +23,7 @@ App `apps/clinical/scheduling`, FBVs em `/agenda/`. Escopo provisório (G01 pend
 
 ## Painel de chamada (TV)
 
-- A conta da TV é fixa: **`aegis.expositor`**. Na instalação, a tela seguinte à criação do primeiro administrador define a senha dela; depois, um administrador troca a senha em `/agenda/conta-do-painel/` (link "Senha da conta da TV" na fila). O nome não muda e é reservado nos formulários de cadastro.
+- A conta da TV é fixa: **`aegis.expositor`**. Na instalação, a tela seguinte à criação do primeiro administrador define a senha dela; depois, um administrador troca a senha em `/agenda/conta-do-painel/` (item "Senha do expositor" no menu do usuário, só para administradores; também linkado na fila). O nome não muda e é reservado nos formulários de cadastro.
 - Salvar a senha reimpõe o perfil mínimo: FUNC, sem grupos e só com `scheduling.view_call_panel`. Ele não vê agenda, fila nem PEP.
 - A sessão da TV não expira por inatividade nem ao fechar o navegador (10 anos). Para desconectar a TV, troque a senha: as sessões abertas caem na hora.
 - `CallPanelKioskMiddleware` prende a conta ao painel: qualquer outro endereço redireciona para ele (só logout, estáticos e PWA passam).
