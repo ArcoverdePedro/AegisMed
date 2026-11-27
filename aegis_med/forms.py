@@ -135,7 +135,12 @@ class TOTPCodeForm(forms.Form):
 
 
 class FotoForm(forms.Form):
-    arquivo = forms.FileField(label="Selecione a Foto", required=True)
+    arquivo = forms.FileField(
+        label="Nova foto",
+        widget=forms.FileInput(
+            attrs={"class": "file-input", "accept": "image/png,image/jpeg,image/webp"}
+        ),
+    )
 
     def clean_arquivo(self):
         arquivo = self.cleaned_data.get("arquivo")

@@ -119,14 +119,10 @@
                             <label class="file-label">
                                 {{ form.arquivo }}
                                 <span class="file-cta">
-                                    <span class="file-icon">
-                                        <i class="fas fa-upload"></i>
-                                    </span>
-                                    <span class="file-label"> Selecionar Arquivo… </span>
+                                    <span class="file-icon">{% icon 'upload' %}</span>
+                                    <span class="file-label">Escolher…</span>
                                 </span>
-                                <span class="file-name" id="file-name-display">
-                                    Sem arquivo
-                                </span>
+                                <span class="file-name" id="file-name-display">Nenhum arquivo</span>
                             </label>
                         </div>
                     </div>
@@ -168,18 +164,10 @@
 </script>
 
 <script nonce="{{ csp_nonce }}">
-    const fileInput = document.querySelector("#id_foto");
-    const fileNameDisplay = document.querySelector("#file-name-display");
-
-    if (fileInput && fileNameDisplay) {
-        fileInput.addEventListener("change", function () {
-            if (this.files.length > 0) {
-                fileNameDisplay.textContent = this.files[0].name;
-            } else {
-                fileNameDisplay.textContent = "No file chosen";
-            }
-        });
-    }
+    document.getElementById("id_arquivo")?.addEventListener("change", function () {
+        document.getElementById("file-name-display").textContent =
+            this.files[0]?.name || "Nenhum arquivo";
+    });
 </script>
 
 {% endblock scripts %}
